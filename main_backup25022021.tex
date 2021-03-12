@@ -1,0 +1,203 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[english]{babel}
+% For blue click-to-go reference
+\usepackage{hyperref}
+	\hypersetup{
+		colorlinks=true,
+		linkcolor=blue,
+		filecolor=magenta,      
+		urlcolor=cyan,
+	}
+\hypersetup{linktocpage}
+\usepackage{floatrow}
+% Table float box with bottom caption, box width adjusted to content
+\usepackage{multirow}
+\newfloatcommand{capbtabbox}{table}[][\FBwidth]
+
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage[toc,page]{appendix}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xifthen}
+\usepackage{xparse}
+\usepackage{dsfont}
+\usepackage{xcolor}
+\usepackage{lastpage}
+%\usepackage{fullpage}
+
+% For python-code format and highligting 
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% code listings for python
+\usepackage{listings}
+
+\lstdefinestyle{mystyle}{
+	language=Python,
+	basicstyle=\ttfamily\footnotesize,
+	backgroundcolor=\color[HTML]{F7F7F7},
+	rulecolor=\color[HTML]{EEEEEE},
+	identifierstyle=\color[HTML]{24292E},
+	emphstyle=\color[HTML]{005CC5},
+	keywordstyle=\color[HTML]{D73A49},
+	commentstyle=\color[HTML]{6A737D},
+	stringstyle=\color[HTML]{032F62},
+	emph={@property,self,range,True,False},
+	morekeywords={super,with,as,lambda},
+	literate=%
+	{+}{{{\color[HTML]{D73A49}+}}}1
+	{-}{{{\color[HTML]{D73A49}-}}}1
+	{*}{{{\color[HTML]{D73A49}*}}}1
+	{/}{{{\color[HTML]{D73A49}/}}}1
+	{=}{{{\color[HTML]{D73A49}=}}}1
+	{/=}{{{\color[HTML]{D73A49}=}}}1,
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	keepspaces=true,
+	numbers=none,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	tabsize=4,
+	frame=single,
+}
+\lstset{style=mystyle}
+
+%%%%%%      Macros  --------------------------------------
+% Left-right bracket
+\newcommand{\lr}[1]{\left (#1\right)}
+
+% Left-right square bracket
+\newcommand{\lrs}[1]{\left [#1 \right]}
+
+% Left-right curly bracket
+\newcommand{\lrc}[1]{\left \{#1\right\}}
+
+% Left-right absolute value
+\newcommand{\lra}[1]{\left |#1\right|}
+
+% Left-right upper value
+\newcommand{\lru}[1]{\left \lceil#1\right\rceil}
+
+% Scalar product
+\newcommand{\vp}[2]{\left \langle #1 , #2 \right \rangle}
+
+% The real numbers
+\newcommand{\R}{\mathbb R}
+
+% The natural numbers
+\newcommand{\N}{\mathbb N}
+
+% Expectation symbol with an optional argument
+\NewDocumentCommand{\E}{o}{\mathbb E\IfValueT{#1}{\lrs{#1}}}
+
+% Indicator function with an optional argument
+\NewDocumentCommand{\1}{o}{\mathds 1{\IfValueT{#1}{\lr{#1}}}}
+
+% Probability function
+\let\P\undefined
+\NewDocumentCommand{\P}{o}{\mathbb P{\IfValueT{#1}{\lr{#1}}}}
+
+% A hypothesis space
+\newcommand{\HH}{\mathcal H}
+
+% A sample space
+\newcommand{\XX}{\mathcal{X}}
+
+% A label space
+\newcommand{\YY}{\mathcal{Y}}
+
+% A nicer emptyset symbol
+\let\emptyset\varnothing
+
+% Sign operator
+\DeclareMathOperator{\sign}{sign}
+\newcommand{\sgn}[1]{\sign\lr{#1}}
+
+% KL operator
+\DeclareMathOperator{\KL}{KL}
+
+% kl operator
+\DeclareMathOperator{\kl}{kl}
+
+% The entropy
+\let\H\relax
+\DeclareMathOperator{\H}{H}
+
+% Majority vote
+\DeclareMathOperator{\MV}{MV}
+
+% Variance
+\DeclareMathOperator{\V}{Var}
+\NewDocumentCommand{\Var}{o}{\V\IfValueT{#1}{\lrs{#1}}}
+
+% VC
+\DeclareMathOperator{\VC}{VC}
+
+% VC-dimension
+\newcommand{\dVC}{d_{\VC}}
+
+% FAT ...
+\DeclareMathOperator{\FAT}{FAT}
+\newcommand{\dfat}{d_{\FAT}}
+\newcommand{\lfat}{\ell_{\FAT}}
+\newcommand{\Lfat}{L_{\FAT}}
+\newcommand{\hatLfat}{\hat L_{\FAT}}
+
+% Distance
+\DeclareMathOperator{\dist}{dist}
+
+
+   
+%%%%%%  Layout settings ------------------------------
+\graphicspath{ {./pics/} } 
+
+\renewcommand{\baselinestretch}{1.1}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Bayesian Neural Networks}
+\lhead{\nouppercase \leftmark}
+\rfoot{Side \thepage/ \pageref*{LastPage}}
+
+
+\title{Speciale - temp frontpage}
+\author{Magnus Raabo Andersen \& Ulrick Schmidth}
+
+\numberwithin{equation}{section}
+\begin {document}
+\maketitle
+\thispagestyle{empty}
+\newpage
+\begin{abstract}
+    abstract text
+\end{abstract} \thispagestyle{empty}
+\newpage
+\tableofcontents \thispagestyle{empty}
+\newpage
+\listoffigures \thispagestyle{empty}
+\newpage
+\listoftables \thispagestyle{empty}
+\newpage
+%\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+\section{A}
+aaa
+\newpage
+\section{b}
+bbb
+\bibliographystyle{agsm}
+\bibliography{bibFile}  % If you have some references, use BibTeX
+
+\end{document}

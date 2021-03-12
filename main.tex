@@ -1,0 +1,286 @@
+\documentclass[a4paper]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[english]{babel}
+% For blue click-to-go reference
+\usepackage{xcolor}
+
+\definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
+
+\usepackage{hyperref}
+	\hypersetup{
+		colorlinks=true,
+		linkcolor=blue,
+		filecolor=magenta,      
+		urlcolor=cyan,
+		citecolor=ao(english)
+	}
+\hypersetup{linktocpage}
+\usepackage{floatrow}
+% Table float box with bottom caption, box width adjusted to content
+\usepackage{multirow}
+\newfloatcommand{capbtabbox}{table}[][\FBwidth]
+
+% Keywords command
+\providecommand{\keywords}[1]
+{
+  \small	
+  \textbf{\textit{Keywords:}} #1
+}
+
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage[toc,page]{appendix}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xifthen}
+\usepackage{xparse}
+\usepackage{dsfont}
+
+% To write pseudo code
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+
+
+
+\usepackage{neuralnetwork}
+
+\usepackage{lastpage}
+\usepackage{natbib}
+% -------------- Nomenclature settings ------------
+\usepackage[intoc]{nomencl}
+\makenomenclature
+\renewcommand{\nomname}{Notation}
+\renewcommand{\nompreamble}{This section provides a concise reference describing the notation used throughout
+this dissertation.}
+\usepackage{etoolbox}
+\renewcommand\nomgroup[1]{%
+  \item[\bfseries
+  \ifstrequal{#1}{N}{Numbers and Arrays}{%
+  \ifstrequal{#1}{S}{Sets and Graphs}{%
+  \ifstrequal{#1}{I}{Indexing}{%
+  \ifstrequal{#1}{L}{Linear Algebra Operations}{%
+  \ifstrequal{#1}{P}{Probability and Information Theory}{%
+  \ifstrequal{#1}{D}{Datasets and Distributions}{}
+  }}}}
+  }%
+]}
+% --------------------------------------------------
+
+
+% ------- For python-code format and highligting ---
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% code listings for python
+\usepackage{listings}
+
+\lstdefinestyle{mystyle}{
+	language=Python,
+	basicstyle=\ttfamily\footnotesize,
+	backgroundcolor=\color[HTML]{F7F7F7},
+	rulecolor=\color[HTML]{EEEEEE},
+	identifierstyle=\color[HTML]{24292E},
+	emphstyle=\color[HTML]{005CC5},
+	keywordstyle=\color[HTML]{D73A49},
+	commentstyle=\color[HTML]{6A737D},
+	stringstyle=\color[HTML]{032F62},
+	emph={@property,self,range,True,False},
+	morekeywords={super,with,as,lambda},
+	literate=%
+	{+}{{{\color[HTML]{D73A49}+}}}1
+	{-}{{{\color[HTML]{D73A49}-}}}1
+	{*}{{{\color[HTML]{D73A49}*}}}1
+	{/}{{{\color[HTML]{D73A49}/}}}1
+	{=}{{{\color[HTML]{D73A49}=}}}1
+	{/=}{{{\color[HTML]{D73A49}=}}}1,
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	keepspaces=true,
+	numbers=none,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	tabsize=4,
+	frame=single,
+}
+\lstset{style=mystyle}
+
+%---------------------------- Macros  -----------------
+% Left-right bracket
+\newcommand{\lr}[1]{\left (#1\right)}
+% Left-right square bracket
+\newcommand{\lrs}[1]{\left [#1 \right]}
+% Left-right curly bracket
+\newcommand{\lrc}[1]{\left \{#1\right\}}
+% Left-right absolute value
+\newcommand{\lra}[1]{\left |#1\right|}
+% Left-right upper value
+\newcommand{\lru}[1]{\left \lceil#1\right\rceil}
+% Scalar product
+\newcommand{\vp}[2]{\left \langle #1 , #2 \right \rangle}
+% The real numbers
+\newcommand{\R}{\mathbb R}
+% The natural numbers
+\newcommand{\N}{\mathbb N}
+% Expectation symbol with an optional argument
+\NewDocumentCommand{\E}{o}{\mathbb E\IfValueT{#1}{\lrs{#1}}}
+% Indicator function with an optional argument
+\NewDocumentCommand{\1}{o}{\mathds 1{\IfValueT{#1}{\lr{#1}}}}
+% Probability function
+\let\P\undefined
+\NewDocumentCommand{\P}{o}{\mathbb P{\IfValueT{#1}{\lr{#1}}}}
+% A hypothesis space
+\newcommand{\HH}{\mathcal H}
+% A sample space
+\newcommand{\XX}{\mathbb{X}}
+% A label space
+\newcommand{\YY}{\mathbb{Y}}
+% A nicer emptyset symbol
+\let\emptyset\varnothing
+% Sign operator
+\DeclareMathOperator{\sign}{sign}
+\newcommand{\sgn}[1]{\sign\lr{#1}}
+% KL operator
+\DeclareMathOperator{\KL}{KL}
+% kl operator
+\DeclareMathOperator{\kl}{kl}
+% The entropy
+\let\H\relax
+\DeclareMathOperator{\H}{H}
+% Majority vote
+\DeclareMathOperator{\MV}{MV}
+% Variance
+\DeclareMathOperator{\V}{Var}
+\NewDocumentCommand{\Var}{o}{\V\IfValueT{#1}{\lrs{#1}}}
+% VC
+\DeclareMathOperator{\VC}{VC}
+% VC-dimension
+\newcommand{\dVC}{d_{\VC}}
+% FAT ...
+\DeclareMathOperator{\FAT}{FAT}
+\newcommand{\dfat}{d_{\FAT}}
+\newcommand{\lfat}{\ell_{\FAT}}
+\newcommand{\Lfat}{L_{\FAT}}
+\newcommand{\hatLfat}{\hat L_{\FAT}}
+% Distance
+\DeclareMathOperator{\dist}{dist}
+%argmin and argmax
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+   
+% ----------------------- Layout settings -----------------
+\graphicspath{ {./pics/} } 
+
+\renewcommand{\baselinestretch}{1.1}
+
+\pagestyle{fancy}
+\fancyhf{}
+%\rhead{Bayesian Neural Networks}
+\fancyhead[LE]{\nouppercase \leftmark}
+\fancyhead[RO]{\nouppercase \rightmark}
+\fancyhead[RE,LO]{\thepage}
+
+\numberwithin{equation}{section}
+
+% Remove centered pagenumber from chapter-pages 
+\makeatletter
+\let\ps@plain\ps@empty
+\makeatother
+
+\begin {document}
+% -------------------------- Front page -----------------------
+\begin{titlepage}
+\clearpage
+%% temporary titles
+% command to provide stretchy vertical space in proportion
+\newcommand\nbvspace[1][3]{\vspace*{\stretch{#1}}}
+% allow some slack to avoid under/overfull boxes
+\newcommand\nbstretchyspace{\spaceskip0.5em plus 0.25em minus 0.25em}
+% To improve spacing on titlepages
+\newcommand{\nbtitlestretch}{\spaceskip0.6em}
+\thispagestyle{empty}
+\begin{center}
+	\bfseries
+	\nbvspace[1]
+	\Huge
+	{\nbtitlestretch\huge
+		Bayesian Neural Networks}
+	
+	\nbvspace[1]
+	\normalsize
+	
+	THEORY AND APPLICATIONS\\
+	\nbvspace[1]
+	\small BY\\
+	\Large MAGNUS RAABO ANDERSEN \\ \& ULRIK ROED-SØRENSEN\\[0.5em]
+	\footnotesize COUNSELLED BY PETER DALGAARD
+	
+	\nbvspace[2]
+	
+	\includegraphics[width=3in]{penrose.JPG}
+	\nbvspace[3]
+	%\normalsize
+	
+	SUBMITTED FOR THE DEGREE: MASTER OF MATHEMATICS AND ECONOMICS\\
+	\large
+	CBS
+	\nbvspace[1]
+\end{center}
+\end{titlepage}
+% --------------------------- Main document -------------------
+
+\thispagestyle{empty}
+\begin{center}
+    \Large
+    \textbf{Abstract}
+\end{center}
+\vspace{0.9cm}
+Denne afhandling omhandler bla bla.. % Den skal være på danske
+\\
+\\
+\keywords{Neural networks, Bayesian Neural Network, Deep Learning, TensorFlow, Python, Computational Statstics, Bayesian Inference, Mathematics of computing, Probability and statistics, Bayesian Deep Learning, Variational inference, Monte Carlo methods, Approximate Bayesian methods ...  bla bla}
+\frontmatter
+
+\section*{Acknowledgements}
+\thispagestyle{empty}
+Thank you to Helena Bonham Carter, Barack Obama, Matthew Perry and ..... 
+
+
+\tableofcontents \thispagestyle{empty} 
+\listoffigures \thispagestyle{empty} \addcontentsline{toc}{chapter}{List of Figures}
+\listoftables \thispagestyle{empty} \addcontentsline{toc}{chapter}{List of Tables}
+\newpage
+\include{nomenclature}
+
+\mainmatter
+%\setcounter{page}{1}
+
+\chapter{Introduction}
+
+
+\include{machine_learning_basics}
+\include{neural_networks}
+
+
+
+\chapter{Bayesian Neural Networks}
+\section{Priors}
+\section{Bayes by Backprop}
+
+
+
+\bibliographystyle{agsm}
+\nocite{*}
+\bibliography{bibFile.bib}  % If you have some references, use BibTeX
+
+\end{document}
