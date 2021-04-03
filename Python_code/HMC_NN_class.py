@@ -10,7 +10,7 @@ tfd = tfp.distributions
 class HMC_neural_network:
     """ A class for a Bayesian neural network using Hamiltonian Monte-Carlo sampling """
 
-    def __init__(self, x, y, num_hidden_neurons, weight_prior_mean, weight_prior_var, weight_likelihood_stddev, task='regression'):
+    def __init__(self, x, y, num_hidden_neurons, weight_prior_mean, weight_prior_var, weight_likelihood_stddev=1, task='regression'):
         self.x = x
         self.num_features = x.shape[0]
         self.num_examples = x.shape[1]
@@ -21,6 +21,8 @@ class HMC_neural_network:
         self.weight_prior_var = weight_prior_var
         self.weight_likelihood_stddev = weight_likelihood_stddev
         self.task = task
+        if self.task == 'classification':
+            self.unique_classes = np.unique(y)
 
     def network_func(self, hidden_weights, output_weights):
         hidden_result = []
@@ -31,12 +33,27 @@ class HMC_neural_network:
                 hidden_weights[i][..., np.newaxis])
             hidden_result.append(tf.keras.activations.tanh(
                 linop.matmul(x_padded, adjoint=True)))
+        if self.task == 'regression':
+            prod = []
+            for i in range(self.num_hidden_neurons):
+                prod.append(hidden_result[i]*output_weights[i])
+            output_result = tf.math.add_n(prod) + output_weights[-1]
+            return output_result[..., 0, :]
 
-        prod = []
-        for i in range(self.num_hidden_neurons):
-            prod.append(hidden_result[i]*output_weights[i])
-        output_result = tf.math.add_n(prod) + output_weights[-1]
-        return output_result[..., 0, :]
+        elif self.task == 'classification':
+            output_reals = tf.TensorArray(
+                tf.float64, size=0, dynamic_size=True)
+            for j in range(len(self.unique_classes)):
+                prod = []
+                for i in range(self.num_hidden_neurons):
+                    prod.append(hidden_result[i]*output_weights[i])
+                single_output_res = tf.math.add_n(prod) + output_weights[-1]
+                output_reals = output_reals.write(
+                    j, single_output_res[..., 0, :])
+            output_reals = output_reals.stack()
+            output_prob = tf.keras.activations.softmax(tf.transpose(
+                tf.convert_to_tensor(output_reals)))
+            return output_prob
 
     def joint_log_prob(self, w):
         # Distributing weights to hidden and output layers with correct shape
@@ -47,10 +64,19 @@ class HMC_neural_network:
         rv_w = tfd.MultivariateNormalDiag(
             loc=np.zeros(w.shape) + self.weight_prior_mean,
             scale_diag=np.ones(w.shape)*self.weight_prior_var)
-        # add ifelse for self.task, if classification make softmax likelihood
-        rv_y = tfd.Normal(self.network_func(
-            hidden_w, output_w), self.weight_likelihood_stddev)
-        return (rv_w.log_prob(w) + tf.reduce_sum(rv_y.log_prob(self.y), axis=-1))
+
+        if self.task == 'regression':
+            rv_y = tfd.Normal(self.network_func(
+                hidden_w, output_w), self.weight_likelihood_stddev)
+            y_logprob = rv_y.log_prob(self.y)
+        elif self.task == 'classification':
+            y_logprob = tf.TensorArray(
+                tf.float64, size=0, dynamic_size=True)
+            for i in range(len(self.y)):
+                y_logprob = y_logprob.write(i, tf.math.log(self.network_func(
+                    hidden_w, output_w)[i, self.y[i] - 1]))
+            y_logprob = y_logprob.stack()
+        return (rv_w.log_prob(w) + tf.reduce_sum(y_logprob, axis=-1))
 
     def unnormalized_posterior(self, w):
         return self.joint_log_prob(w)
@@ -66,7 +92,7 @@ class HMC_neural_network:
     # computation graph, which will dramatically improve performance.
 
     @ tf.function
-    def run_chain(self, initial_state, num_results=5000, num_burnin_steps=500):
+    def run_chain(self, initial_state, num_results=1000, num_burnin_steps=500):
         return tfp.mcmc.sample_chain(
             num_results=num_results,
             num_burnin_steps=num_burnin_steps,
