@@ -1,0 +1,107 @@
+\chapter{Bayesian Neural Networks}
+\section{Priors}
+
+\section{Metropolis Hastings algorithm}
+
+The Metropolis-Hastings algorithm, originally Metropolis, is a Markov chain Monte Carlo (MCMC) method, which is used to to sample from a Bayesian posterior. \\
+The Metropolis-Hastings (MH) algorithm was originally introduced by \cite{Metropolis1953} and was developed to simulate the interactions of atoms and molecules. This was later further developed by \cite{hastings70}, so that the algorithm could now simulate from a general distribution and not just a symmetric one, as it was previously based on. Due to its versatility and simplicity, the Metropolis-Hasting algorithm is one of the most widely used in MCMC methods.
+\\
+The Metropolis-Hastings algorithm generates a sequence of stochastic variables by sampling from a probability distribution. Samples are made from an proposal distribution, as the target distribution, normally the posterior, often is intractable. Central to the algorithm is that it is based on the basic Markov chain theory defined in section \ref{sec:MarkovChain}.\\
+\\
+The main idea is to create a Markov chain that will converge towards a given distribution, so that the correct distribution becomes the Markov chain's stationary distribution. This is done by the extraction of samples from the Markov chain's stationary distribution can be approximated by simulating the Markov chain. The simple Metropolis algorithm introduced in the original paper by \cite{Metropolis1953} consider a target distribution $p(\boldsymbol{\theta})$ and a proposal distribution $q(\boldsymbol{\theta})$. The algorithm generates a Markov chain, where a new state $\boldsymbol{\theta}^{(t+1)}$ is produced by the the previous state $\boldsymbol{\theta}^t$, where we first generate a candidate state $\boldsymbol{\theta}^{cand}$ and decide whether or not to reject this candidate state based on the relative probability density to the old state. If the relative density is larger than one, we accept the new state, if the relative density is less than one, we accept the new state with probability $\frac{p(\boldsymbol{\theta}^{cand})}{p(\boldsymbol{\theta}^{t})}$. The algorithm is written i pseudo code in algorithm \ref{algo_2}.
+
+
+% Metropolis Algorithm
+
+\begin{algorithm}[H]\label{algo_2}
+\SetAlgoLined
+initialize $\boldsymbol{\theta}^0\sim q(\boldsymbol{\theta})$;
+
+\For{$i=1,2,\ldots$}{
+Propose: $\boldsymbol{\theta}^{c a n d} \sim q\left(\boldsymbol{\theta}^{(i)} \mid \boldsymbol{\theta}^{(i-1)}\right)$
+
+Acceptance Probability:
+
+$ \alpha\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(i-1)}\right)=\min \left\{1, \frac{p\left(\boldsymbol{\theta}^{c a n d}\right)}{ p\left(\boldsymbol{\theta}^{(i-1)}\right)}\right\} $
+
+$u \sim  \text { Uniform }(0,1)
+$
+
+  \uIf{$u<\alpha$}{
+    Accept the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{c a n d}$\;
+  }
+  \Else{
+    Reject the proposal:$\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{i-1}$ \;
+  }
+    }
+    
+ 
+\caption{Metropolis algorithm}
+\end{algorithm}
+
+In the original algorithm the proposal algorithm must satisfy the symmetry condition,
+\begin{equation*}
+    q(\boldsymbol{\theta'}\mid \boldsymbol{\theta})=q(\boldsymbol{\theta}\mid \boldsymbol{\theta'})
+\end{equation*}
+To show that this works out, and we are in fact sampling from the target distribution, we need to show that these transitions from one state to another in the Markov chain leaves the target distribution invariant. For $\boldsymbol{\theta'}\neq \boldsymbol{\theta}$ the algorithm leads to following transitions densities,
+\begin{equation*}
+    T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right)=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(1, p\left(\boldsymbol{\theta}'\right) / p(\boldsymbol{\theta})\right)
+\end{equation*}
+The detailed balance condition from equation (\textcolor{red}{add this to MC section later}), is verified by,
+\begin{equation*}
+\begin{aligned}
+T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) p(\boldsymbol{\theta}) &=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(1, p\left(\boldsymbol{\theta}'\right) / p(\boldsymbol{\theta})\right) p(\boldsymbol{\theta}) \\
+&=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(p(\boldsymbol{\theta}), p\left(\boldsymbol{\theta}'\right)\right) \\
+&=q\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) \min \left(p\left(\boldsymbol{\theta}'\right), p(\boldsymbol{\theta})\right) \\
+&=q\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) \min \left(1, p(\boldsymbol{\theta}) / p\left(\boldsymbol{\theta}'\right)\right) p\left(\boldsymbol{\theta}'\right) \\
+&=T\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) p\left(\boldsymbol{\theta}'\right)
+\end{aligned}
+\end{equation*}
+the transitions proposed by the algorithm thus leaves the target distribution $p(\boldsymbol{\theta})$ invariant and thus samples produced by this Markov chain all has the same stationary distribution $p(\boldsymbol{\theta})$. One problem arises since the algorithm needs to calculate the relative density of $\frac{p(\boldsymbol{\theta'})}{p\left)\boldsymbol{\theta}\right)}$, but our target distribution is often intractable and thus a analytical solution is not possible. But since the algorithm only need the target distribution for calculating the relative density, we can use that we know that the posterior is equal to the likelihood time the prior up to some constant of normalization and thus we can use this instead of the target distribution directly.\\
+\\
+A more generalized version of the algorithm is the one introduced by \cite{hastings70}, which allows for non-symmetric proposal distributions. The algorithm is written in pseudo code in algorithm \ref{algo_3}.
+
+% Metropolis Hasting Algorithm
+\begin{algorithm}[H]\label{algo_3}
+\SetAlgoLined
+initialize $\boldsymbol{\theta}^0\sim q(\boldsymbol{\theta})$;
+
+\For{$i=1,2,\ldots$}{
+Propose: $\boldsymbol{\theta}^{c a n d} \sim q\left(\boldsymbol{\theta}^{(i)} \mid \boldsymbol{\theta}^{(i-1)}\right)$
+
+Acceptance Probability:
+
+$ \alpha\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(i-1)}\right)=\min \left\{1, \frac{q\left(\boldsymbol{\theta}^{(i-1)} \mid \boldsymbol{\theta}^{c a n d}\right) p\left(\boldsymbol{\theta}^{c a n d}\right)}{q\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(i-1)}\right) p\left(\boldsymbol{\theta}^{(i-1)}\right)}\right\} $
+
+$u \sim  \text { Uniform }(0,1)
+$
+
+  \uIf{$u<\alpha$}{
+    Accept the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{c a n d}$\;
+  }
+  \Else{
+    Reject the proposal:$\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{i-1}$ \;
+  }
+    }
+    
+ 
+\caption{Metropolis-Hastings algorithm}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+\section{Hamiltonian Monte Carlo}
+
+\subsection{Hamiltonian Dynamics}
+
+\subsection{Monte Carlo implementation}
+
+
+\section{Variational Inference}
+\subsection{Bayes by Backprop}

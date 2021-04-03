@@ -1,6 +1,11 @@
 \documentclass[a4paper]{book}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+
+\usepackage[fontsize=12.0pt]{fontsize}
+
+
+
 \usepackage{amsmath}
 \usepackage[english]{babel}
 % For blue click-to-go reference
@@ -46,6 +51,7 @@
 \usepackage[ruled,vlined]{algorithm2e}
 \SetKwInput{KwInput}{Input}
 \SetKwInput{KwOutput}{Output}
+
 
 
 
@@ -185,7 +191,6 @@ this dissertation.}
 
 \pagestyle{fancy}
 \fancyhf{}
-%\rhead{Bayesian Neural Networks}
 \fancyhead[LE]{\nouppercase \leftmark}
 \fancyhead[RO]{\nouppercase \rightmark}
 \fancyhead[RE,LO]{\thepage}
@@ -196,6 +201,11 @@ this dissertation.}
 \makeatletter
 \let\ps@plain\ps@empty
 \makeatother
+
+%%%%%% Specificerer linjeafstand. %%%%
+% \usepackage{setspace}
+% \setstretch{1.}
+% \selectfont
 
 \begin {document}
 % -------------------------- Front page -----------------------
@@ -269,13 +279,12 @@ Thank you to Helena Bonham Carter, Barack Obama, Matthew Perry and .....
 
 
 \include{machine_learning_basics}
+\include{MC_and_stochastic}
 \include{neural_networks}
+\include{bayesian_neural_networks}
 
 
 
-\chapter{Bayesian Neural Networks}
-\section{Priors}
-\section{Bayes by Backprop}
 
 
 
