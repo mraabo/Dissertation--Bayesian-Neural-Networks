@@ -1,4 +1,4 @@
-from HMC_NN_class import HMC_neural_network
+from HMC_NN_class import HMC_NN_regression
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -31,8 +31,8 @@ y_train = f(x_train, true_w) + np.random.normal(0.,
 
 # --------------------------------- Instantiating class ------------------------------------
 
-My_HMC_NN = HMC_neural_network(x_train, y_train, num_hidden_neurons,
-                               weight_prior_mean, weight_prior_var, weight_likelihood_stddev, task="regression")
+My_HMC_NN = HMC_NN_regression(x_train, y_train, num_hidden_neurons,
+                              weight_prior_mean, weight_prior_var, weight_likelihood_stddev)
 
 initial_state = np.ones(num_hidden_neurons * (num_features + 2)+1)
 
