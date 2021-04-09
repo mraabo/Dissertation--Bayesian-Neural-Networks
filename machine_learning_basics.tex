@@ -90,7 +90,7 @@ Underfitting occurs when the model is not able to obtain a sufficiently low trai
 \\
 We can control whether a model under- or overfits by changing it's capacity. Capacity is a model's ability to learn a larger variety of hypothesis. A model with a low capacity might underfit the training set if it can't capture the structure of the data. A model with high capacity might overfit if it learns properties of the training set that isn't representative of the validation set. As an example we can increase the capacity of linear regression by allowing it to fit higher order polynomials, thus increasing the hypothesis space from which we draw prediction rules. This example is seen in figure \ref{fig:regr_example}, where we see that a low capacity causes underfitting while a very large capacity causes the model to overfit.
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{reg_example.png}
     \caption{Regression of different degree polynomials on a $\cos$ curve. We see that a linear regression of degree 1 is insufficient to fit the training set and is underfitting. A polynomial of degree 4 fits the curve almost perfectly while a polynomial of degree 15 learns the noise of the data and overfits. How well the different regressors generalize to a validation set is evaluated quantitatively by calculating the mean square error using the loss function in equation \ref{eq:mse} using 10-fold cross-validation. We see that this error is lowest when using 4-degree polynomial regression. Cross-validation is covered in section \ref{sec:cv}. The standard error of these losses are shown in the parenthesis.}

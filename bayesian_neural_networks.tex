@@ -1,18 +1,41 @@
 \chapter{Bayesian Neural Networks}
+\section{Stochastic Modelling}\label{sec:MarkovChain}
+In probability theory and Bayesian statistics, a stochastic process is a collection of random variables $\mathbf{x}$, that can be indexed by some index set $\mathbb{A}$. Often we are concerned about how the process evolves over time $T$, and let $t\in T$ be an index or an element of $T$. Then $X_t$ is a the state of a random variable a time $t$ and $\{X(t)\}_{t \in T}$ is used to denote the stochastic process for all $t\in T$. If $t=1,2,\ldots$ then the Stochastic process $\{X(t)\}_{t \in T}$ is said to be discrete and if $T=[0, \infty)$ the process is continuous. Besides an index set, we also have a state space $\mathbb{S}$ which is the set of values that the process can take. $\mathbb{S}$ can also be either continuous or discrete. This leads us to the section where we describe the theory behind Markov Chains. 
+\subsection{Markov Chains}
+A Markov chain is a stochastic process in which the conditional probability of being in a state at a future time given the present and past states is equal to the probability of being in the future state given only at the present state. In other words: the present can be described using only the most recent state and without the use of all previous states.
+Markov chains are generally a sequential system consisting of stochastic variables $X_t$, for $i=0,1,\ldots$, which can assume different values in the state space $\mathbb{S}$. First, let $(\mathbb{A}, \mathbb{S})$ be a measurable general state space. Next, we define a function $\pi$ of $(\mathbb{A}, \mathbb{S})$ is defined as a markov transition density if it satisfies:
+\begin{enumerate}
+    \item For a fixed $X \in \mathbb{S}, \pi (X, \cdot)$ is a probability measure
+    \item For a fixed $B \in \mathbb{A}$ $\pi(\cdot, B)$ is measurable
+\end{enumerate}
+
+
+\subsection{Transition Probabilities}
+
+\begin{mytheorem}\label{theo:detailed_balance}
+Let $\pi$ be a transition density which satisfies the detailed balance condition $p(x)\pi(x, y) = p(y)\pi(y, x)$ with the function $p$ defined as the probability density function, then the following holds:
+\begin{enumerate}
+    \item The density $p$ is a stationary density of the Markov chain associated with $\pi$
+    \item The Markov chain is reversible
+\end{enumerate}
+
+
+\end{mytheorem}
+
+
+
 \section{Priors}
 
-\section{Metropolis Hastings algorithm}
+\section{Metropolis Hastings algorithm} \label{sec:Metropolis_Hastings}
 
 The Metropolis-Hastings algorithm, originally Metropolis, is a Markov chain Monte Carlo (MCMC) method, which is used to to sample from a Bayesian posterior. \\
-The Metropolis-Hastings (MH) algorithm was originally introduced by \cite{Metropolis1953} and was developed to simulate the interactions of atoms and molecules. This was later further developed by \cite{hastings70}, so that the algorithm could now simulate from a general distribution and not just a symmetric one, as it was previously based on. Due to its versatility and simplicity, the Metropolis-Hasting algorithm is one of the most widely used in MCMC methods.
+The Metropolis-Hastings (MH) algorithm was originally introduced by \cite{Metropolis1953} and was developed to simulate the states for a system of idealized molecules (\cite{neal2012mcmc}). This was later further developed by \cite{hastings70}, so that the algorithm could now simulate from a general distribution and not just a symmetric one, as it was previously based on. Due to its versatility and simplicity, the Metropolis-Hasting algorithm is one of the most widely used in MCMC methods.
 \\
 The Metropolis-Hastings algorithm generates a sequence of stochastic variables by sampling from a probability distribution. Samples are made from an proposal distribution, as the target distribution, normally the posterior, often is intractable. Central to the algorithm is that it is based on the basic Markov chain theory defined in section \ref{sec:MarkovChain}.\\
 \\
 The main idea is to create a Markov chain that will converge towards a given distribution, so that the correct distribution becomes the Markov chain's stationary distribution. This is done by the extraction of samples from the Markov chain's stationary distribution can be approximated by simulating the Markov chain. The simple Metropolis algorithm introduced in the original paper by \cite{Metropolis1953} consider a target distribution $p(\boldsymbol{\theta})$ and a proposal distribution $q(\boldsymbol{\theta})$. The algorithm generates a Markov chain, where a new state $\boldsymbol{\theta}^{(t+1)}$ is produced by the the previous state $\boldsymbol{\theta}^t$, where we first generate a candidate state $\boldsymbol{\theta}^{cand}$ and decide whether or not to reject this candidate state based on the relative probability density to the old state. If the relative density is larger than one, we accept the new state, if the relative density is less than one, we accept the new state with probability $\frac{p(\boldsymbol{\theta}^{cand})}{p(\boldsymbol{\theta}^{t})}$. The algorithm is written i pseudo code in algorithm \ref{algo_2}.
 
-
 % Metropolis Algorithm
-
 \begin{algorithm}[H]\label{algo_2}
 \SetAlgoLined
 initialize $\boldsymbol{\theta}^0\sim q(\boldsymbol{\theta})$;
@@ -31,23 +54,20 @@ $
     Accept the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{c a n d}$\;
   }
   \Else{
-    Reject the proposal:$\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{i-1}$ \;
+    Reject the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{(i-1)}$ \;
   }
     }
-    
- 
 \caption{Metropolis algorithm}
 \end{algorithm}
-
-In the original algorithm the proposal algorithm must satisfy the symmetry condition,
+In the original algorithm the proposal distribution must satisfy the symmetry condition,
 \begin{equation*}
     q(\boldsymbol{\theta'}\mid \boldsymbol{\theta})=q(\boldsymbol{\theta}\mid \boldsymbol{\theta'})
 \end{equation*}
-To show that this works out, and we are in fact sampling from the target distribution, we need to show that these transitions from one state to another in the Markov chain leaves the target distribution invariant. For $\boldsymbol{\theta'}\neq \boldsymbol{\theta}$ the algorithm leads to following transitions densities,
+To show that this works out, and we are in fact sampling from the target distribution, we need to show that these transitions from one state to another in the Markov chain leaves the target distribution invariant. For $\boldsymbol{\theta'}\neq \boldsymbol{\theta}$ the algorithm leads to the following transitions densities,
 \begin{equation*}
     T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right)=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(1, p\left(\boldsymbol{\theta}'\right) / p(\boldsymbol{\theta})\right)
 \end{equation*}
-The detailed balance condition from equation (\textcolor{red}{add this to MC section later}), is verified by,
+The detailed balance condition from theorem \ref{theo:detailed_balance} is verified by,
 \begin{equation*}
 \begin{aligned}
 T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) p(\boldsymbol{\theta}) &=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(1, p\left(\boldsymbol{\theta}'\right) / p(\boldsymbol{\theta})\right) p(\boldsymbol{\theta}) \\
@@ -57,7 +77,7 @@ T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) p(\boldsymbol{\theta
 &=T\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) p\left(\boldsymbol{\theta}'\right)
 \end{aligned}
 \end{equation*}
-the transitions proposed by the algorithm thus leaves the target distribution $p(\boldsymbol{\theta})$ invariant and thus samples produced by this Markov chain all has the same stationary distribution $p(\boldsymbol{\theta})$. One problem arises since the algorithm needs to calculate the relative density of $\frac{p(\boldsymbol{\theta'})}{p\left)\boldsymbol{\theta}\right)}$, but our target distribution is often intractable and thus a analytical solution is not possible. But since the algorithm only need the target distribution for calculating the relative density, we can use that we know that the posterior is equal to the likelihood time the prior up to some constant of normalization and thus we can use this instead of the target distribution directly.\\
+the transitions proposed by the algorithm thus leaves the target distribution $p(\boldsymbol{\theta})$ invariant and thus samples produced by this Markov chain all has the same stationary distribution $p(\boldsymbol{\theta})$. One problem arises since the algorithm needs to calculate the relative density of $\frac{p(\boldsymbol{\theta'})}{p\left(\boldsymbol{\theta}\right)}$, but our target distribution is often intractable and thus a analytical solution is not possible. But since the algorithm only need the target distribution for calculating the relative density, we can use that we know that the posterior is equal to the likelihood time the prior up to some constant of normalization and thus we can use this instead of the target distribution directly.\\
 \\
 A more generalized version of the algorithm is the one introduced by \cite{hastings70}, which allows for non-symmetric proposal distributions. The algorithm is written in pseudo code in algorithm \ref{algo_3}.
 
@@ -80,7 +100,7 @@ $
     Accept the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{c a n d}$\;
   }
   \Else{
-    Reject the proposal:$\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{i-1}$ \;
+    Reject the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{(i-1)}$ \;
   }
     }
     
@@ -97,11 +117,74 @@ $
 
 
 \section{Hamiltonian Monte Carlo}
+A significant inefficiency in the Metropolis-Hastings algorithm, as stated in section \ref{sec:Metropolis_Hastings}, is that it often behaves like a random walk and thus the simulations take a longer road while moving through the target distribution, which gives rise to slow simulation. Reparameterization and efficient jumping rules can improve this, as proposed in \cite{gelmanbda04}, but is often not sufficient for complicated model with high-dimensional target distributions as we face with Bayesian Neural Networks. We will in this present a Markov chain Monte Carlo implementation for Bayesian Neural networks, in which the network weights are updated dynamically by simulating Hamiltonian dynamics and rejecting simulated proposals, by some form of the Metropolis-Hastings algorithm. This algorithm suppress the local random walk behavior and thus allowing it to move much faster and rapidly through the distribution. The method presented is called Hamilton Monte Carlo (also known as hybrid Monte Carlo), and is commonly used in computational physics and statistics. The algorithm was originally proposed by \cite{Duane1987216} and used in the field of quantum chromodynamics, but was later introduced to the world of statistics by \cite{neal2012bayesian}. The HMC algorithm reduces correlation between successive sampled states, compared to the Metropolis Hastings algorithm in section \ref{sec:Metropolis_Hastings}, by proposing moves to distant states which maintain a high probability of acceptance due to the approximate energy conserving properties of the simulated Hamiltonian dynamic when using a symplectic integrator\footnote{In mathematics, a symplectic integrator is a numerical integration scheme for Hamiltonian systems.}. The reduced correlation means fewer Markov chain samples are needed to approximate integrals with respect to the target probability distribution for a given Monte Carlo error.
 
 \subsection{Hamiltonian Dynamics}
+Hamiltonian dynamics is a classical physical system described by a set of canonical coordinates $r = (q, p)$, where each component of the coordinate $q_i$, $p_i$ is indexed to the frame of reference of the system. The $q_i$ are called generalized coordinates, and are chosen so as to eliminate the constraints or to take advantage of the symmetries of the problem, and $p_i$ are their conjugate momenta. The system is described by a function $\mathcal{H}(q,p,t)$ known as the Hamiltonian, which corresponds to the total energy of the system. The partial derivatives of the Hamiltonian with respect to time, t, denotes how $q$ and $p$ changes over time
+\begin{equation}\label{eq:hamilton_equations}
+\begin{split}
+\frac{d q_{i}}{d t}&=\frac{\partial \mathcal{H}}{\partial p_{i}} \\
+\frac{d p_{i}}{d t}&=-\frac{\partial \mathcal{H}}{\partial q_{i}}
+\end{split}
+\end{equation}
+for $i=1,2,d$. For any time interval of duration $s$, these equations define a mapping from the state at any time $t$ to the state at time $t + s$.
 
-\subsection{Monte Carlo implementation}
 
+\subsection{Potential and Kinetic Energy}
+We wish to sample from the distribution $p(\boldsymbol{q})$, which has $d$ real valued components $q_1,q_2,\ldots,q_d$. In our case $\boldsymbol{q}$ corresponds to the set of network parameters $\boldsymbol{\theta}$, but since the litterateur is often referring to $q$ we will keep this notation. The probability for this variable under the canonical distribution is
+\begin{equation*}
+    p(q)\propto \exp(-E(q))
+\end{equation*}
+where $E(q)$ is the potential energy function. We have followed the procedure as in \cite{neal2012bayesian} and set the temperature parameter of the canonical distribution to one. One should note that any probability distribution that is nowhere zero can be but in to this form by lettng $E(q)=-\log p(q)-\log Z$, for any convenient choice of $Z$. The canonical distribution of $q$ and $p$ together is
+
+\begin{equation*}
+p(q,p)\propto \exp(-\mathcal{H}(q,p))    
+\end{equation*}
+whereas for a closed system the total energy $\mathcal{H}$ can be written as 
+\begin{equation*}
+    \mathcal{H}(q,p)=U(q)+K(p)
+\end{equation*}
+where U(q) is the potential energy and K(p) is the kinetic energy. Often the kinetic energy can be written as
+\begin{equation*}
+    K(p)=p^\top M^{^-1}p/2
+\end{equation*}
+where $M$ is some symmetric, positive-definite mass matrix and often chosen to be diagonal. This correspondents to choosing the kinetic energy to be equal the log probability of a zero-mean Gaussian distribution, ignoring the constant of normalization, with covariance matrix $M$. The Hamiltonian equations from equation \ref{eq:hamilton_equations} can now be written as,
+\begin{equation*}
+\begin{split}
+\frac{d q_{i}}{d t}&=\left[M^{-1}p\right]_i \\
+\frac{d p_{i}}{d t}&=-\frac{\partial U}{\partial q_i}
+\end{split}
+\end{equation*}
+\subsection{Properties of Hamiltonian Dynamics}
+The Hamiltonian dynamics have several properties, which are very crucial when used in relation to MCMC simulations. The first property is that the dymaics are reversible
+\\
+\\
+Secondly we have the property of conservation, that is the dynamics keeps the Hamiltionian invariant. This can easily be verified from equation \ref{eq:hamilton_equations}
+\begin{equation*}
+    \frac{d \mathcal{H}}{d t}=\sum_{i=1}^{d}\left[\frac{d q_{i}}{d t} \frac{\partial \mathcal{H}}{\partial q_{i}}+\frac{d p_{i}}{d t} \frac{\partial \mathcal{H}}{\partial p_{i}}\right]=\sum_{i=1}^{d}\left[\frac{\partial \mathcal{H}}{\partial p_{i}} \frac{\partial \mathcal{H}}{\partial q_{i}}-\frac{\partial \mathcal{H}}{\partial q_{i}} \frac{\partial \mathcal{H}}{\partial p_{i}}\right]=0
+\end{equation*}
+In the HMC method, we will use Metropolis updates, with proposals found by the Hamiltonian dynamic. We have that the acceptance probability is one if $\mathcal{H}$ is kept invariant (see e.g \cite{neal2012mcmc}). This is however not possible in practise, and we are only able to keep $\mathcal{H}$ approximately invariant, but we will come back to this issue later. The last crucial property of the Hamiltonian dynamics is the volume preservation property, which gives us that the dynamics preserves volume in the $(q,p)$ space.
+
+\begin{equation*}
+    \sum_{i=1}^{d}\left[\frac{\partial}{\partial q_{i}} \frac{d q_{i}}{d t}+\frac{\partial}{\partial p_{i}} \frac{d p_{i}}{d t}\right]=\sum_{i=1}^{d}\left[\frac{\partial}{\partial q_{i}} \frac{\partial \mathcal{H}}{\partial p_{i}}-\frac{\partial}{\partial p_{i}} \frac{\partial \mathcal{H}}{\partial q_{i}}\right]=\sum_{i=1}^{d}\left[\frac{\partial^{2} \mathcal{H}}{\partial q_{i} \partial p_{i}}-\frac{\partial^{2} \mathcal{H}}{\partial p_{i} \partial q_{i}}\right]=0
+\end{equation*}
+
+\subsection{The Leapfrog Method}
+We will now turn to how we should simulate the differential equation in equation \ref{eq:hamilton_equations}. A natural way is to approximate the equation by discretizing time, using some small stepsize, which we will denote $\epsilon$.
+For HMC the Leapfrog integrator scheme is often proposed (see e.g \cite{betancourt2017conceptual} or \cite{neal2012bayesian}), first we update the momentum variables for a half step $\epsilon/2$, then we do a full step for the position variables, where the updated values for the momentum variables are used and hereafter do a final half step for the momentum variables using the updated position variables. Formally we can write this as follows,
+\begin{equation*}
+\begin{split}
+p_{i}(t+\varepsilon / 2) &=p_{i}(t)-(\varepsilon / 2) \frac{\partial U}{\partial q_{i}}(q(t)) \\
+q_{i}(t+\varepsilon) &=q_{i}(t)+\varepsilon \frac{p_{i}(t+\varepsilon / 2)}{m_{i}} \\
+p_{i}(t+\varepsilon) &=p_{i}(t+\varepsilon / 2)-(\varepsilon / 2) \frac{\partial U}{\partial q_{i}}(q(t+\varepsilon))
+\end{split}
+\end{equation*}
+
+
+\subsection{The Hamiltonian Monte Carlo Algorithm}
+
+
+\subsection{No-U-Turn sampler}
 
 \section{Variational Inference}
 \subsection{Bayes by Backprop}
