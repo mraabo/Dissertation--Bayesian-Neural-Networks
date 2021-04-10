@@ -63,10 +63,16 @@ def construct_nn(ann_input, ann_output, n_hidden = 5, task="regression"):
             )
             
         elif task == "multinomial":
-            out = pm.Categorical('out', 
-                          act_out,
-                          observed=ann_output)
-            
+            act_1 = pm.Deterministic('activations_1',
+                              tt.tanh(tt.dot(ann_input, weights_in_1)))
+            act_2 = pm.Deterministic('activations_2',
+                              tt.tanh(tt.dot(act_1, weights_1_2)))
+            act_out = pm.Deterministic('activations_out',
+                                tt.nnet.softmax(tt.dot(act_2, weights_2_out))) 
+            act_out = tt.nnet.softmax(pm.math.dot(act_2, weights_2_out))
+            out = pm.Categorical('out',
+                        act_out,
+                        observed = ann_output)
     return neural_network
 
 # # ----------------------------- MNIST data load ---------------------------
@@ -124,6 +130,59 @@ testY = test_labels[(test_labels == num1) | (test_labels == num2)] # only the se
 trainX=trainX.T
 # Constructing af NN
 neural_network = construct_nn(trainX, trainY,task="classification")
+
+# Sample from the posterior using the NUTS samplper
+with neural_network:
+    trace = pm.sample(draws=5000, tune=1000, cores=2, chains=1)
+    
+
+# Visualizing the trace
+with neural_network:
+   az.plot_trace(trace)
+   
+# with neural_network:
+#     inference = pm.ADVI()  # approximate inference done using ADVI
+#     approx = pm.fit(1000, method=inference)
+#     trace = approx.sample(500)
+    
+# Making predictions using the posterior predective distribution
+prediction=pm.sample_posterior_predictive(trace, model=neural_network)
+
+# Relative frequency of predicting class 1
+pred = prediction['out'].mean(axis=0)
+
+
+# Returns the most common value in array (majority vote)
+y_pred = mode(prediction['out'], axis=0).mode[0, :]
+
+
+# Accuracy
+print('Accuracy on train data = {}%'.format(accuracy_score(trainY, y_pred) * 100))
+
+
+# Probability surface
+# Replace shared variables with testing set
+pm.set_data(new_data={"ann_input": testX.T, "ann_output": testY}, model=neural_network)
+
+# Creater posterior predictive samples
+ppc = pm.sample_posterior_predictive(trace, model=neural_network, samples=500)
+
+# Use probability of > 0.5 to assume prediction of class 1
+pred = ppc['out'].mean(axis=0) > 0.5
+
+
+print('Accuracy on test data = {}%'.format((testY == pred).mean() * 100))
+
+
+
+# # ----------------------------- Making predicitions (Multiclass) ---------------------------
+
+# Tranposing training data in order to run through our NN model
+trainX=trainX_clean[:,0:150]
+trainY=trainY_clean[0:150]
+trainX=trainX.T
+# Constructing af NN
+neural_network = construct_nn(trainX, trainY,task="multinomial")
 
 # Sample from the posterior using the NUTS samplper
 with neural_network:
