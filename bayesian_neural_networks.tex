@@ -1,37 +1,36 @@
 \chapter{Bayesian Neural Networks}
-\section{Stochastic Modelling}\label{sec:MarkovChain}
-In probability theory and Bayesian statistics, a stochastic process is a collection of random variables $\mathbf{x}$, that can be indexed by some index set $\mathbb{A}$. Often we are concerned about how the process evolves over time $T$, and let $t\in T$ be an index or an element of $T$. Then $X_t$ is a the state of a random variable a time $t$ and $\{X(t)\}_{t \in T}$ is used to denote the stochastic process for all $t\in T$. If $t=1,2,\ldots$ then the Stochastic process $\{X(t)\}_{t \in T}$ is said to be discrete and if $T=[0, \infty)$ the process is continuous. Besides an index set, we also have a state space $\mathbb{S}$ which is the set of values that the process can take. $\mathbb{S}$ can also be either continuous or discrete. This leads us to the section where we describe the theory behind Markov Chains. 
-\subsection{Markov Chains}
-A Markov chain is a stochastic process in which the conditional probability of being in a state at a future time given the present and past states is equal to the probability of being in the future state given only at the present state. In other words: the present can be described using only the most recent state and without the use of all previous states.
-Markov chains are generally a sequential system consisting of stochastic variables $X_t$, for $i=0,1,\ldots$, which can assume different values in the state space $\mathbb{S}$. First, let $(\mathbb{A}, \mathbb{S})$ be a measurable general state space. Next, we define a function $\pi$ of $(\mathbb{A}, \mathbb{S})$ is defined as a markov transition density if it satisfies:
-\begin{enumerate}
-    \item For a fixed $X \in \mathbb{S}, \pi (X, \cdot)$ is a probability measure
-    \item For a fixed $B \in \mathbb{A}$ $\pi(\cdot, B)$ is measurable
-\end{enumerate}
-
-
-\subsection{Transition Probabilities}
-
+\clearpage
+\section{Priors}
+\section{Markov Chain Monte Carlo}\label{sec:MCMC}
+How to sample from an intractable posterior distribution has been examined deeply in the litterateur through out the years and the most general methods is the Markov Chain Monte Carlo (MCMC) method, which is based on drawing values of $\boldsymbol{\theta}$ from some proposed distribution $q(\boldsymbol{\theta})$ and then correcting the draws in such a way that the approximate the target distribution $p(\boldsymbol{\theta}|S)$ well. Before we go any further into the different MCMC methods, we need some basic knowledge of Markov Chains. A Markov Chain is per definition a sequence of random variables (a stochastic process) $\boldsymbol{\theta}^{(1)},\boldsymbol{\theta}^{(2)}, \ldots$ for which the conditional probability of being at a particular state at $\boldsymbol{\theta}^{(t)}$, depends only on the previous state in the sequence $\boldsymbol{\theta}^{(t-1)}$. This property is also known as the Markov Property. A Markov Chain is uniquely defined by it's transition probabilities $T_t(\boldsymbol{\theta}^{(t)}|\boldsymbol{\theta}^{(t-1)}) $, which is the probability of transitioning from one state in the chain to another. In this context we are in particular interested in what happens with the chain as the number of steps goes infinity. In the connection with MCMC methods, we are especially interested in chains that converges to specific distribution. On the other hand chains that diverge, are not usually not appropriate to use in the context of MCMC methods, as these do not follow as systematic dynamic and will typically explode. We say that a Markov Chain is stationary if
+\begin{equation*}
+    \left(\boldsymbol{\theta}^{(0)},\boldsymbol{\theta}^{(1)}, \cdots, \boldsymbol{\theta}^{(n)}\right) \sim\left(\boldsymbol{\theta}^{(k)}, \boldsymbol{\theta}^{(k+1)}, \cdots, \boldsymbol{\theta}^{(k+n)}\right) \forall \text{ } n \text{ and } k \in \mathbb{N}
+\end{equation*}
+The fact that the Markov Chain is stationary means that all the elements in the chain follows the same distribution regardless of what state the chain is in. In particular for a stationary distribution is that the distribution of $\boldsymbol{\theta}^t$ is the same for all $t$. \\
+\\
+Another type of Markov Chains that we are interested in, is one that complies with the follow reversibility constraint
+\begin{equation*}
+    p(\boldsymbol{\theta}^{(t)})T\left(\boldsymbol{\theta}^{(t)},\boldsymbol{\theta}^{(t-1)}\right)=p(\boldsymbol{\theta}^{(t-1)})T\left(\boldsymbol{\theta}^{(t-1)},\boldsymbol{\theta}^{(t)}\right)
+\end{equation*}
+the reversibility constraint is also called the detailed balance condition, and states that if the chain is reversed it is the same process as the forward process. In the context of MCMC, it turns out that all constructed reversible Markov chains will converge towards the target distribution. In other words, this means that all reversible Markov chains will have a stationary distribution. Reversible Markov chains are particularly useful in relation to the MCMC methods, because the detailed balanced condition for a desired target distribution $p(\cdot)$ implies that the Markov chain is constructed in such a way that $p(\cdot)$ turns out to be the stationary distribution. This follows directly from theorem \ref{theo:detailed_balance} below.
 \begin{mytheorem}\label{theo:detailed_balance}
-Let $\pi$ be a transition density which satisfies the detailed balance condition $p(x)\pi(x, y) = p(y)\pi(y, x)$ with the function $p$ defined as the probability density function, then the following holds:
+Let $T$ be a transition probability which satisfies the detailed balance condition $p(x)T(x, y) = p(y)T(y, x)$ with the function $p$ defined as the probability distribution, then the following holds:
 \begin{enumerate}
-    \item The density $p$ is a stationary density of the Markov chain associated with $\pi$
+    \item $p(\cdot)$ is a stationary distribution of the Markov chain associated with the trainsition kernel $T(\cdot)$
     \item The Markov chain is reversible
 \end{enumerate}
-
-
 \end{mytheorem}
-
-
-
-\section{Priors}
-
+If we can construct a transition probability $T$ that satisfies the detailed balance condition and run the chain for a long period, samples generated from this distribution will eventually end up being drawn from the target distribution. 
+We will not go much deeper into litterateur of Markov Chains and stochastic processes in this dissertation and the curious reader is therefor encourage to see e.g \cite{lawler2006introduction} for further information on this topic. 
+ 
+\section{Bayesian Neural Network with rejection sampling}
+\textcolor{red}{Tænker at vi skal have dit eksempel med, som du konstruerede ud fra NEAL - men ved ikke lige hvor det passer ind henne? Skal vi have en section til det eller skal vi forsøge at presse det ind et sted? Vil du kigge på det ved lejlighed?}
 \section{Metropolis Hastings algorithm} \label{sec:Metropolis_Hastings}
 
 The Metropolis-Hastings algorithm, originally Metropolis, is a Markov chain Monte Carlo (MCMC) method, which is used to to sample from a Bayesian posterior. \\
 The Metropolis-Hastings (MH) algorithm was originally introduced by \cite{Metropolis1953} and was developed to simulate the states for a system of idealized molecules (\cite{neal2012mcmc}). This was later further developed by \cite{hastings70}, so that the algorithm could now simulate from a general distribution and not just a symmetric one, as it was previously based on. Due to its versatility and simplicity, the Metropolis-Hasting algorithm is one of the most widely used in MCMC methods.
 \\
-The Metropolis-Hastings algorithm generates a sequence of stochastic variables by sampling from a probability distribution. Samples are made from an proposal distribution, as the target distribution, normally the posterior, often is intractable. Central to the algorithm is that it is based on the basic Markov chain theory defined in section \ref{sec:MarkovChain}.\\
+The Metropolis-Hastings algorithm generates a sequence of stochastic variables by sampling from a probability distribution. Samples are made from an proposal distribution, as the target distribution, normally the posterior, often is intractable. Central to the algorithm is that it is based on the basic Markov chain theory defined in section \ref{sec:MCMC}.\\
 \\
 The main idea is to create a Markov chain that will converge towards a given distribution, so that the correct distribution becomes the Markov chain's stationary distribution. This is done by the extraction of samples from the Markov chain's stationary distribution can be approximated by simulating the Markov chain. The simple Metropolis algorithm introduced in the original paper by \cite{Metropolis1953} consider a target distribution $p(\boldsymbol{\theta})$ and a proposal distribution $q(\boldsymbol{\theta})$. The algorithm generates a Markov chain, where a new state $\boldsymbol{\theta}^{(t+1)}$ is produced by the the previous state $\boldsymbol{\theta}^t$, where we first generate a candidate state $\boldsymbol{\theta}^{cand}$ and decide whether or not to reject this candidate state based on the relative probability density to the old state. If the relative density is larger than one, we accept the new state, if the relative density is less than one, we accept the new state with probability $\frac{p(\boldsymbol{\theta}^{cand})}{p(\boldsymbol{\theta}^{t})}$. The algorithm is written i pseudo code in algorithm \ref{algo_2}.
 
@@ -186,5 +185,7 @@ p_{i}(t+\varepsilon) &=p_{i}(t+\varepsilon / 2)-(\varepsilon / 2) \frac{\partial
 
 \subsection{No-U-Turn sampler}
 
-\section{Variational Inference}
+\section{Variational InferenceMethods}
+\subsection{Automatic Variational Inference}\label{sec:ADVI}
 \subsection{Bayes by Backprop}
+\textcolor{red}{Maybe this section should be something we could mention as for future work? as the PYMC VI implementation is build on ADVI (\ref{sec:ADVI}) and not Bayes by Backprop? Otherwise we should check if we can build this our selfs? I have not yet seen it implemented.}

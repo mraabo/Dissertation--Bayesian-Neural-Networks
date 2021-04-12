@@ -61,7 +61,7 @@ This function measures how different two distributions $P(x)$ and $Q(x)$ are ove
 \\
 These are some of the convenient general choices, and there are many more. But such general loss functions is not necessarily the right choice for a particular application. For example if a firm knows the exact monetary loss of packing a wrong item as a result of a misclassification happening in a robotic packaging system. Then it might be beneficial to use a table (perhaps formally written as a sum of indicatorfunctions) of the costs of packaging each of their items as a loss function instead of using the general ones found in the literature.
 
-\section{Training \& Validating}
+\section{Training \& Validating} \label{sec:train_val}
 The central challenge in machine learning is making sure the algorithm creates hypothesis that perform well on new data that was not used in selecting the hypothesis. As mentioned in section \ref{sec:loss_func} this is done by minimizing $L(h)$, but as we don't know $p_\text{data}$ (if we did we wouldn't need the algorithm) we can't evaluate $L(h)$. We must instead approximate $L(h)$ by it's empirical estimate 
 \begin{equation*}
     \hat{L}(h,S)= \frac{1}{N} \sum_{i=1}^N \ell \lr{h\lr{\boldsymbol{x}^{(i)}}, y^{(i)}}
@@ -184,7 +184,7 @@ Now in order to approximate $s$ we can draw samples from the distribution $p(\ma
 \begin{equation*}
         \hat{s}_{n}=\frac{1}{n} \sum_{i=1}^{n} f\left(\mathbf{x}^{(i)}\right)
 \end{equation*}
-It is thus possible to a approximate the theoretical expected value, by then the empirical mean. This implies the simplest situation, that is, where it is possible to simulate directly from the density, we later see cases where this is not possible.\\
+It is thus possible to a approximate the theoretical expected value, by the empirical mean. This implies the simplest situation, that is, where it is possible to simulate directly from the density, we later see cases where this is not possible.\\
 \\
 We can justify this approximation, by noticing that $\hat{s}_n$ is an unbiased estimator of $s$
 \begin{equation*}
@@ -209,7 +209,7 @@ which is equivalent to
 \begin{equation*}
     \hat{s}_n\sim \mathcal{N}\left(s,\frac{\operatorname{Var}[f(\mathbf{x})]}{n}\right)
 \end{equation*}
-When it is not possible to make simulations of $\mathbf{x}$ directly, Markov Chain Monte Carlo methods are used (\textcolor{red}{see section XYXZZÆØÅ}), which in short is based on simulating from a target distribution by setting up a Markov chain to converge to a specific distribution.
+When it is not possible to make simulations of $\mathbf{x}$ directly, either because the distribution $p(\mathbf{x})$ is intractable or because sampling from $p(\mathbf{x})$ is computationally infeasible, Markov Chain Monte Carlo methods are used, which in short is based on simulating from a target distribution by running a Markov Chain that eventually will converge and have the target distribution as its stationary distribution. Markov Chain Monte Carlo methods will be examined more thoroughly in section \ref{sec:MCMC}.
 
 
 
