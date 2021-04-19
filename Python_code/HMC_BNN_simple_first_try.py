@@ -45,54 +45,38 @@ y_train = f(x_train, true_w) + np.random.normal(0.,
 
 # --------------------- Build and compile neural net -------------------------------
 
-# model = tf.keras.models.Sequential([
-#     tf.keras.layers.Dense(16, input_shape=([1, ]), activation='tanh'),
-#     tf.keras.layers.Dense(1, activation='tanh')
-# ])
-# model.summary()
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Dense(16, input_shape=([1, ]), activation='tanh'),
+    tf.keras.layers.Dense(1, activation='tanh')
+])
+model.summary()
 
 
 # --------------------- Sample weights using Hamiltonian Monte Carlo ----------------------
-# def network_func(x, w):
-#    hidden_weights = []
-#    hidden_bias = []
-#    output_weights = []
-#    output_bias = []
-
-#    for i in range(16):
-#        hidden_weights.append(w[i])
-#        hidden_bias.append(w[i+16])
-#        output_weights.append(w[i+32])
-
-#    output_bias.append(w[48])
-
-#    hidden_weights = np.array(hidden_weights).reshape(1, 16)
-#    output_weights = np.array(output_weights).reshape(16, 1)
-#    w_hidden = [hidden_weights, np.array(hidden_bias)]
-#    w_output = [output_weights, np.array(output_bias)]
-
-#    for layer in model.layers:
-#        if layer.name == "dense":
-#            layer.set_weights(w_hidden)
-#        if layer.name == "dense_1":
-#            layer.set_weights(w_output)
-#    return model.predict(x)
-
 def network_func(hidden_weights, output_weights, x):
-    hidden_result = []
-    # Pad x with 1's to add bias via matmul
-    x = tf.pad(x, [[1, 0], [0, 0]], constant_values=1)
-    for i in range(hidden_weights.shape[0]):
-        linop = tf.linalg.LinearOperatorFullMatrix(
-            hidden_weights[i][..., np.newaxis])
-        hidden_result.append(tf.keras.activations.tanh(
-            linop.matmul(x, adjoint=True)))
 
-    prod = []
-    for i in range(num_hidden_neurons):
-        prod.append(hidden_result[i]*output_weights[i])
-    output_result = tf.math.add_n(prod) + output_weights[-1]
-    return output_result[..., 0, :]
+    for layer in model.layers:
+        if layer.name == "dense":
+            layer.set_weights(hidden_weights)
+        if layer.name == "dense_1":
+            layer.set_weights(output_weights)
+    return model.predict(x)
+
+# def network_func(hidden_weights, output_weights, x):
+#     hidden_result = []
+#     # Pad x with 1's to add bias via matmul
+#     x = tf.pad(x, [[1, 0], [0, 0]], constant_values=1)
+#     for i in range(hidden_weights.shape[0]):
+#         linop = tf.linalg.LinearOperatorFullMatrix(
+#             hidden_weights[i][..., np.newaxis])
+#         hidden_result.append(tf.keras.activations.tanh(
+#             linop.matmul(x, adjoint=True)))
+
+#     prod = []
+#     for i in range(num_hidden_neurons):
+#         prod.append(hidden_result[i]*output_weights[i])
+#     output_result = tf.math.add_n(prod) + output_weights[-1]
+#     return output_result[..., 0, :]
 
 
 def joint_log_prob(w, x, y):
