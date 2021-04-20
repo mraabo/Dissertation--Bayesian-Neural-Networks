@@ -17,6 +17,66 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score
 sns.set_style("white")
 
+# # ----------------------------- MNIST data load ---------------------------
+
+# Importing traning data set
+trainX_clean=np.genfromtxt("Python_code/data/MNIST-Train-cropped.txt")
+# reshaping to form a 784 X 10000 matrix
+trainX_clean=trainX_clean.reshape(784,10000, order="F")
+
+#T Importing traning labels
+trainY_clean=np.genfromtxt("Python_code/data/MNIST-Train-Labels-cropped.txt")
+# Importing test data set
+test_data_clean=np.genfromtxt("Python_code/data/MNIST-Test-cropped.txt")
+# reshaping to form a 784 X 2000 matrix
+test_data_clean=test_data_clean.reshape(784,2000, order = "F")
+#Importing test labels
+test_labels_clean=np.genfromtxt("Python_code/data/MNIST-Test-Labels-cropped.txt")
+
+
+# plot images
+num_row = 6 # number of rows in plot
+num_col = 6 # number of columns in plot
+fig, axes = plt.subplots(num_row, num_col, figsize=(1.5*num_col,2*num_row))
+for i in range(0,36):
+    ax = axes[i//num_col, i%num_col]
+    ax.imshow(trainX_clean[:,i].reshape(28,28,order="F"), cmap='Blues')
+    ax.set_title('Label: {}'.format(trainY_clean[i]))
+plt.tight_layout()
+plt.show()
+
+
+# # ----------------------------- MNIST  binary classification ---------------
+# Making the sample size smaller
+trainX=trainX_clean[:,0:50]
+trainY=trainY_clean[0:50]
+test_data=test_data_clean[:,0:50]
+test_labels=test_labels_clean[0:50]
+
+# Fixing data for binary classification 
+# First we need to select the two digigts for binary classification
+num1 = 0
+num2 = 8
+
+# Indexing data to only include the numbers choosen for the binary classification
+index = np.array(np.where((trainY != num1) & (trainY != num2))) 
+    
+# Defining af new traning set that only contains num1 and num2    
+trainX = np.delete(trainX,index, axis=1) 
+trainY = trainY[(trainY == num1) | (trainY == num2)] 
+
+# set labels to 0 or 1 for binary classification
+trainY=np.where(trainY == num1,0,1)
+
+######  Filtering test data   ##########
+# Test data set
+index2 = np.array(np.where((test_labels != num1) & (test_labels != num2))) #
+    
+testX = np.delete(test_data,index2, axis=1) # Deletes all other than the two numbers selected
+testY = test_labels[(test_labels == num1) | (test_labels == num2)] # only the selected labels
+testY=np.where(testY == num1,0,1)
+# Tranposing training data in order to run through our NN model
+trainX=trainX.T
 
 
 # ------------------- Defining a NN function  --------------------------------- 
@@ -54,76 +114,15 @@ def construct_nn(ann_input, ann_output, n_hidden = 5):
             
     return neural_network
 
-# # ----------------------------- MNIST data load ---------------------------
-
-# Importing traning data set
-trainX_clean=np.genfromtxt("MNIST-Train-cropped.txt")
-# reshaping to form a 784 X 10000 matrix
-trainX_clean=trainX_clean.reshape(784,10000, order="F")
-
-#T Importing traning labels
-trainY_clean=np.genfromtxt("MNIST-Train-Labels-cropped.txt")
-# Importing test data set
-test_data_clean=np.genfromtxt("MNIST-Test-cropped.txt")
-# reshaping to form a 784 X 2000 matrix
-test_data_clean=test_data_clean.reshape(784,2000, order = "F")
-#Importing test labels
-test_labels_clean=np.genfromtxt("MNIST-Test-Labels-cropped.txt")
-
-
-# plot images
-num_row = 6 # number of rows in plot
-num_col = 6 # number of columns in plot
-fig, axes = plt.subplots(num_row, num_col, figsize=(1.5*num_col,2*num_row))
-for i in range(0,36):
-    ax = axes[i//num_col, i%num_col]
-    ax.imshow(trainX_clean[:,i].reshape(28,28,order="F"), cmap='Blues')
-    ax.set_title('Label: {}'.format(trainY_clean[i]))
-plt.tight_layout()
-plt.show()
-
-
-
-# # ----------------------------- MNIST  binary classification ---------------
-# Making the sample size smaller
-trainX=trainX_clean[:,0:50]
-trainY=trainY_clean[0:50]
-test_data=test_data_clean[:,0:50]
-test_labels=test_labels_clean[0:50]
-
-# Fixing data for binary classification 
-# First we need to select the two digigts for binary classification
-num1 = 0
-num2 = 8
-
-# Indexing data to only include the numbers choosen for the binary classification
-index = np.array(np.where((trainY != num1) & (trainY != num2))) 
-    
-# Defining af new traning set that only contains num1 and num2    
-trainX = np.delete(trainX,index, axis=1) 
-trainY = trainY[(trainY == num1) | (trainY == num2)] 
-
-# set labels to 0 or 1 for binary classification
-trainY=np.where(trainY == num1,0,1)
-
-######  Filtering test data   ##########
-# Test data set
-index2 = np.array(np.where((test_labels != num1) & (test_labels != num2))) #
-    
-testX = np.delete(test_data,index2, axis=1) # Deletes all other than the two numbers selected
-testY = test_labels[(test_labels == num1) | (test_labels == num2)] # only the selected labels
-testY=np.where(testY == num1,0,1)
 
 
 # # ----------------------------- Making predicitions ---------------------------
 
-# Tranposing training data in order to run through our NN model
-trainX=trainX.T
 # Constructing af NN
 neural_network = construct_nn(trainX, trainY, n_hidden=10)
 # Sample from the posterior using the NUTS samplper
 with neural_network:
-    trace = pm.sample(draws=5000, tune=1000, cores=2, chains=1)
+    trace = pm.sample(draws=100, tune=50, cores=2, chains=1)
     
 
 # Visualizing the trace
