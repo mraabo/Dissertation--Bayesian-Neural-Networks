@@ -12,7 +12,7 @@ from keras.datasets import boston_housing
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
     tf.keras.layers.Dense(128, activation=tf.nn.relu),
-    tf.keras.layers.Dense(1, activation=tf.nn.relu)
+    tf.keras.layers.Dense(1)
 ])
 model.summary()
 
