@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# Prepare data.
+# Preparing data
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+# Normalizing
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
-# Create a base model -- sequential, functional, or subclass.
+# Creating neural network
 model = tf.keras.Sequential([
     tf.keras.Input((28, 28), name='feature'),
     tf.keras.layers.Flatten(),
