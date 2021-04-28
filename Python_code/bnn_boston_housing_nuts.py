@@ -26,7 +26,7 @@ sns.set_style("white")
 # import matplotlib.pyplot as plt
 # # ----------------------------- Print versions ---------------------------
 
-print("Running on Numpy version %s" % sys.version)
+print("Running on Python version %s" % sys.version)
 print(f"Running on PyMC3 version{pm.__version__}")
 print("Running on Theano version %s" % theano.__version__)
 print("Running on Arviz version %s" % az.__version__)
