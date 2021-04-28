@@ -45,15 +45,17 @@ model = tf.keras.Sequential([
 ])
 model.summary()
 
-# Compile, train, and evaluate.
+# Early stopping
+es = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss', mode='min', patience=20, min_delta=0.1)
 
+# Compile, train, and evaluate.
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
-history = model.fit(X_train, y_train, epochs=120,
-                    validation_split=0.3)
-
-model.evaluate(X_test, y_test)
+history = model.fit(X_train, y_train,  validation_split=0.3,
+                    epochs=500, callbacks=[es])
+print("The algorithm ran", len(history.history['loss']), "epochs")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -68,7 +70,6 @@ plt.xlabel("Predicted label")
 plt.show()
 
 # ----------------------------- Overfitting? ---------------------------
-
 train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
@@ -78,4 +79,5 @@ plt.plot(history.history['val_loss'], label='validation')
 plt.legend()
 plt.grid()
 plt.show()
+
 print("YOLO")

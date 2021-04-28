@@ -20,12 +20,18 @@ model = tf.keras.Sequential([
 ])
 model.summary()
 
+# Early stopping
+es = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss', mode='min', patience=20, min_delta=1)
+
 # Compile, train, and evaluate.
 model.compile(optimizer='adam',
               loss='mean_squared_error',
               metrics=['mse'])
-history = model.fit(X_train, y_train, epochs=120, validation_split=0.3)
-model.evaluate(X_test, y_test)
+history = model.fit(X_train, y_train, epochs=500,
+                    validation_split=0.3, callbacks=[es])
+
+print("The algorithm ran", len(history.history['loss']), "epochs")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
