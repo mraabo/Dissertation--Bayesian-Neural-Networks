@@ -1,4 +1,4 @@
-import random as rn
+#import random as rn
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -79,14 +79,21 @@ for i in range(len(accepted_weights)):
 # mean y_pred
 mean_y_pred = np.array(y_pred).mean(axis=0)
 
+y_pred_std = np.array(y_pred).std(axis = 0)
+# Lower std-line
+lower_std = mean_y_pred - y_pred_std 
+# Upper std-line
+upper_std = mean_y_pred + y_pred_std
+
 # --------------------- Plot of BNN results ----------------------
 plt.scatter(x_train, y_train,
-            edgecolor='b', s=20, label="Samples")
+            edgecolor='b', s=40, label="Datapoint")
 for i in range(len(y_pred)):
     plt.plot(x_pred, y_pred[i], color='k', linestyle='dashed')
-plt.plot(x_pred, mean_y_pred, label="Average prediction")
+plt.plot(x_pred, mean_y_pred, color='coral', label="Average prediction")
+plt.fill_between(x_pred, lower_std.flatten() , upper_std.flatten() , color='b', alpha=.1)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.legend()
-plt.savefig('BNN_radfords_fig1.2.pdf')
+plt.savefig('figure_simple_BNN.pdf')
 plt.show()
