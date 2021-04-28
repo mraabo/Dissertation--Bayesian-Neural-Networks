@@ -4,11 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
-sc = StandardScaler()
 start_time = time.time()
 
 # ----------------------------- Prepare data ---------------------------
@@ -25,10 +23,6 @@ data_y = data[:, 23]
 
 X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=42)
-
-# Standardizing
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
 
 # Subsample
 X_train = X_train[0:100, :]

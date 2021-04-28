@@ -2,15 +2,12 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import boston_housing
-from sklearn.preprocessing import StandardScaler
 import time
 start_time = time.time()
-sc = StandardScaler()
+
 # ----------------------------- Prepare data ---------------------------
 (X_train, y_train), (X_test, y_test) = boston_housing.load_data()
-# Standardizing
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
+
 
 # ----------------------------- Neural Network ---------------------------
 model = tf.keras.Sequential([
