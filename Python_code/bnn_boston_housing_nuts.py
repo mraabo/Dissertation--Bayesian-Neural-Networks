@@ -105,7 +105,7 @@ bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=5)
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=15000, tune=5000, cores=2, chains=1)
+    trace = pm.sample(draws=500, tune=100, cores=4, chains=1)
     
 
 # Visualizing the trace
