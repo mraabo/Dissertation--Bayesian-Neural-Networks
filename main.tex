@@ -1,15 +1,15 @@
 \documentclass[a4paper]{book}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-
-\usepackage[fontsize=12.0pt]{fontsize}
-
-
+\usepackage[fontsize=12.0 pt]{fontsize}
 \usepackage{amsmath}
 \usepackage[english]{babel}
-% For blue click-to-go reference
-\usepackage{xcolor}
+\usepackage{mathrsfs}
 
+
+% For blue click-to-go reference
+\usepackage[table]{xcolor}
+\definecolor{ashgrey}{rgb}{0.7, 0.75, 0.71}
 \definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
 
 \usepackage{hyperref}
@@ -45,6 +45,7 @@
 \usepackage{xifthen}
 \usepackage{xparse}
 \usepackage{dsfont}
+
 
 % To write pseudo code
 \usepackage[ruled,vlined]{algorithm2e}
@@ -177,22 +178,28 @@ this dissertation.}
 \newcommand{\lfat}{\ell_{\FAT}}
 \newcommand{\Lfat}{L_{\FAT}}
 \newcommand{\hatLfat}{\hat L_{\FAT}}
-% Distance
-\DeclareMathOperator{\dist}{dist}
+% norm
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 %argmin and argmax
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
-
+% Independent
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 % Theorems
 \newtheorem{mytheorem}{Theorem}
 \numberwithin{mytheorem}{chapter}
 % Definitions
 \newtheorem{mydefinition}{Definition}
-   
+
+\newcounter{example}[section]
+\newenvironment{example}[1][]{\refstepcounter{example}\par\medskip
+   \noindent \textbf{Example~\theexample. #1} \rmfamily}{\medskip}
+
 % ----------------------- Layout settings -----------------
 \graphicspath{ {./pics/} } 
 
-\renewcommand{\baselinestretch}{1.1}
+\renewcommand{\baselinestretch}{1.5}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -208,47 +215,53 @@ this dissertation.}
 \makeatother
 
 %%%%%% Specificerer linjeafstand. %%%%
-\usepackage{setspace}
-\setstretch{1.2}
-\selectfont
+%\usepackage{setspace}
+%\setstretch{1.2}
+%\selectfont
 
 \begin {document}
 % -------------------------- Front page -----------------------
 \begin{titlepage}
 \clearpage
 %% temporary titles
+\newgeometry{top=0cm, bottom=0cm, outer=2cm, inner=2cm}
 % command to provide stretchy vertical space in proportion
 \newcommand\nbvspace[1][3]{\vspace*{\stretch{#1}}}
 % allow some slack to avoid under/overfull boxes
 \newcommand\nbstretchyspace{\spaceskip0.5em plus 0.25em minus 0.25em}
-% To improve spacing on titlepages
+% % To improve spacing on titlepages
 \newcommand{\nbtitlestretch}{\spaceskip0.6em}
 \thispagestyle{empty}
 \begin{center}
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.55]{pics/CBS.jpg}
+\end{center} 
+\end{figure}
 	\bfseries
-	\nbvspace[1]
 	\Huge
 	{\nbtitlestretch\huge
 	 Bayesian Neural Networks}
-	
-	\nbvspace[1]
+	 \nbvspace[1]
 	\normalsize
 	
 	THEORY AND APPLICATIONS\\
+	\footnotesize BY\\
+	\footnotesize MAGNUS RAABO ANDERSEN (ID) \& ULRIK ROED-SØRENSEN (ID)\\[0.5em]
+	\footnotesize SUPERVISOR: PETER DALGAARD
+	
 	\nbvspace[1]
-	\small BY\\
-	\Large MAGNUS RAABO ANDERSEN \\ \& ULRIK ROED-SØRENSEN\\[0.5em]
-	\footnotesize COUNSELLED BY PETER DALGAARD
 	
-	\nbvspace[2]
-	
-	\includegraphics[width=3in]{penrose.JPG}
-	\nbvspace[3]
+	\includegraphics[width=3in]{pics/neural_network.png}
+	\nbvspace[1]
 	%\normalsize
 	
-	SUBMITTED FOR THE DEGREE: MASTER OF MATHEMATICS AND ECONOMICS\\
-	\large
-	CBS
+	MASTER'S THESIS \\ 
+	COPENHAGEN BUSINESS SCHOOL --- CAND.MERC.(MAT.)\\
+    \nbvspace[1]
+    DATE OF SUBMISSION: MAY 17 2021\\
+    NUMBER OF PAGES: $\infty$ (-1000)
+	
 	\nbvspace[1]
 \end{center}
 \end{titlepage}
@@ -280,14 +293,15 @@ Thank you to Helena Bonham Carter, Barack Obama, Matthew Perry and .....
 \mainmatter
 %\setcounter{page}{1}
 
-\chapter{Introduction}
+\include{introduction}
 
 
 \include{machine_learning_basics}
 \include{neural_networks}
 \include{bayesian_neural_networks}
-
-
+\include{eval_NN_models}
+\include{conclusion}
+\include{for_futureWork}
 
 
 
@@ -295,5 +309,7 @@ Thank you to Helena Bonham Carter, Barack Obama, Matthew Perry and .....
 \bibliographystyle{agsm}
 \nocite{*}
 \bibliography{bibFile.bib}  % If you have some references, use BibTeX
+
+\include{appendix}
 
 \end{document}

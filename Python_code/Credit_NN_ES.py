@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
-start_time = time.time()
+
 
 # ----------------------------- Prepare data ---------------------------
 credit_data = pd.read_csv(
@@ -34,7 +34,9 @@ y_test = y_test[0:100]
 
 model = tf.keras.Sequential([
     tf.keras.Input((23, ), name='feature'),
-    tf.keras.layers.Dense(128, activation=tf.nn.relu),
+    tf.keras.layers.Dense(5, activation=tf.nn.relu),
+    tf.keras.layers.Dense(5, activation=tf.nn.relu),
+    tf.keras.layers.Dense(5, activation=tf.nn.relu),
     tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
 ])
 model.summary()
@@ -43,6 +45,7 @@ model.summary()
 es = tf.keras.callbacks.EarlyStopping(
     monitor='val_loss', mode='min', patience=20, min_delta=0.1)
 
+start_time = time.time()
 # Compile, train, and evaluate.
 model.compile(optimizer='adam',
               loss='binary_crossentropy',

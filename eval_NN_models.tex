@@ -1,0 +1,127 @@
+\chapter{Evaluation of Neural Network models}
+This chapter examines the applications of Bayesian neural networks using a dataset on housing prices in Boston for regression and a dataset on defaults for credit card clients for classification. We do this using a classic neural network as benchmark for performance to test if it's possible to benefit from the perks of using Bayesian neural networks without sacrificing accuracy and to examine the difference in computational runtime. \\
+\\
+Section \ref{sec:Boston_housing} examines median prices on houses in specific areas in Boston based on a number of features shown in table \ref{tab:Boston_Housing}. We aim to predict unknown median prices based on these features using regression. Section \ref{sec:credit_default} examines the probability of defaulting payments on credit card users in Taiwan. We aim to predict default or not default and the probabilities of these outcomes using binary classification. We performs these tasks with BNNs with different sampling algorithms and NNs with different regularization methods. We illustrate NNs with different regularization methods to examine the difference in effect of these, for selecting a NN that can serve as a non-overfitting benchmark for the BBNs and to show the hurdles we avoid in Bayesian neural networks. 
+
+\section{Predicting house prices in Boston} \label{sec:Boston_housing}
+The Boston housing was originally introduced by \cite{HARRISON197881}, who investigated the effect of air pollution on house prices. 
+The dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Massachusetts. The sample contains 506 examples, where each example represents a unique area and has 14 features. These features are represented in table \ref{tab:Boston_Housing}. The data set can be found on \href{http://lib.stat.cmu.edu/datasets/boston}{http://lib.stat.cmu.edu/datasets/boston}. In this section we examine how to use the theory presented in the previous chapters for predicting the median value of owner-occupied homes in thousands, that is the \texttt{medv} variable in the data set is our target variable. The target variable is a real-valued variable, thus a regression task would be most appropriate.   
+The \texttt{medv} is taking values  Our objective is to make good predictions for house predictions in terms of a low mean squared error (MSE) and mean absolute error (MAE). We have split data into a training and testing set respectively, where the training data contains 70\% of the original data and test set the remaining data points. To avoid the possibility that the data is sorted in some undesired way we choose to shuffle the data randomly before splitting it. In order for the reader to be able to regenerate the results we have fixed the state of the underlying pseudo random number generator with a seed equal to $42$. 
+
+
+
+\begin{table}
+\caption{Table of features in Boston Housing data}
+\label{tab:Boston_Housing}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Feature name}}}} & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Feature description}}}} \\ \hline
+crim              &   Per capita crime rate by town     \\ \hline
+zn                &  Proportion of residential land zoned for lots over 25,000 sq. ft                  \\ \hline
+indus             &   Proportion of residential land zoned for lots over 25,000 sq. ft                   \\ \hline
+chas              & Charles River dummy variable\\
+&  (= 1 if tract bounds river; 0 otherwise)   \\ \hline
+nox               &  Nitric oxide concentration (parts per 10 million)                    \\ \hline
+rm                &   Average number of rooms per dwelling                   \\ \hline
+age               &    Proportion of owner-occupied units built prior to 1940                  \\ \hline
+dis               &   Weighted distances to five Boston employment centers                   \\ \hline
+rad               &   Index of accessibility to radial highways                   \\ \hline
+tax               &   Full-value property tax rate per $10,000 $                  \\ \hline
+ptratio           &   Pupil-teacher ratio by town                   \\ \hline
+b                 & $1000(Bk - 0.63)^2$, where Bk is the proportion of people of   \\ 
+& African American descent by town                     \\ \hline
+lstat             &    Percentage of lower status of the population                   \\ \hline
+medv              &  Median value of owner-occupied homes in $1000s$                    \\ \hline
+\end{tabular}}
+\end{table}
+
+
+
+\subsection{Regression with Neural Networks}
+We perform regression with the neural networks listed in table \ref{tab:Boston_performance}. All of these are performed using MSE as loss function, the ReLU activation function in equation \ref{eq:relu} on every hidden layer and no activation function for the output layer. All of the networks have 128 neurons in each hidden layer and train with 120 epochs using ADAM described in \ref{sec:ADAM}. We reuse these settings as they was found to provide acceptable results and to make the networks more suitable for comparison. \\
+\\
+To examine overfitting in the neural networks we split the data not used for test data into training data and validation data. This in done by a randomized split that takes 30\% of the remaining data for validation and 70\% for training.
+
+\subsection{Regression with Bayesian Neural
+Networks}
+
+\begin{table}[] \label{tab:Boston_performance}
+\caption{Performance measurement for Neural Network models on Boston Housing data}
+
+\begin{tabular}{|l|l|l|l|}
+\hline
+\multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Model}}}} & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{MSE}}}}           & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{MAP}}}}         & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Run time}}}}  \\ \hline
+NN with no hidden layers &     &     &          \\ \hline
+NN with 1 hidden layer  &     &     &          \\ \hline
+NN with 2 hidden layer  &     &     &          \\ \hline
+BNN with 1 hidden layer &     &     &          \\ \hline
+BNN with 2 hidden layer &     &     &          \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Predicting default of credit card clients} \label{sec:credit_default}
+\subsection{Description and preprocessing of data}
+The default of credit card clients data set, contains information, collected by a Taiwan bank in 2005, on $30.000$ credit card clients. The data contains 25 variables, which are represented in table \ref{tab:credit_card_features}. The data set has earlier been used by \cite{Yeh2009TheCO} for predicting the probability of default for customers' in Taiwan and compares the predictive accuracy of probability between six data mining methods. The objective for our analysis is to predict whether a client will default on next month or not. 
+
+
+\begin{table}[]
+\caption{Table of features in credit card default data}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Feature name}}}} & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Feature description}}}}\\ \hline
+LIMIT\_BAL                 &           Amount of the given credit (NT dollar): \\ & it includes both the individual consumer credit and \\ &  his/her family (supplementary) credit.           \\ \hline
+SEX                        &          Gender (1 = male; 2 = female)            \\ \hline
+EDUCATION                  &         Education (1 = graduate school; 2 = university; \\ &  3 = high school; 4 = others).             \\ \hline
+MARRIAGE                   &         Marital status (1 = married; 2 = single; 3 = others)             \\ \hline
+AGE                        &            Age (year)           \\ \hline
+PAY\_0                     &         Repayment status in September, 2005 \\ &  -2=no consumption \\ &  -1=pay duly \\ &  0=the use of revolving credit\\ &  1=payment delay for one month \\ &  2=payment delay for two months … \\ &  8=payment delay for eight months\\ &  9=payment delay for nine months and above         \\ \hline
+PAY\_2                     &        
+Repayment status in August, 2005 (scale same as above)\\ \hline
+PAY\_3                     &          Repayment status in July, 2005 (scale same as above)            \\ \hline
+PAY\_4                     &            Repayment status in June, 2005 (scale same as above)          \\ \hline
+PAY\_5                     &            Repayment status in May, 2005 (scale same as above)          \\ \hline
+PAY\_6                     &           Repayment status in April, 2005 (scale same as above)           \\ \hline
+BILL\_AMT1                 &           Amount of bill statement in September, 2005 (NT dollar)           \\ \hline
+BILL\_AMT2                 &            Amount of bill statement in August, 2005 (NT dollar)          \\ \hline
+BILL\_AMT3                 &              Amount of bill statement in July, 2005 (NT dollar)        \\ \hline
+BILL\_AMT4                 &            Amount of bill statement in June, 2005 (NT dollar)          \\ \hline
+BILL\_AMT5                 &           Amount of bill statement in May, 2005 (NT dollar)           \\ \hline
+BILL\_AMT6                 &           Amount of bill statement in April, 2005 (NT dollar)           \\ \hline
+PAY\_AMT1                  &               Amount of previous payment in September, 2005 (NT dollar)       \\ \hline
+PAY\_AMT2                  &          Amount of previous payment in August, 2005 (NT dollar)            \\ \hline
+PAY\_AMT3                  &              Amount of previous payment in July, 2005 (NT dollar)        \\ \hline
+PAY\_AMT4                  &              Amount of previous payment in June, 2005 (NT dollar)        \\ \hline
+PAY\_AMT5                  &              Amount of previous payment in May, 2005 (NT dollar)        \\ \hline
+PAY\_AMT6                  &           Amount of previous payment in April, 2005 (NT dollar)           \\ \hline
+default payment next month &             Default payment (1=yes, 0=no)         \\ \hline
+\end{tabular}}
+\end{table}
+\subsection{Model implementation and fitting}
+\subsection{Results}
+
+\begin{table}[]\label{tab:credit_card_features}
+\caption{Performance measurement for Neural Network models on credit card default data}
+\begin{tabular}{|l|l|l|}
+\hline
+\multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+\textbf{Model}}}}         & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Accuracy score}}}}           & \multicolumn{1}{|c|}{{\cellcolor{ashgrey}{
+ \textbf{Run time}}}}     \\ \hline
+NN with no hidden layers                  &                &          \\ \hline
+NN with X hidden layers                   &                &          \\ \hline
+BNN with Y hidden layers (Gaussian prior) &                &          \\ \hline
+BNN with Y hidden layers (XYZ prior)      &                &          \\ \hline
+Hierarchical BNN with Z hidden layers     &                &          \\ \hline
+\end{tabular}
+\end{table}

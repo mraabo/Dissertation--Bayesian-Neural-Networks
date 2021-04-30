@@ -2,7 +2,7 @@
 Neural networks are machine learning algorithms inspired by the biological neural network that constitute the brain. The neural network is a collection of nodes called neurons that transmits and processes signals to and from other neurons connected to it, much like the biological neural network. The goal of a neural network is to approximate some function by learning parameters that results in the best approximation.
 \\
 \\
-In this section we introduce the neural network...
+In this chapter we introduce the most common neural network, the feedforward neural network, in section \ref{sec:feedforward_nn}, which is the type of network we refer to throughout the dissertation, when we use the term neural network. In section \ref{sec:backprop} we examine a common method for training a neural network called backpropagation and in sections \ref{sec:early_stopping} and \ref{sec:dropout} we introduce some popular methods of regularizing neural networks to avoid overfitting. 
 
 \section{Feedforward neural networks} \label{sec:feedforward_nn}
 The most simple neural networks are called feedforward neural networks or multilayer perceptrons (MLPs). They are called feedforward as information flows in one direction through the neurons. The neurons are typically arranged in layers to indicate which neurons receive and sends data to which neurons. These layers are typically vector-valued with each element of the vector playing the role as a neuron. As such one can describe a neural network as a chain of functions. Say we have 3 layers, then the neural network is $f(\mathbf{x}) = f^{(3)}\lr{f^{(2)}\lr{f^{(1)}\lr{\mathbf{x}}}}$, with $f^{(1)}$ being the first layer to pass the data, $f^{(2)}$ the second layer and so on. The final layer is called the output layer, while the intermediate layers, that don't directly show their output to the user, are called hidden layers. \\
@@ -17,14 +17,15 @@ Logistic sigmoid:
 \begin{equation*}
     g(x) = \sigma(x) \equiv \frac{1}{1 + e^{-x}}
 \end{equation*}
+\textcolor{red}{Add text on how this is used as an output-activation function for performing binary classification by mapping $\mathbb{R} \rightarrow [0,1]$, and add text on how the softmax function is used as an output-activation function for multiclass classification.}\\
 Hyperbolic tangens:
 \begin{equation*}
     g(x) = \tanh \lr{x} \equiv \frac{e^x - e^{-x}}{e^x + e^{-x}}
 \end{equation*}
 Rectified linear unit (ReLU):
-\begin{equation*}
+\begin{equation} \label{eq:relu}
     g(x) = \max \lr{0, x}
-\end{equation*}
+\end{equation}
 Exponential linear unit (ELU):
 \begin{equation*}
     g(x) = \begin{cases}
@@ -64,10 +65,70 @@ Step:
 
 
 \section{Backpropagation} \label{sec:backprop}
-As mentioned in section \ref{sec:train_val} we seek to find the hypothesis $\hat{h}^*_S$ that minimizes our loss empirical loss. In the case of neural networks (with omitted bias terms) $\hat{h}^*_S$ are the weights used in each neuron as described in section \ref{sec:feedforward_nn}. To obtain these optimal weights we train the neural network by minimizing the gradient of the empirical loss with respect to the weights. To learn these weights we use a minimization algorithm like stochastic gradient descent described in section \ref{sec:sgd}. However the gradient of the loss function is not readily available in neural networks as we have to trace back the information back through the network that produced $\hat{y}$ for which we calculate the loss. The solution is an algorithm proposed by \cite{Rumelhart:1986a} called back-propagation or backprop for short.\\
+As mentioned in section \ref{sec:train_val} we seek to find the hypothesis $\hat{h}^*_S$ that minimizes our loss empirical loss. In the case of neural networks (with omitted bias terms) $\hat{h}^*_S$ are the weights used in each neuron as described in section \ref{sec:feedforward_nn}. To obtain these optimal weights we train the neural network by minimizing the gradient of the (perhaps regularized) loss function $J$ with respect to the weights. To learn these weights we use a minimization algorithm like stochastic gradient descent described in section \ref{sec:sgd}. However the gradient of the loss function is not readily available in neural networks as we have to trace back the information back through the network that produced $\hat{y}$ for which we calculate the loss. The solution is an algorithm proposed by \cite{Rumelhart:1986a} called back-propagation or backprop for short.\\
 \\
-Back-progatation uses the chain rule of calculus, which states that
+Back-propagation uses the chain rule of calculus, which states that
 \begin{equation*}
     \frac{d \, f\lr{g\lr{x}}}{d \, x} = \frac{d \, f\lr{g\lr{x}}}{d \, g \lr{x}} \frac{d \, g\lr{x}}{d \, x}
 \end{equation*}
-for a real number $x$ and functions $g$ and $f$. This rule can be generalized to vector 
+for a real number $x$ and functions $g$ and $f$. This rule can be generalized for a vector $\boldsymbol{x} \in \mathbb{R}^m$
+\begin{equation*}
+    \frac{\partial f\lr{g\lr{\boldsymbol{x}}}}{\partial x_i} = \sum_j \frac{\partial f\lr{g\lr{\boldsymbol{x}}}}{\partial g(x_j)} \frac{\partial g(x_j)}{\partial x_i}
+\end{equation*}
+where $g: \mathbb{R}^m \rightarrow \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$. In a neural network with 1 hidden layers we find the gradient of the loss function $J(\boldsymbol{w})$ (with $\boldsymbol{X}$ and $\boldsymbol{y}$ as implicit inputs to keep notation uncluttered) by
+\begin{equation} \label{eq:loss_grad}
+    \nabla J\lr{\boldsymbol{w}} = \begin{pmatrix}
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial w_1} \\
+    \vdots\\
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial w_m}
+    \end{pmatrix}
+\end{equation}
+where each element in found by
+\begin{equation} \label{eq:loss_grad_element}
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial w_i} = \sum_j \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{w_j}}} 
+    \frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{w_j}}}{\partial f^{(1)}\lr{w_j}} 
+    \frac{\partial f^{(1)}\lr{w_j}}{\partial w_i}
+\end{equation}
+This provides the fundamentals to understand how the gradient is computed in practice.
+First a vector of weights (perhaps chosen by an update of stochastic gradient descent) is sent through the network as shown by algorithm \ref{alg:forward_prop} to provide a loss value. This is called forward-propagation. Then the gradient in equation \ref{eq:loss_grad} is computed using the relation in equation \ref{eq:loss_grad_element} by back-propagation as shown in algorithm \ref{alg:back_prop}. The result of the backpropagation algorithm is gradients on the weights (and biases) that can be directly used for learning the weights that minimizes the gradient on the loss in a stochastic gradient descent algorithm as the one shown in algorithm \ref{alg:sgd}.\\
+\\
+Some activation functions like the ReLU-function $g(x) = \max \lr{0, x}$ are not differential, which might sound problematic for backpropagation and gradient based learning. However, as mentioned by \cite{Goodfellow-et-al-2016}, gradient descent still performs well enough for these models, partly because training algorithms usually don't arrive at a local minimum of the loss function. This means that we don't expect to get a gradient of $\boldsymbol{0}$, and therefore we can accept that the minimum of the loss function corresponds to points with an undefined gradient. Furthermore \cite{Goodfellow-et-al-2016} mentions that most software return one of the one-sided derivatives, which can be heuristically justified since a computer is subject to numerical error anyway. \\
+\\
+\textcolor{red}{Perhaps add text and figure on symbol-to-symbol differentiation as in goodfellow p. 214 and fig. 6.10.}
+
+\begin{algorithm}\label{alg:forward_prop}
+\SetAlgoLined
+\KwInput{Number of layers, $l$}
+\KwInput{The weight vectors of each layer $\boldsymbol{w}^{(i)}, i \in \lrc{1, \dots, l}$}
+\KwInput{The activation functions of each layer, $g^{(i)}, i \in \lrc{1, \dots, l}$}
+\KwInput{The example to process, $\boldsymbol{x}$}
+\KwInput{The target label for the example, $\boldsymbol{y}$}
+\KwOutput{The loss on the example, $J = L\lr{\boldsymbol{\hat{y}}, \boldsymbol{y}} + \lambda \Omega \lr{\boldsymbol{\theta}}$}
+ initialize $\boldsymbol{h}^{(0)} = \boldsymbol{x}$ \\
+\For{$k = 1, \dots, l$}{
+    $\boldsymbol{a}^{(k)} = \boldsymbol{w}^{(k)} \boldsymbol{h}^{(k-1)}$ \\
+    $\boldsymbol{h}^{(k)} = g^{(k)} \lr{\boldsymbol{a}^{(k)}}$ \\
+}
+$\hat{\boldsymbol{y}} = \boldsymbol{h}^{(l)}$ \\
+$J = L\lr{\boldsymbol{\hat{y}}, \boldsymbol{y}} + \lambda \Omega \lr{\boldsymbol{\theta}}$ \\
+ \caption{Forwardpropagation through a neural network and the computation of the cost function. For simplicity this demonstration uses only a single input example $\boldsymbol{x}$, in practice one typically uses a minibatch of examples. We have also omitted the bias terms for simplicity, as these can be part of the weights $\boldsymbol{w}^{(i)}$ with an example $\boldsymbol{x}$ padded with a column of 1's. The collection of weights are denoted by $\boldsymbol{\theta}$.}
+\end{algorithm}
+
+\begin{algorithm}\label{alg:back_prop}
+\SetAlgoLined
+\KwInput{Same variables as forwardpropagation in algorithm \ref{alg:forward_prop}}
+\KwOutput{The gradient of the regularized loss function on the weights, $ \boldsymbol{d} = \nabla_{\boldsymbol{w}}J$}
+Perform forward propagation as per algorithm \ref{alg:forward_prop}\\
+Computation of the loss-gradient on the output layer:\\
+$\boldsymbol{d} \leftarrow \nabla_{\hat{\boldsymbol{y}}} J =  \nabla_{\hat{\boldsymbol{y}}} L\lr{\hat{\boldsymbol{y}}, \boldsymbol{y}}$ \\
+\For{$k = l, l-1, \dots, 1$}{
+    $\boldsymbol{d} \leftarrow \nabla_{\boldsymbol{a}^{(k)}}J = \boldsymbol{d} \odot g^{(k)'} \lr{\boldsymbol{a}^{(k)}}$\\
+    $\nabla_{\boldsymbol{w}^{(k)}} J = \boldsymbol{d} \boldsymbol{h}^{(k-1)^\top} + \lambda \nabla_{\boldsymbol{w}^{(k)}} \Omega \lr{\boldsymbol{\theta}}$\\
+    $\boldsymbol{d} \leftarrow \nabla_{\boldsymbol{h}^{(k-1)}} J = \boldsymbol{w}^{(k)^\top} \boldsymbol{d}$\\
+}
+\caption{Back-propagation, \textcolor{red}{Understand this and comment on how it relates to equation \ref{eq:loss_grad_element}}}
+\end{algorithm}
+
+\section{Early Stopping} \label{sec:early_stopping}
+
+\section{Dropout} \label{sec:Dropout}
