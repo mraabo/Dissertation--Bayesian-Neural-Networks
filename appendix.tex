@@ -1,107 +1,72 @@
 \begin{appendices}
-\section{Metropolis Hastings Code}\label{app:MH_code}
+\section{Metropolis implementation in python}\label{app:MH_code}
 \begin{lstlisting}
+# # ----------------------------- INFO ---------------------------
+# In this python script we implement and run a Metropolis sampler
+
+# # ----------------------------- IMPORTS ---------------------------
+
 import numpy as np
-import pandas as pd
+import scipy.stats as ss
 import matplotlib.pyplot as plt
 import scipy.stats as stats
-target_distribution = stats.multivariate_normal(mean=[0,0], cov=[[1, 0.6],[0.6, 1]])
 
+# # ----------------------------- Defining functions ---------------------------
+# Defining target probability
+def p(x):
+    sigma = np.array([[1, 0.6], [0.6, 1]])  # Covariance matrix
+    return ss.multivariate_normal.pdf(x, cov=sigma)
+
+# # ----------------------------- Sampling  ---------------------------
+samples = np.zeros((300, 2))
+np.random.seed(42)
+
+x = np.array([7, 0])
+for i in range(300):
+    samples[i] = x
+    # Gaussian proposal for symmetry
+    x_prime = np.random.multivariate_normal(mean=x, cov=np.eye(2), size=1).flatten()
+    acceptance_prob = min(1, (p(x_prime) )/ (p(x)))
+    u = np.random.uniform(0, 1)
+    if u <= acceptance_prob:
+        x = x_prime
+    else:
+        x = x
+
+# # ----------------------------- Vizualising  ---------------------------
+ 
+# For vizualising normal contours       
+X, Y = np.mgrid[-3:3:0.05, -3:3:0.05]    
 X, Y = np.mgrid[-3:3:0.05, -3:3:0.05]
 XY = np.empty(X.shape + (2,))
 XY[:,:,0] = X; XY[:,:,1] = Y
-plt.contour(X, Y, target_distribution.pdf(XY))
+target_distribution = stats.multivariate_normal(mean=[0,0], cov=[[1, 0.6],[0.6, 1]])
 
-class Sampling (object):
-    """
-    Abstract base class for all sampling methods.
-    
-    Subclasses need to implement self.sample()
-    """
-    def sample(self):
-        pass
-    
-    def __str__(self):
-        """
-        Default is to show class
-        """
-        return str(self.__class__)
-    
-class InversionSampling (Sampling):
-    def __init__(self, h_inv):
-        self.h_inv = h_inv
-        
-    def sample(self):
-        return self.h_inv(np.random.uniform())
-    
-class Proposer (object):
-    """
-    Wraps two functions needed by a proposer Q, i.e.
-      Draw a new value y ~ Q.propose(x)
-      Compute log transition probability Q.log_trans_prob(x,y) 
-    """
-    def __init__(self, propose, log_trans_prob):
-        self.propose = propose
-        self.log_trans_prob = log_trans_prob
-    
-    def propose(self, x):
-        return self.propose(x)
-    
-    def log_trans_prob(self, x, x_prime):
-        return self.log_trans_prob(x, x_prime)
 
-class MetropolisHastings (Sampling):
-    def __init__(self, log_p, q, x):
-        """
-        q is assumed to be a proposer and log_p computes log p(x)
-        """
-        self.x = x # Current sample
-        self.log_p = log_p
-        self.q = q
-        self.samples = 0
-        self.accepted = 0
-        
-    def __str__ (self):
-        return "Metropolis Hastings: Accepted %d out of %d samples" % (self.accepted, self.samples)
-        
-    def sample (self):
-        self.samples += 1
-        # Propose new candidate
-        x_prime = self.q.propose(self.x)
-        A = self.log_p(x_prime) + self.q.log_trans_prob(x_prime, self.x) \
-            - self.log_p(self.x) - self.q.log_trans_prob(self.x, x_prime)
-
-        if A > np.log(np.random.uniform()):
-            self.accepted += 1
-            self.x = x_prime
-        return self.x
-
-x0 = [-3, 3]
-
-sampling = MetropolisHastings(log_p=target_distribution.logpdf, \
-                              q=Proposer(lambda x: stats.multivariate_normal(mean=x, cov=[[1,0.5],[0.5,1]]).rvs(),
-                                         lambda x,x_prime: stats.multivariate_normal(mean=x, cov=[[1,0.5],[0.5,1]]).logpdf(x)), # Proposal is actually symmetric
-                              x=x0)
-
-samples = [x0]
-N = 250
-for _ in range(N):
-    samples = np.vstack([samples, sampling.sample()])
-    
-
-plt.subplot(1, 2, 1) # row 1, col 2 index 1
-plt.contour(X, Y, target_distribution.pdf(XY),cmap="copper")
-plt.subplot(1, 2, 2) # index 2
-plt.plot(samples[:,0], samples[:,1], 'ro-', color="navy", linewidth=.2, markersize=.7)
-plt.contour(X, Y, target_distribution.pdf(XY), cmap="copper")
+plt.subplot(2, 2, 1) # row 1, col 2 index 1
+plt.contour(X, Y, target_distribution.pdf(XY),cmap=plt.cm.Blues)
+plt.ylim(-3,5)
+plt.xlim(-3,8)
+plt.subplot(2, 2, 2) # index 2
+plt.plot(samples[0:100,0], samples[0:100,1], 'ro-', color="navy", linewidth=.2, markersize=.7,label="First 100 samples")
+plt.contour(X, Y, target_distribution.pdf(XY),cmap=plt.cm.Blues)
+plt.legend(loc="upper right",fontsize=9)
+plt.ylim(-3,5)
+plt.xlim(-3,8)
+plt.subplot(2, 2, 3) # index 3
+plt.plot(samples[0:200,0], samples[0:200,1], 'ro-', color="navy", linewidth=.2, markersize=.7,label="First 200 samples")
+plt.contour(X, Y, target_distribution.pdf(XY),cmap=plt.cm.Blues)
+plt.legend(loc="upper right",fontsize=9)
+plt.ylim(-3,5)
+plt.xlim(-3,8)
+plt.subplot(2, 2, 4) # index 4
+plt.plot(samples[0:300,0], samples[0:300,1], 'ro-', color="navy", linewidth=.2, markersize=.7, label="First 300 samples")
+plt.contour(X, Y, target_distribution.pdf(XY),cmap=plt.cm.Blues)
+plt.legend(loc="upper right",fontsize=9)
+plt.ylim(-3,5)
+plt.xlim(-3,8)
+plt.savefig("metro_example.pdf")
 plt.show()
 \end{lstlisting}
-
-
-
-
-
-
-
 
 \end{appendices}

@@ -4,7 +4,7 @@ Neural networks are machine learning algorithms inspired by the biological neura
 \\
 In this chapter we introduce the most common neural network, the feedforward neural network, in section \ref{sec:feedforward_nn}, which is the type of network we refer to throughout the dissertation, when we use the term neural network. In section \ref{sec:backprop} we examine a common method for training a neural network called backpropagation and in sections \ref{sec:early_stopping} and \ref{sec:dropout} we introduce some popular methods of regularizing neural networks to avoid overfitting. 
 
-\section{Feedforward neural networks} \label{sec:feedforward_nn}
+\section{Feedforward Neural Networks} \label{sec:feedforward_nn}
 The most simple neural networks are called feedforward neural networks or multilayer perceptrons (MLPs). They are called feedforward as information flows in one direction through the neurons. The neurons are typically arranged in layers to indicate which neurons receive and sends data to which neurons. These layers are typically vector-valued with each element of the vector playing the role as a neuron. As such one can describe a neural network as a chain of functions. Say we have 3 layers, then the neural network is $f(\mathbf{x}) = f^{(3)}\lr{f^{(2)}\lr{f^{(1)}\lr{\mathbf{x}}}}$, with $f^{(1)}$ being the first layer to pass the data, $f^{(2)}$ the second layer and so on. The final layer is called the output layer, while the intermediate layers, that don't directly show their output to the user, are called hidden layers. \\
 \\
 A feedfoward neural network is shown in figure \ref{fig:mlp} where the data flows from the input layer through 2 hidden layers and finally to the output layer. While the number of neurons in the input layer and output layer depends on example and label dimensions, the number of neurons in the hidden layers and also the number of hidden layers are a design decision chosen by the architect. \\
@@ -65,7 +65,7 @@ Step:
 
 
 \section{Backpropagation} \label{sec:backprop}
-As mentioned in section \ref{sec:train_val} we seek to find the hypothesis $\hat{h}^*_S$ that minimizes our loss empirical loss. In the case of neural networks (with omitted bias terms) $\hat{h}^*_S$ are the weights used in each neuron as described in section \ref{sec:feedforward_nn}. To obtain these optimal weights we train the neural network by minimizing the gradient of the (perhaps regularized) loss function $J$ with respect to the weights. To learn these weights we use a minimization algorithm like stochastic gradient descent described in section \ref{sec:sgd}. However the gradient of the loss function is not readily available in neural networks as we have to trace back the information back through the network that produced $\hat{y}$ for which we calculate the loss. The solution is an algorithm proposed by \cite{Rumelhart:1986a} called back-propagation or backprop for short.\\
+As mentioned in section \ref{sec:train_val} we seek to find the hypothesis $\hat{h}^*_S$ that minimizes our loss empirical loss. \textcolor{red}{Mention here that we will collect the bias and weights in a parameter vector $\boldsymbol{\theta}$ for simplicity as we instead of added this bias can put it in the weight-vector if we pad each example with a column of 1's, which makes $\boldsymbol{x}\boldsymbol{w}+\boldsymbol{b} = \boldsymbol{x}_{\text{padded}} \boldsymbol{\theta}$ - replace w by theta in the following and in the algorithms 3 and 4.} In the case of neural networks (with omitted bias terms) $\hat{h}^*_S$ are the weights used in each neuron as described in section \ref{sec:feedforward_nn}. To obtain these optimal weights we train the neural network by minimizing the gradient of the (perhaps regularized) loss function $J$ with respect to the weights. To learn these weights we use a minimization algorithm like stochastic gradient descent described in section \ref{sec:sgd}. However the gradient of the loss function is not readily available in neural networks as we have to trace back the information back through the network that produced $\hat{y}$ for which we calculate the loss. The solution is an algorithm proposed by \cite{Rumelhart:1986a} called back-propagation or backprop for short.\\
 \\
 Back-propagation uses the chain rule of calculus, which states that
 \begin{equation*}
@@ -130,5 +130,38 @@ $\boldsymbol{d} \leftarrow \nabla_{\hat{\boldsymbol{y}}} J =  \nabla_{\hat{\bold
 \end{algorithm}
 
 \section{Early Stopping} \label{sec:early_stopping}
+\cite{Goodfellow-et-al-2016} mentions that when we have large models with sufficient capacity to overfit, then we often observe that training error decreases steadily over time, while validation error begins to rise again at some point before ending the training, and that this happens very reliably. This mean that we obtain a better model if we stop training and return the parameters at the point with the lowest validation error. This is the concept of regularizing using early stopping. The algorithm terminates training when no parameters have improved the validation-error over some pre-specified number of iteration called the patience, $p$. The measure of improvement can be controlled by a hyperparameter $\delta$, so that we only constitute an improvement if the decrease in validation error is more than $\delta$. The parameters $\boldsymbol{\theta}$ used for calculating the loss are provided by a training algorithm like ADAM from section \ref{alg:adam} using back-propagation from section \ref{sec:backprop}, while the loss is provided by the network-output for these parameters and the chosen loss function. This procedure is specified more formally in algorithm \ref{alg:es}.
+
+\begin{algorithm}\label{alg:es}
+\SetAlgoLined
+\KwInput{The number of steps between evaluations, $n$}
+\KwInput{The patience parameter i.e. the number of times of observing worsening validation error before terminating, $p$}
+\KwInput{The measure of improvement, $\delta$}
+\KwOutput{Parameters when terminating $\boldsymbol{\theta}^{*}$, training step when terminating $i^{*}$}
+    initialize $i, j \leftarrow 0$ \\
+    initialize $v \leftarrow \infty$\\
+    Let $\boldsymbol{\theta}_0$ be the initial parameters\\
+    $\boldsymbol{\theta}^* \leftarrow \boldsymbol{\theta}_0$\\
+    $i^* \leftarrow i$\\
+    \While{$j < p$}{
+        Update $\boldsymbol{\theta}$ by running the training algorithm for $n$ steps\\
+        $i \leftarrow i + n$\\
+        $v' \leftarrow \hat{L}\lr{S_{\text{val}}, \boldsymbol{\theta}}$\\
+        \If{$v' < v - \delta$}{
+            $j \leftarrow 0$\\
+             $\boldsymbol{\theta}^* \leftarrow \boldsymbol{\theta}$\\
+            $i^* \leftarrow i$\\
+            $v \leftarrow v'$\\
+            \Else{
+                $j \leftarrow j +1$
+            }
+        }
+    }
+ \caption{Early stopping}
+\end{algorithm}
+
+%One can think of early stopping as a hyperparameter selection algorithm that chooses the number of training steps for the training algorithm. The only significant cost of choosing this parameter automatically with early stopping is running the evaluation of the validation error periodically during training. However this can be done in parallel to the training process, as in Tensorflow where one can run parallel on the GPU. An additional cost is the need to maintain a copy of the optimal parameters, but this is negligible according to \cite{Goodfellow-et-al-2016} since they are written to infrequently and never during the training-algorithm, and since they can preferable be stored in a slower and larger form of memory like in host memory or disk drive. \\
+%\\
+%\cite{bishop1995} and \cite{sjoberg_ljung1995} argues that early stopping has the effect of restricting the optimization procedure to a small volume of parameter space in the neighborhood of the initial parameter value. \cite{Goodfellow-et-al-2016} shows with a simple linear model with a quadratic error function and simple linear descent how early stopping is equivalent to $L^2$ regularization in equation \ref{eq:L2_reg}, but that early stopping has the advantage of automatically determining the correct amount of regularization while $L^2$ regularization requires many training experiments with different values of its hyperparameter $\alpha$. 
 
 \section{Dropout} \label{sec:Dropout}

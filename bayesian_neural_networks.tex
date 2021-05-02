@@ -1,7 +1,7 @@
 \chapter{Bayesian Neural Networks}
 
 
-\section{Bayesian versus frequentist views of learning}\label{sec:bayesian_stat}
+\section{Bayesian \& Frequentist Views of Learning}\label{sec:bayesian_stat}
 In this section we will introduce two concepts of statistical inference. In inferential statistics, the goal is to infer something about a population from data which comes from a sample taken from the population. There are two main approaches in statistical inference, the Bayesian and the Frequentistic paradigm.\\ 
 \\
 The ideas behind Bayesian statistics goes back to the 18th century and is named after Thomas Bayes (\cite{stigler1986history}). The theory considers probability to reflect uncertainties and belief. Learning is performed by simple applications of rules of probability in particular Bayes' Rule. The results of Bayesian learning are probability distributions over all unknown quantities. On the other hand the conventional frequentistic methodology is to consider the model parameters $\boldsymbol{\theta}$ as fixed but unknown, while the point estimate $\hat{\boldsymbol{\theta}}$ is a random variable, as it is a function of the data set which is assumed to be random and conclusions are made by emphasizing the frequency of the data.
@@ -12,9 +12,10 @@ To illustrate the difference between these two methods in more detail, we will c
 A Bayesian statistician would express this uncertainty by a probability distribution over possible values of the unknown probability, and she would then update the distribution as more observations becomes known. On the other hand a frequentist, would find the introduction of a distribution over parameter weights as pure nonsense. The frequentist would instead flip the coin a given number of times to form a data set, and choose some estimator, for the unknown probability $p$ which would be most consistent with the data, an obvious choice would be the relative frequency of heads in the past coin tosses. For example if we flip the coin $n$ times and it has come up heads 70\% of the time, the frequentist would say that this coin is unbalanced whereas the Bayesian would say that it surely looks like the coin is unbalanced, and then update her belief about the coin as more and more flips are repeated. In the next section we will introduce these two paradigms in a more formal way.
 
 
+
 \subsection{Maximum Likelihood Estimation}
 Let us now consider a data set $\mathbf{X}$, with $n$ examples $x^{(1)}, x^{(2)},\ldots x^{(n)}$ drawn independently form the true but unknown distribution. We let
-$L(\mathbf{X};\boldsymbol{\theta})\equiv p(\mathbf{X};\boldsymbol{\theta})$, be parametric family of probability distributions, with parameter $\boldsymbol{\theta}$, which is called the likelihood function. A frequentist is as described earlier trying to find an estimate of the true parameter that have generated the data, we call such an estimate a point estimate and denote $\hat{\boldsymbol{\theta}}$ to separate it from the true parameter. A point estimate can be viewed as a function of data $\hat{\boldsymbol{\theta}}=g(x^{(1)}, x^{(2)},\ldots x^{(n)})$ which is drawn from a random process and thus $\hat{\boldsymbol{\theta}}$ is a random variable.
+$L(\mathbf{X};\boldsymbol{\theta})\equiv p(\mathbf{X};\boldsymbol{\theta})$, be a parametric family of probability distributions, with parameter $\boldsymbol{\theta}$, which is called the likelihood function. A frequentist is as described earlier trying to find an estimate of the true parameter that have generated the data, we call such an estimate a point estimate and denote $\hat{\boldsymbol{\theta}}$ to separate it from the true parameter. A point estimate can be viewed as a function of data $\hat{\boldsymbol{\theta}}=g(x^{(1)}, x^{(2)},\ldots x^{(n)})$ which is drawn from a random process and thus $\hat{\boldsymbol{\theta}}$ is a random variable.
 In most cases of frequentistic inference a point estimate is found by maximizing the likelihood and thus called the maximum likelihood estimate (MLE)
 \begin{equation*}
 \begin{split}
@@ -22,7 +23,7 @@ In most cases of frequentistic inference a point estimate is found by maximizing
         & = \argmax_{\boldsymbol{\theta}}{\prod^n_{i=1}p(x^{(i)},\boldsymbol{\theta})}
 \end{split}
 \end{equation*}
-It is often more convenient to maximize a sum instead of a product, not only is it easier to handle sums when differentiating but it also helps stabilize the calculations numerically (\cite{Goodfellow-et-al-2016}), thus we take the log of the likelihood function to obtain the log-likelihood function $\ell(\mathbf{X};\boldsymbol{\theta})\equiv \ln{p(\mathbf{X};\boldsymbol{\theta})}$,
+It is often more convenient to maximize a sum instead of a product, not only is it easier to handle sums when differentiating but it also helps stabilize the calculations numerically (\cite{Goodfellow-et-al-2016}). Thus we take the logarithm of the likelihood function to obtain the log-likelihood function $\ell(\mathbf{X};\boldsymbol{\theta})\equiv \ln{p(\mathbf{X};\boldsymbol{\theta})}$,
 \begin{equation*}
 \begin{split}
         \boldsymbol{\boldsymbol{\theta}}_{\text{MLE}}&=\argmax_{\boldsymbol{\theta}}{\ell(\mathbf{X};\boldsymbol{\theta})}\\
@@ -31,11 +32,11 @@ It is often more convenient to maximize a sum instead of a product, not only is 
 \end{equation*}
 and since the logarithm is a monotonic-increasing function, optimizing the log-likelihood is equivalent to optimizing the likelihood. \\
 \\
-There is two main reasons on why maximum likelihood is considered the preferred estimator to use by frequentist in statistics and machine learning, the MLE is consistent and efficient. We say that an estimator $\hat{\boldsymbol{\theta}}$ is consistent if it converges in probability to the true parameter. That is
+There is two main reasons on why maximum likelihood is considered the preferred estimator to use by frequentist in statistics and machine learning, the MLE is consistent and efficient. We say that an estimator $\hat{\boldsymbol{\theta}}$ is consistent if it converges in probability to the true parameter,
 \begin{equation*}
     \lim_{n \rightarrow \infty} p\left(\mid\hat{\boldsymbol{\theta}}-\boldsymbol{\theta}\mid > \epsilon\right)=0
 \end{equation*}
-for all $\epsilon>0$ and an efficient estimator is an estimator that estimates the true parameter of interest in some best possible manner. \\
+for all $\epsilon>0$ and an efficient estimator is an estimator that estimates the true parameter of interest in some best possible manner \textcolor{red}{MAYBE ELABORATE ON THIS? - perhaps delete}. \\
 \\
 When data is small, the MLE is often prone to overfitting and regularization methods such as penalized maximum likelihood are applied (see e.g \cite{hastie01statisticallearning}).\\
 \\
@@ -64,14 +65,13 @@ and since $\frac{1}{2 \sigma^{2}}$ does not depend on $\boldsymbol{\theta}$ eith
 
 
 
-
-\subsection{Bayesian learning and prediction}
+\subsection{Bayesian Learning and Prediction}
 As we discussed in the introduction to this section: where the frequentist considers the parameter value $\boldsymbol{\theta}$ as fixed but unknown, and the point estimator $\hat{\boldsymbol{\theta}}$ as random variable, the Bayesian perspective on statistics is quite different, since it considers the dataset as being fixed and observable and thus not at all random. On the other hand the true parameter $\boldsymbol{\theta}$ is unknown and thus considered a random variable. \\
 In Bayesian modelling, we begin with defining a prior distribution $p(\boldsymbol{\theta})$ over the parameters. This prior distribution expresses our initial view on the parameters, before any data has been observed. When data becomes available, we update our prior distribution to a posterior distribution. The posterior distribution is defined by Bayes' Rule, 
 \begin{equation*}
          p(\boldsymbol{\theta}|\mathbf{X},\mathbf{y})=\frac{p(\boldsymbol{\theta})p(\mathbf{X},\mathbf{y}|\boldsymbol{\theta})}{p(\mathbf{X},\mathbf{y})}
 \end{equation*}
-and it combines the information about the data, that comes from the likelihood function $p(\mathbf{X},\mathbf{y}|\boldsymbol{\theta})$, with the a priori information given by the prior distribution. $p(\mathbf{X},\mathbf{y})$ is called the model evidence and can be interpreted as a normalizing constant given as $p(\mathbf{X},\mathbf{y})=\int p(\mathbf{X},\mathbf{y}\mid \boldsymbol{\theta})p(\boldsymbol{\theta})d\boldsymbol{\theta}$.
+and it combines the information about the data, that comes from the likelihood function $p(\mathbf{X},\mathbf{y}|\boldsymbol{\theta})$, with the a prior information given by the prior distribution. $p(\mathbf{X},\mathbf{y})$ is called the model evidence and can be interpreted as a normalizing constant given as $p(\mathbf{X},\mathbf{y})=\int p(\mathbf{X},\mathbf{y}\mid \boldsymbol{\theta})p(\boldsymbol{\theta})d\boldsymbol{\theta}$.
 We often ignore the normalizing constant and simply writes, 
 \begin{equation} \label{eq:posterior}
     p(\boldsymbol{\theta}|\mathbf{X},\mathbf{y})\propto p(\boldsymbol{\theta})p(\mathbf{X},\mathbf{y}|\boldsymbol{\theta})
@@ -84,8 +84,14 @@ posterior predictive distribution, that is to integrate the model predictions by
         &=\int p\left(\boldsymbol{y}^{(n+1)} \mid \boldsymbol{\boldsymbol{x}^{(n+1)}, \theta}\right) p \lr{\boldsymbol{\theta} \mid \lr{\boldsymbol{x}^{(1)}, \boldsymbol{y}^{(1)}}, \ldots, \lr{\boldsymbol{x}^{(n)}, \boldsymbol{y}^{(n)}}} \, d \boldsymbol{\theta}
     \end{split}
 \end{equation}
-This is quite different from the maximum likelihood method, that uses a point estimate for $\boldsymbol{\theta}$ to make predictions on any unobserved data, the Bayesian method takes the uncertainty of estimating $\boldsymbol{\theta}$ into account, which tends to do well in avoidance of overfitting (\cite{Goodfellow-et-al-2016}). The above integral is of an application of the laws of probability (Bayes rule), which makes the Bayesian approach easy to justify theoretically, whereas the frequentist method, is rather based on what \cite{Goodfellow-et-al-2016} calls an ad hoc decision to summarize all knowledge contained in the dataset, with a single point estimator value. \\
-An important difference between the Bayesian approach and the MLE, lies on the contribution of a prior distribution. The prior has the effect of shifting the probability mass towards regions of the parameter space, that are preferred a priori. According to \cite{Goodfellow-et-al-2016}, the prior often expresses a preference for models that are simpler or more smooth. Critics of the Bayesian method, often point their finger at the prior distribution, and criticize it for being a subjective component that can affect the predictions of the model. According to \cite{neal2012bayesian} Bayesian methods often do a lot better than a frequentistic model, when training data is limited in availability, but suffers from high computational cost when the number of training examples is large. \\
+This is quite different from the maximum likelihood method, that uses a point estimate for $\boldsymbol{\theta}$ to make predictions on any unobserved data, the Bayesian method takes the uncertainty of estimating $\boldsymbol{\theta}$ into account, which tends to do well in avoidance of overfitting (\cite{Goodfellow-et-al-2016}). The above integral is of an application of the laws of probability (Bayes rule), which makes the Bayesian approach easy to justify theoretically, whereas the frequentist method, is rather based on what \cite{Goodfellow-et-al-2016} calls an ad hoc decision to summarize all knowledge contained in the dataset, with a single point estimator value. 
+\\
+\\
+An important difference between the Bayesian approach and the MLE, lies on the contribution of a prior distribution. The prior has the effect of shifting the probability mass towards regions of the parameter space, that are preferred a priori. According to \cite{Goodfellow-et-al-2016}, the prior often expresses a preference for models that are simpler or more smooth. Critics of the Bayesian method, often point their finger at the prior distribution, and criticize it for being a subjective component that can affect the predictions of the model. According to \cite{neal2012bayesian} Bayesian methods often do a lot better than a frequentistic model, when training data is limited in availability, but suffers from high computational cost when the number of training examples is large. 
+\\
+\\
+\cite{neal2012bayesian} and \cite{mackay1991} argues that Bayesian models embodies Occam's Razor, which is the principle that we should prefer simpler model to complex ones. This principles is a component often found in machine learning since a too complex model might overfit the data. This belief is justified when model parameters are estimated by maximum likelihood, but \cite{neal2012bayesian} argues that one should not limit the complexity of Bayesian neural networks to prevent overfitting. The frequentistic approach of using maximum likelihood might lead to a choice of models with increasing complexity the more data that is available. With a Bayesian approach adjusting the complexity of the model based on the amount of data available makes no sense, since a correct prior and model for 10 observations must be correct for 10.000 observations as well. One might however switch to a simple model if it seems unlikely that a complex computational expensive model with provide any significant benefit. 
+\\
 \\
 In many practical examples, the posterior distribution is intractable and therefor must be derived in some other way. Often we will use methods such as Monte Carlo or Variational inference to approximate the posterior distribution. This is of course much more heavy in regard to computational time, then calculating a single point estimate and thus a pendant to MLE is introduced in the next section.
 
@@ -144,6 +150,8 @@ which is equivalent to
 \end{equation*}
 When it is not possible to make simulations of $\mathbf{x}$ directly, either because the distribution $p(\mathbf{x})$ is intractable or because sampling from $p(\mathbf{x})$ is computationally infeasible, Markov Chain Monte Carlo methods are used, which in short is based on simulating from a target distribution by running a Markov Chain that eventually will converge and have the target distribution as its stationary distribution. Markov Chain Monte Carlo methods will be examined more thoroughly in section \ref{sec:MCMC}.
 
+
+
 \section{A Simple Bayesian Neural Network} \label{sec:simple_BNN}
 
 \begin{figure}
@@ -172,245 +180,207 @@ The optimal way to predict the target associated with various new examples, assu
 As we can only sample from this distribution we resort to a Monte Carlo approximation by averaging over the 6 functions drawn from the posterior as in equation \ref{eq:empirical_mean_MC}. This is also equivalent to minimizing mean squared error. The average is shown in \ref{fig:simple_BNN} by the dotted line. But Bayesian inference can do more than a single-valued guess. By examining the function we can also see the uncertainty of the guesses, for example how rapidly uncertainty increases beyond the region of the datapoints. 
 \\
 \\
-\textcolor{red}{Add text on how we don't need to regularize, and make a train/test split and other perks of BNNs that Neal mentions (perhaps just refer to him instead of showing/arguing for them. MacKay1991 mentions that BNN applies Occams Razor automatically.}\\
-\\
 This shows some of the perks of using Bayesian inference for neural networks, but what remains is the downside of computational time. Generating $10^5$ samples to get 6 draws from the posterior not very efficient and this only becomes more infeasible as the number of datapoints increase. In section \ref{sec:MCMC} we discuss how to sample more effectively from the posterior using Markov-Chain Monte Carlo methods and in \ref{sec:ADVI} we introduce the approach of variations inference for approximating intractable integrals. Another unresolved matter is how to choose the prior, and how this choice affects our results. This is discussed in \ref{sec:priors} while how to efficiently choose the parameters of the prior is discussed in \ref{sec:hier_models}.
 
 
-\section{Priors}\label{sec:priors}
-From section \ref{sec:bayesian_stat} and the example given in section \ref{sec:simple_BNN} it is seen that Bayesian inference starts with a prior for the model parameters, which is suppose to embody ones prior beliefs about the assigned task. However in neural networks the relationship between parameters and the problem can be very abstract and not as intuitive as in other machine learning models like linear regression models or SVMs. \\
-\\
-\cite{neal2012bayesian} stresses that even though it can seem like BNNs can be threatened by a lack of a suitable prior this is not the case, as much past work shows useful criteria for selecting suitable priors, even without full understanding of what the prior over the parameters will mean in terms of the output of the network. \cite{mackay1991} and \cite{MacKay1992} has produced results, that Neal describes as at least reasonable, by giving the parameters Gaussian prior distributions. He lets the variance of these distribution be selected as a hyperparameter, which allows the model to adapt to the data. We must state however, that we do not suggest that this is the correct prior to use, as each learning problem is unique. In his work MacKay emhasizes the advantage of hierachichal models described in section \ref{sec:hier_models}.\\
-\\
-In a BNN the role of the hyperparameters for the priors of the parameters correspond roughly to he role of the weight decay constant $\alpha$ in equation \ref{eq:reg_obj_func} used in training of a conventional neural network. But as noted by \cite{neal2012bayesian} these hyperparameters in BNNs can be found without the need for a validation set.
 
-
-
-\section{Hierarchical Models} \label{sec:hier_models}
-\textcolor{red}{TÆNKER VI KAN SKRIVE LIDT OM HIERAKISKE MODELLER OGSÅ - KAN EVENTUELT FLYTTES ANDET STEDS HEN HVIS DET PASSER BEDRE.}
-
-\clearpage
-\section{Markov chain Monte Carlo}\label{sec:MCMC}
- As we mentioned in section \ref{sec:bayesian_stat} the posterior distribution is often intractable and therefore not possible to derive any analytical solution of it. Therefor we need simulation based methods. We want to be able to calculate posterior summaries like $\mathbb{E}_p\left[f(\boldsymbol{\theta})\right]$ where $f(\boldsymbol{\theta})$ is our model and the expectation is taking under the posterior distribution. Such an expectation is straight forward to approximate when dealing with nice and low dimensional distributions, with simple Monte Carlo methods as described in section \ref{sec:MC_methods}. Other Methods like importance sampling has often been proposed in the litterateur for simple problems, but rarely for high-dimensional problems as we face with Neural Networks.
+\section{Markov Chain Monte Carlo}\label{sec:MCMC}
+ As mentioned in section \ref{sec:bayesian_stat} the posterior distribution is often intractable might need simulation based methods to for a feasible solution. We want to be able to calculate posterior summaries like $\mathbb{E}_p\left[f(\boldsymbol{\theta})\right]$ where $f(\boldsymbol{\theta})$ is our model and the expectation is taking under the posterior distribution. Such an expectation is straightforward to approximate using the simple Monte Carlo methods, described in section \ref{sec:MC_methods}, when dealing with nice and low dimensional distributions. Other Methods like importance sampling has often been proposed in the litterateur for simple problems, but rarely for high-dimensional problems as we often face with Neural Networks.
  \\
  \\
- For more complex models, these methods are not at all useful in practise, a more relevant collection of methods, are the
- Markov chain Monte Carlo (MCMC) methods. The main idea is to simulate a Markov chain, which has the posterior distribution as it's stationary distribution. As a discussion of the different MCMC methods would be rather hard to understand without the fundamental knowledge of Markov chains, we will summarize the most important concepts in the next section. The curious reader is encouraged to see \cite{lawler2006introduction} for a deeper discussion of this subject.
+As demonstrated in section \ref{sec:simple_BNN} simple sample methods like the ones in \ref{sec:MC_methods} are not very useful in complex models like BNNs and we are instead motivated to use a collection of more sophisticated methods. This dissertation will mainly pursue this motivation by exploring the Markov chain Monte Carlo (MCMC) methods. The main idea of these is to simulate a Markov chain, which has the posterior distribution as it's stationary distribution. We will initially give a concise explanation of the fundamentals of Markov Chains in section \ref{sec:basic_mc} and follow this by exploring the most popular MCMC-algorithms for sampling in BNNs.
+A deeper discussion of Markov chains than provided in this dissertation can be found in \cite{lawler2006introduction}.
  
-\subsection{Definition and Basic Results for Markov chains}
-First we define a stochastic process, which is a set of random variables that are defined over some probability space $\left\{X^{(t)} \right\}_{t\in T}$, where $T\subset \mathbb{R}$ is the indexation and may be considered as a temporal or a time index. In the context of Machine Learning, the set $T$ can be interpreted as the iterations of a simulation scheme. In stochastic simulation we typically have that $T=\mathbb{N}$ and we can write the stochastic process as $\left\{X^{(n)}\right\}_{n\geq 0}$, where $n$ reminds us that we have discrete index set. Throughout this thesis we will only consider discrete time stochastic processes, since this is most relevant when discussing stochastic simulation. \\
-The set $\mathbb{S}$ is the space of the process $\left\{X^{(n)} \right\}_{n\geq 0}$, and denoted the state space. The state space can be any mathematical set, but in most applications it is the set of integers $\mathbb{N}$ or numbers on the real line $\mathbb{R}$.\\
+\subsection{Definition and Basic Results for Markov Chains}\label{sec:basic_mc}
+\textcolor{red}{Might want to clean up and shorten some explanations.}\\
 \\
-In Bayesian modelling we consider the model parameters $\boldsymbol{\theta}$ as a random variable and therefor, we can consider a sequence of generated model parameters as a stochastic process. In this section we introduce the basic theory, and we will let $\{\boldsymbol{\theta}^{(n)}\}_{n\geq 0}$ denote the stochastic process of interest.\\ \\
-The objective with the BNN model is as early mentioned to make predictions for some unknown test cases. For this we either need the posterior predictive distribution from equation \ref{eq:post_pred_distribution} which is often not possible to derive analytically or we might be interested in an expectation of a model with respect to the posterior distribution.
-We call the distribution we wish to sample from the target distribution and denote it $\hat{p}(\cdot)$. The target distribution in Bayesian statistics in often the posterior and thus $\hat{p}(\boldsymbol{\theta})\equiv p(\boldsymbol{\theta}\mid \mathbf{X},\mathbf{y})$. Let us now assume we want to calculate an expectation of some function $\alpha(\boldsymbol{\theta})\equiv f_i(\mathbf{x}^{(n+1)};\boldsymbol{\theta})$ with respect to the target distribution, that is
-\begin{equation}\label{eq: expectation_under_posterior}
-    \mathbb{E}\left[\alpha(\boldsymbol{\theta})\right]=\int \alpha(\boldsymbol{\theta})\hat{p}(\boldsymbol{\theta}) d\boldsymbol{\theta}
-\end{equation}
-In section \ref{sec:MC_methods} we saw that such an expectation can be approximated by the empirical average, where we have drawn $\boldsymbol{\theta}$ from the target distribution $\hat{p}(\boldsymbol{\theta})$. The draws in simple Monte carlo methods are i.i.d, which is a very inefficient way of drawing samples when the target distribution is complex, often this is not even a possibility.\\
+A stochastic process is a set of random variables that are defined over some probability space $\left\{X^{(t)} \right\}_{t\in T}$, where $T\subset \mathbb{R}$ is the indexation and may be considered as a temporal or a time index. In the context of Machine Learning, the set $T$ can be interpreted as the iterations of a simulation scheme. In stochastic simulation we typically have that $T=\mathbb{N}$ and we can write the stochastic process as $\left\{X^{(n)}\right\}_{n\geq 0}$, where $n$ reminds us that we have discrete index set. Throughout this thesis we will only consider discrete time stochastic processes, since this is most relevant when discussing stochastic simulation. \\
+The state space is the set of the process $\left\{X^{(n)} \right\}_{n\geq 0}$, and will in most application by either integers or real values and is denoted by $\mathbb{S}$. 
 \\
-Another way is generate a sequence of dependent variables $\boldsymbol{\theta}^{(n)}$, such a sequence is often generated by simulating a stochastic process $\{\boldsymbol{\theta}^{(n)}\}_{n\geq 0}$ and not an arbitrary stochastic process, but a process that satisfies the Markov property. The Markov property states that to make predictions about a future state of the system, it suffices to consider only the present state of the system and not all the past states. Such a process is called a Markov chain, named after the famous mathematician Andrey Markov. Formally we can write this as $ \boldsymbol{\theta}^{n} \independent (\boldsymbol{\theta}^0,\boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^{n-2}) \mid \boldsymbol{\theta}^{n-1}$. The Markov chain is defined by an initial distribution for the first state of the chain $\boldsymbol{\theta}^{(0)}$, and transition probability/density for the next states in the system. We write the transition probability from transitioning from state $\boldsymbol{\theta}$ to another state $\boldsymbol{\theta}^\prime$ as $T(\boldsymbol{\theta}^\prime\mid \boldsymbol{\theta})$. \\
 \\
-When drawing samples from the stochastic process $\{\boldsymbol{\theta}^{(n)}\}_{n\geq 0}$ we want to make sure that draws are actually coming from the desired distribution $\hat{p}(\boldsymbol{\theta})$ no matter the initial probability. To do this we need the fact that if a Markov chain has a stationary distribution $\pi(\boldsymbol{\theta})$, and reach a state of the chain where this distribution is established the distribution persists. That is if $\boldsymbol{\theta}^{(n)}$ has $\hat{p}(\boldsymbol{\theta})$ as it's distribution, then  $\boldsymbol{\theta}^{(n^\prime)}$ will have the same distribution, and this will hold for all $n^\prime\geq n$. Formally we call this property, the invariance property,
+As in section \ref{sec:simple_BNN} we want to sample from the posterior predictor, that's likely intractable, and we do this by trying to sample from the posterior of the weights and send these sampled weights through the network to obtain network-outputs, that are then used to find sampled from the posterior predictive distribution. This shows how we consider the model parameters $\boldsymbol{\theta}$ as random variables and aims to sample from the posterior of these. To do this using MCMC we can consider the stochastic process $\{\boldsymbol{\theta}^{(n)}\}_{n\geq 0}$. We call the distribution we wish to sample from the target distribution and denote it $\hat{p}(\cdot)$. The target distribution in case of BNNs is the posterior of the weights so that $\hat{p}(\boldsymbol{\theta})\equiv p(\boldsymbol{\theta}\mid \mathbf{X},\mathbf{y})$. 
+\\
+\\
+Using Markov Chain Monte Carlo we aim to sample from a stochastic process satisfying the Markov property. Such a process is defined by being dependant only on the previous state of the process and a set of transitional probabilities and is called a Markov chain. The Markov chain is defined by an initial distribution for the first state of the chain $\boldsymbol{\theta}^{(0)}$, and transition probability/density for the next states in the system. We write the transition probability from transitioning from state $\boldsymbol{\theta}^{(n-1)}$ to another state $\boldsymbol{\theta}^{(n)}$ as $T(\boldsymbol{\theta}^{(n)}\mid \boldsymbol{\theta}^{(n-1)})$. \\
+\\
+When sampling from the Markov chain we want to make sure that samples are actually coming from the desired distribution $\hat{p}(\boldsymbol{\theta})$ no matter the initial probability. \textcolor{red}{To do this we need the fact that if a Markov chain has a stationary distribution $\pi(\boldsymbol{\theta})$, and reach a state of the chain where this distribution is established the distribution persists. That is if $\boldsymbol{\theta}^{(n-1)}$ has $\hat{p}(\boldsymbol{\theta})$ as it's distribution, then  $\boldsymbol{\theta}^{(n)}$ will have the same distribution, and this will hold for all future states of the chain. - er en markov kæde invariant, hvis den er en stationær fordeling?} Formally we call this property, the invariance property,
 \begin{equation*}
-    \pi(\boldsymbol{\theta}^\prime)=\int T(\boldsymbol{\theta}^\prime\mid \boldsymbol{\theta}) \pi(\boldsymbol{\theta})d\boldsymbol{\theta}
+    \pi(\boldsymbol{\theta}^{(n)})=\int T(\boldsymbol{\theta}^{(n)}\mid \boldsymbol{\theta}) \pi(\boldsymbol{\theta})d\boldsymbol{\theta}
 \end{equation*}
-A sufficient, but not necessary condition that ensures that a particular $\hat{p}(\boldsymbol{\theta})$ is the desired stationary distribution is the detailed balance condition. The condition states if we let $T(\cdot,\cdot)$ be a transition probability which satisfies the following condition $\hat{p}(\boldsymbol{\theta})T(\boldsymbol{\theta}, \boldsymbol{\theta}^\prime) = \hat{p}(\boldsymbol{\theta}^\prime)T(\boldsymbol{\theta}^\prime, \boldsymbol{\theta})$, then $\hat{p}(\cdot)$ is a stationary distribution of the Markov chain associated with the transition probability $T(\cdot,\cdot)$. The detailed balanced condition is proved below, 
+A sufficient, but not necessary condition that ensures that a particular $\hat{p}(\boldsymbol{\theta})$ is the desired stationary distribution is the detailed balance condition. The condition states if we let $T(\cdot,\cdot)$ be a transition probability, which satisfies the following condition $T(\boldsymbol{\theta}^{(n-1)}, \boldsymbol{\theta}^{(n)}) \hat{p}(\boldsymbol{\theta}^{(n)})= T(\boldsymbol{\theta}^{(n)}, \boldsymbol{\theta}^{(n-1)})\hat{p}(\boldsymbol{\theta}^{(n-1)})$, then $\hat{p}(\cdot)$ is a stationary distribution of the Markov chain associated with the transition probability $T(\cdot,\cdot)$. This ensure that we can sample from the posterior using this approach. \textcolor{red}{The detailed balanced condition is proved below (SKAL EVENTUELT SLETTES?)}, 
 \begin{proof}
-Suppose that a distribution $\hat{p}(\cdot)$ satisfies the condition of the detailed balance theorem. Then
+Suppose that a distribution $\hat{p}(\cdot)$ satisfies the condition of the detailed balance, then
  \begin{equation*}
      \begin{split}
-         &\hat{p}(\boldsymbol{\theta})T(\boldsymbol{\theta},\boldsymbol{\theta}^\prime)= \hat{p}(\boldsymbol{\theta}^\prime)T(\boldsymbol{\theta}^\prime,\boldsymbol{\theta}) \Leftrightarrow \\
-          &\int\hat{p}(\boldsymbol{\theta})T(\boldsymbol{\theta},\boldsymbol{\theta}^\prime)d\boldsymbol{\theta}=\int \hat{p}(\boldsymbol{\theta}^\prime)T(\boldsymbol{\theta}^\prime,\boldsymbol{\theta}) d\boldsymbol{\theta} \\
-         &= \hat{p}(\boldsymbol{\theta}^\prime)\int T(\boldsymbol{\theta}^\prime,\boldsymbol{\theta})d\boldsymbol{\theta} =\hat{p}(\boldsymbol{\theta}^\prime)
+         &T(\boldsymbol{\theta}^{(n)},\boldsymbol{\theta}^{(n-1)})\hat{p}(\boldsymbol{\theta}^{(n-1)})= T(\boldsymbol{\theta}^{(n-1)},\boldsymbol{\theta}^{(n)})\hat{p}(\boldsymbol{\theta}^{(n)}) \Leftrightarrow \\
+          &\int T(\boldsymbol{\theta}^{(n)},\boldsymbol{\theta}^{(n-1)})\hat{p}(\boldsymbol{\theta}^{(n-1)})d\boldsymbol{\theta}^{(n-1)}=\int T(\boldsymbol{\theta}^{(n-1)},\boldsymbol{\theta}^{(n)})\hat{p}(\boldsymbol{\theta}^{(n)}) d\boldsymbol{\theta}^{(n-1)} \\
+         &= \hat{p}(\boldsymbol{\theta}^{(n)})\int T(\boldsymbol{\theta}^{(n-1)},\boldsymbol{\theta}^{(n)})d\boldsymbol{\theta}^{(n-1)}  =\hat{p}(\boldsymbol{\theta}^{(n)})
      \end{split}
 \end{equation*}
-where we have used that $\int T(\boldsymbol{\theta}^\prime,\boldsymbol{\theta})d\boldsymbol{\theta}=1$ since the probability of transitioning from state $\boldsymbol{\theta}^\prime$ to any possible state $\boldsymbol{\theta}\in\mathbb{S}$ must be equal to one. 
+where we have used that $\int T(\boldsymbol{\theta}^{(n-1)},\boldsymbol{\theta}^{(n)})d\boldsymbol{\theta}^{(n-1)}=1$ since the probability of transitioning from a given state $\boldsymbol{\theta}^{(n)}$ to any state $\boldsymbol{\theta}^{(n-1)}\in\mathbb{S}$ must be equal to one. 
 \end{proof}
-A Markov chain there is ergodic has a unique stationary distribution from which it converges to from any initial state (see e.g \cite{turkman2019computational}). For a Markov chain to be ergodic, we need two conditions for the states of the system and the transition probabilities. These conditions are known as irreducibility and aperiodicity. If we can create an ergodic Markov chain, with transition probabilites satifying the detailed balance condition, we can approximate expectations like the one in equation \ref{eq: expectation_under_posterior} with an empirical average like in equation \ref{eq:empirical_mean_MC},
+
+\noindent
+An ergodic Markov chain has a unique stationary distribution from which it converges to from any initial state (see e.g \cite{turkman2019computational}). For a Markov chain to be ergodic, we need two conditions for the states of the system and the transition probabilities. These conditions are known as irreducibility and aperiodicity. If we can create an ergodic Markov chain, with transition probabilities satisfying the detailed balance condition, we can approximate expectations like the one in equation \ref{eq: expectation_under_posterior} with an empirical average like in equation \ref{eq:empirical_mean_MC},
 \begin{equation*}
     \mathbb{E}\left[a(\boldsymbol{\theta})\right]\approx \frac{1}{n}\sum_{i=0}^n a(\boldsymbol{\theta}^{(i)})
 \end{equation*}
-where $\boldsymbol{\theta}^{(0)},\ldots \boldsymbol{\theta}^{(n)}$ being the states of the chain. Often we discard or burn some of the initial states, since these may not be representative of the desired distribution since the chain has not reached the stationary distribution yet, such a procedure is called burning in the Markov chain. When the chain has reached the stationary distriubtion, it is possible to draw as many identical distributed samples as we wish for, but one should note that any successive samples will be highly correlated with each other and thus not necessarily a good representative for the target distribution. \cite{Goodfellow-et-al-2016} suggest a way to come around this problem, by only returning every n successive sample. Because of both the burning in phase and the time required for the chain to return uncorrelated samples, MCMC is often computational expensive. \\
+where $\boldsymbol{\theta}^{(0)},\ldots \boldsymbol{\theta}^{(n)}$ being the states of the chain. Often we discard or burn some of the initial states, since these may not be representative of the desired distribution since the chain has not reached the stationary distribution yet, such a procedure is called burning in the Markov chain. When the chain has reached the stationary distribution, it is possible to draw as many identical distributed samples as we wish for, but one should note that any successive samples will be highly correlated with each other and thus not necessarily a good representative for the target distribution. \cite{Goodfellow-et-al-2016} suggest a way to come around this problem, by only returning every n successive sample. Because of both the burning in phase and the time required for the chain to return uncorrelated samples, MCMC is often computational expensive. \\
 \\
-In order to produce truly independent samples, \cite{Goodfellow-et-al-2016} suggest to run multiple Markov chains in parallel and explains that practitioners often uses a number of chains that are run in parallel, similar to the number of examples in a minibatch and then draw the samples needed from this set of Markov chains. \\
+In order to produce truly independent samples, \cite{Goodfellow-et-al-2016} suggest to run multiple Markov chains in parallel and explains that practitioners often uses a number of chains that are run in parallel, similar to the number of examples in a mini-batch and then draw the samples needed from this set of Markov chains. \\
 \\
 In the next section we will cover a very useful way of generating a Markov chain that converges to the target distribution. 
 
 
-\subsection{The Metropolis algorithm} \label{sec:Metropolis_Hastings}
+\subsection{The Metropolis Algorithm} \label{sec:Metropolis}
 The Metropolis algorithm is a Markov chain Monte Carlo (MCMC) method, which is used to sample from a Bayesian posterior. 
-The Metropolis (MH) algorithm was originally introduced by \cite{Metropolis1953} and was developed to simulate the states for a system of idealized molecules (\cite{neal2012mcmc}). This was later further developed by \cite{hastings70}, so that the algorithm could now simulate from a general distribution and not just a symmetric one, as it was previously based on. Due to its versatility and simplicity, the Metropolis algorithm is one of the most widely used in MCMC methods.\\
+The Metropolis algorithm was originally introduced by \cite{Metropolis1953} and was developed to simulate the states for a system of idealized molecules (\cite{neal2012mcmc}). This was later further developed by \cite{hastings70}, so that the algorithm could now simulate from a general distribution and not just a symmetric one, as it was previously based on. Due to its versatility and simplicity, the Metropolis algorithm is one of the most widely used in MCMC methods.\\
 \\
 The Metropolis algorithm generates a sequence of stochastic variables by sampling from a probability distribution, more specific the samples are drawn from a proposal distribution, that specifies the probability of moving to a new point in the sample space. \\
 As mentioned in section \ref{sec:MCMC}, the main idea is to create a Markov chain that will converge towards a given distribution, so that the target distribution becomes the Markov chain's stationary distribution.  \\
 \\
-The simple Metropolis algorithm introduced in the original paper by \cite{Metropolis1953} consider a target distribution $\hat{p}(\boldsymbol{\theta})$ and a proposal distribution $q(\boldsymbol{\theta})$. The algorithm generates a Markov chain, by starting the chain at some arbitrarily point generated from the proposal distribution $\boldsymbol{\theta}^{0}\sim q(\boldsymbol{\theta})$ and then proposing a candidate state for the next state in the chain $\boldsymbol{\theta}^{(cand)}$, where this candidate state is drawn from the conditional distribution on the previous state $\boldsymbol{\theta}^{(cand)}\sim q(\boldsymbol{\theta}^{(n+1)}\mid\boldsymbol{\theta}^{(n)})$, and then we decide whether or not to reject this new state based on the relative probability density to the old state. If the relative density is larger than one, we accept the new state, if the relative density is less than one, we accept the new state with probability $\frac{p(\boldsymbol{\theta}^{cand})}{p(\boldsymbol{\theta}^{(n)})}$. The algorithm is written in pseudo code in algorithm \ref{algo_2}.
+The simple Metropolis algorithm introduced in the original paper by \cite{Metropolis1953} consider a target distribution $\hat{p}(\boldsymbol{\theta})$ and a proposal distribution $q(\boldsymbol{\theta})$. The algorithm generates a Markov chain, by starting the chain at some arbitrarily point generated from the proposal distribution $\boldsymbol{\theta}^{(0)}\sim q(\boldsymbol{\theta})$ and then proposing a candidate state for the next state in the chain $\boldsymbol{\theta}^{\text{\text{cand}}}$, where this candidate state is drawn from the conditional distribution on the previous state $\boldsymbol{\theta}^{\text{\text{cand}}}\sim q(\boldsymbol{\theta}^{(n+1)}\mid\boldsymbol{\theta}^{(n)})$. We then decide whether or not to reject this new state based on the relative probability density to the old state. If the relative density is larger than one, we accept the new state, if the relative density is less than one, we accept the new state with probability $\frac{p(\boldsymbol{\theta}^{\text{\text{cand}}})}{p(\boldsymbol{\theta}^{(n)})}$. In this context the Metropolis algorithm imposes the symmetry condition of on the proposal distribution, so that
+\begin{equation*}
+    q(\boldsymbol{\theta^{(n)}}\mid \boldsymbol{\theta}^{(n-1)})=q(\boldsymbol{\theta}^{(n-1)}\mid \boldsymbol{\theta^{(n)}})
+\end{equation*}
+A pseudo code version of the Metropolis algorithm can be seen in algorithm \ref{algo_2}.
 % Metropolis Algorithm
-\begin{algorithm}[h!]\label{algo_2}
+\begin{algorithm}\label{algo_2}
 
 \SetAlgoLined
-initialize $\boldsymbol{\theta}^0\sim q(\boldsymbol{\theta})$;
+initialize $\boldsymbol{\theta}^{(0)}\sim q(\boldsymbol{\theta})$;
 
-\For{$i=1,2,\ldots$}{
-Propose: $\boldsymbol{\theta}^{c a n d} \sim q\left(\boldsymbol{\theta}^{(i)} \mid \boldsymbol{\theta}^{(i-1)}\right)$
+\For{$n=1,2,\ldots$}{
+Propose: $\boldsymbol{\theta}^{\text{\text{cand}}} \sim q\left(\boldsymbol{\theta}^{(n)} \mid \boldsymbol{\theta}^{(n-1)}\right)$
 
 Acceptance Probability:
 
-$ \alpha\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(i-1)}\right)=\min \left\{1, \frac{p\left(\boldsymbol{\theta}^{c a n d}\right)}{ p\left(\boldsymbol{\theta}^{(i-1)}\right)}\right\} $
+$ \alpha\left(\boldsymbol{\theta}^{\text{\text{cand}}} \mid \boldsymbol{\theta}^{(n-1)}\right)=\min \left\{1, \frac{p\left(\boldsymbol{\theta}^{\text{\text{cand}}}\right)}{ p\left(\boldsymbol{\theta}^{(n-1)}\right)}\right\} $
 
 $u \sim  \text { Uniform }(0,1)
 $
 
   \uIf{$u<\alpha$}{
-    Accept the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{c a n d}$\;
+    Accept the proposal: $\boldsymbol{\theta}^{(n)} \leftarrow \boldsymbol{\theta}^{\text{\text{cand}}}$\;
   }
   \Else{
-    Reject the proposal: $\boldsymbol{\theta}^{(i)} \leftarrow \boldsymbol{\theta}^{(i-1)}$ \;
+    Reject the proposal: $\boldsymbol{\theta}^{(n)} \leftarrow \boldsymbol{\theta}^{(n-1)}$ \;
   }
     }
 \caption{Metropolis algorithm}
 \end{algorithm}\\
-In the original algorithm the proposal distribution must satisfy the symmetry condition,
+One apparent problem is that we don't know the posterior, which is our target distribution $p\lr{\boldsymbol{\theta}}$, so we can't directly calculate $\frac{p(\boldsymbol{\theta}^{(n)})}{p\left(\boldsymbol{\theta}^{(n-1)}\right)}$. But since the algorithm only need the target distribution for calculating this relative density, we can use equation \ref{eq:} and calculate the ratio of the likelihood times the prior. 
+\\
+\\
+To show that the Metropolis algorithm is in fact sampling from the target distribution, we must show that the Markov chain converges to a stationary distribution which is our target distribution. If we assume that the Markov Chain is ergodic we can do this by showing that the metropolis satisfies the detailed balanced condition explained in section \ref{sec:MCMC}.\\
+\\
+For $\boldsymbol{\theta'}\neq \boldsymbol{\theta}$ the Metropolis algorithm has the following transitions densities,
 \begin{equation*}
-    q(\boldsymbol{\theta'}\mid \boldsymbol{\theta})=q(\boldsymbol{\theta}\mid \boldsymbol{\theta'})
+    T\left(\boldsymbol{\theta}^{(n)} \mid \boldsymbol{\theta}^{(n-1)}\right)=q\left(\boldsymbol{\theta}^{(n)} \mid \boldsymbol{\theta}^{(n-1)}\right) \min \left(1, \frac{p\left(\boldsymbol{\theta}^{(n)}\right)}{ \hat{p}(\boldsymbol{\theta}^{(n-1)})}\right)
 \end{equation*}
-To show that this works out, and we are in fact sampling from the target distribution, we must show that these transitions from one state to another in the Markov chain leaves the target distribution invariant. For $\boldsymbol{\theta'}\neq \boldsymbol{\theta}$ the algorithm leads to the following transitions densities,
-\begin{equation*}
-    T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right)=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(1, p\left(\boldsymbol{\theta}'\right) / \hat{p}(\boldsymbol{\theta})\right)
-\end{equation*}
-The detailed balance condition is thus verified by,
+We can show that this satisfies the detailed balanced condition by rewriting
 \begin{equation*}
 \begin{aligned}
-T\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \hat{p}(\boldsymbol{\theta}) &=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(1, p\left(\boldsymbol{\theta}'\right) / \hat{p}(\boldsymbol{\theta})\right) \hat{p}(\boldsymbol{\theta}) \\
-&=q\left(\boldsymbol{\theta}' \mid \boldsymbol{\theta}\right) \min \left(\hat{p}(\boldsymbol{\theta}), \hat{p}\left(\boldsymbol{\theta}'\right)\right) \\
-&=q\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) \min \left(\hat{p}\left(\boldsymbol{\theta}'\right), \hat{p}(\boldsymbol{\theta})\right) \\
-&=q\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) \min \left(1, \hat{p}(\boldsymbol{\theta}) / \hat{p}\left(\boldsymbol{\theta}'\right)\right) \hat{p}\left(\boldsymbol{\theta}'\right) \\
-&=T\left(\boldsymbol{\theta} \mid \boldsymbol{\theta}'\right) \hat{p}\left(\boldsymbol{\theta}'\right)
+T\left(\boldsymbol{\theta}^{(n)} \mid \boldsymbol{\theta}^{(n-1)}\right) \hat{p}(\boldsymbol{\theta}^{(n-1)}) &=q\left(\boldsymbol{\theta}^{(n)} \mid \boldsymbol{\theta}^{(n-1)}\right) \min \left(1,\frac{ p\left(\boldsymbol{\theta}^{(n)}\right) }{ \hat{p}(\boldsymbol{\theta}^{(n-1)})}\right) \hat{p}(\boldsymbol{\theta}^{(n-1)}) \\
+&=q\left(\boldsymbol{\theta}^{(n)} \mid \boldsymbol{\theta}^{(n-1)}\right) \min \left(\hat{p}(\boldsymbol{\theta}^{(n-1)}), \hat{p}\left(\boldsymbol{\theta}^{(n)}\right)\right) \\
+&=q\left(\boldsymbol{\theta}^{(n-1)} \mid \boldsymbol{\theta}^{(n)}\right) \min \left(\hat{p}\left(\boldsymbol{\theta}^{(n-1)}\right), \hat{p}(\boldsymbol{\theta}^{(n-1)})\right) \\
+&=q\left(\boldsymbol{\theta}^{(n-1)} \mid \boldsymbol{\theta}^{(n)}\right) \min \left(1, \frac{\hat{p}(\boldsymbol{\theta}^{(n-1)}) }{ \hat{p}\left(\boldsymbol{\theta}^{(n)}\right)}\right) \hat{p}\left(\boldsymbol{\theta}^{(n)}\right) \\
+&=T\left(\boldsymbol{\theta}^{(n-1)} \mid \boldsymbol{\theta}^{(n)}\right) \hat{p}\left(\boldsymbol{\theta}^{(n)}\right)
 \end{aligned}
 \end{equation*}
-the transitions proposed by the algorithm thus leaves the target distribution $\hat{p}(\boldsymbol{\theta})$ invariant and thus samples produced by this Markov chain all has the same stationary distribution $\hat{p}(\boldsymbol{\theta})$. One problem arises since the algorithm needs to calculate the relative density of $\frac{p(\boldsymbol{\theta'})}{p\left(\boldsymbol{\theta}\right)}$, but our target distribution is often intractable and thus a analytical solution is not possible. But since the algorithm only need the target distribution for calculating the relative density, we can use that we know that the posterior is equal to the likelihood times the prior up to some constant of normalization and thus we can use this instead of the target distribution directly.\\
+This shows that the transitions proposed by the algorithm leaves the target distribution $\hat{p}(\boldsymbol{\theta})$ invariant and therefore samples produced by this Markov chain all has the same stationary distribution $\hat{p}(\boldsymbol{\theta})$, provided that the Markov chain is ergodic. However according to \cite{neal2012bayesian} the Metropolis algorithm will not always produce an ergodic Markov chain and that this depends on the details of the target distribution and proposal distribution. If the produced Markov chain is not ergodic we might end up sampling from a stationary distribution that is not our target distribution.
 \\
-The Metropolis algorithm has been used in many application within Bayesian Statistics and often with good results. One major disadvantage with the algorithm is that it produces highly correlated samples as we discussed about MCMC methods in general in section \ref{sec:MCMC}. One way to cope with this problem is to throw away some of the samples or run multiple chains in parallel.\\
 \\
-A very common feature of the algorithm is the random-walk behavior (\cite{gelmanbda04}). The simulations generated by the Markov chain is often zigging and zagging through the target distribution in a very inefficient way. This can be seen very clearly in figure \ref{fig:MH_sampling}, where 500 samples from the Metropolis algorithm has been generated for a bivariate target distribution with mean $\boldsymbol{\mu}=\left[\begin{array}{l}
-0, 
-0
-\end{array}\right]^\top$ and covariance matrix
-$\boldsymbol{\Sigma}=\left[\begin{array}{cc}
-1 & 0.6\\
-0.6 & 1
-\end{array}\right]$\footnote{The python code can be found in appendix \ref{app:MH_code}}. \\
+Many choices are possible for the proposal distribution. \cite{neal2012bayesian} mentions that a simple choice could be a Gaussian centered on $\boldsymbol{\theta}^{(n)}$ with standard deviation chosen to that acceptance probability of the candidate state is reasonably high, since a very low acceptance ratio is usually bad, as the successive states will be highly dependant. He also notes that when sampling from high-dimensional and complex distributions, as is often the case with posteriors in BNNs, the standard deviation of such a proposal distribution will often have to be small compared to the extent of the target distribution, as large changes almost certainly will lead to a region of low probability. This will result in highly dependant states and many steps will be needed to arrive at distant points in the distribution. \cite{gelmanbda04} suggests coping with this problem by throwing away some of the samples or run multiple chains in parallel. \\
 \\
-A more generalized version of the algorithm is the one introduced by \cite{hastings70}, which allows for non-symmetric proposal distributions, that is $q(\boldsymbol{\theta}^\prime\mid \boldsymbol{\theta}) \neq q(\boldsymbol{\theta}\mid \boldsymbol{\theta}^\prime)$. To correct for this asymmetry in the proposal distribution, the acceptance ratio is replaced by
+\cite{neal2012bayesian} further mentions that this problem with Metropolis is made worse due to it's movements taking the inefficient form of a random walk instead of a systematic path, as can be seen in the illustration of a sampling with Metropolis in figure \ref{fig:MH_sampling}. This inefficient movement yields slower convergence to the target distribution. Figure \ref{fig:MH_sampling}  This drawback, will be even more prominent in higher dimension and for more complex target distributions according to \cite{gelmanbda04}. \\
+\\
+A more generalized version of the algorithm is the one introduced by \cite{hastings70}, which allows for non-symmetric proposal distributions, that is $q(\boldsymbol{\theta}^{(n)}\mid \boldsymbol{\theta}^{(n-1)}) \neq q(\boldsymbol{\theta}^{(n-1)}\mid \boldsymbol{\theta}^{(n)})$. To correct for this asymmetry in the proposal distribution, the acceptance ratio is replaced by
 \begin{equation}\label{eq: hasti_pasti}
-\alpha\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(i-1)}\right)=\min \left\{1, \frac{q\left(\boldsymbol{\theta}^{(i-1)} \mid \boldsymbol{\theta}^{c a n d}\right) \hat{p}\left(\boldsymbol{\theta}^{c a n d}\right)}{q\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(i-1)}\right) \hat{p}\left(\boldsymbol{\theta}^{(i-1)}\right)}\right\} 
+\alpha\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(n-1)}\right)=\min \left\{1, \frac{q\left(\boldsymbol{\theta}^{(n-1)} \mid \boldsymbol{\theta}^{c a n d}\right) \hat{p}\left(\boldsymbol{\theta}^{c a n d}\right)}{q\left(\boldsymbol{\theta}^{c a n d} \mid \boldsymbol{\theta}^{(n-1)}\right) \hat{p}\left(\boldsymbol{\theta}^{(n-1)}\right)}\right\} 
 \end{equation}
 One should note that the Metropolis algorithm is an instance of the generalized version, since equation \ref{eq: hasti_pasti} is identical to the acceptance ratio in the original algorithm when allowance for a symmetric distribution. \\
 \\
 The introduction of an asymmetric proposal distribution, is often useful when we want to increase the speed of the random walk generated by Metropolis algorithm, but this is often not sufficient for complicated models with high-dimensional target distributions as we face with Bayesian Neural Networks (\cite{gelmanbda04}). We will in the next chapter concentrate on a more efficient way of simulating the chain.
 \begin{figure}
     \centering
-    \includegraphics{pics/mh_randomWalk_behavior.png}
-    \caption{500 samples generated with the Metropolis Hasting algorithm. The target distribution is a bivariate normal distribution. \textcolor{red}{Make similar y-axis}}
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{pics/mh_randomWalk_behavior.pdf}
+    \caption{Illustration of the convergence to a target distribution with 300 samples from the Metropolis algorithm. The target distribution is a bivariate Gaussian with mean 
+        $\boldsymbol{\mu}= \begin{bmatrix}
+            0 & 0
+            \end{bmatrix}$ and covariance matrix
+            $\boldsymbol{\Sigma}= 
+            \begin{bmatrix}
+                1 & 0.6\\
+                0.6 & 1   
+            \end{bmatrix}$. The python code for producing this figure can be found in appendix \ref{app:MH_code}.
+    }
     \label{fig:MH_sampling}
 \end{figure}
 \clearpage
-\section{Hamiltonian Monte Carlo}
-As we mention in section \ref{sec:Metropolis_Hastings}, a significant inefficiency in the Metropolis algorithm, is that it often behaves like a random walk and thus the simulations take a longer road while moving through the target distribution, which gives rise to slow simulation. This is espacially a problem when concerning high-dimensional problems, such as Bayesian Neural Networks (\cite{neal2012bayesian}).
-Another way to generate proposals with a higher efficiency, is in which the network weights are updated dynamically by simulating Hamiltonian dynamics and then use the Metropolis algorithm to accept or reject these proposals.This algorithm suppress the local random walk behavior and thus allowing it to move much faster and more rapidly through the distribution. The method presented is called Hamilton Monte Carlo (HMC), and is commonly used in computational physics and statistics. The algorithm was originally proposed by \cite{Duane1987216} for calculations used in lattice quantum chromodynamics, but was later introduced to the world of statistics when it was used for Bayesian Neural Networks n \cite{neal2012bayesian}\\
-\\
-The HMC algorithm reduces correlation between successive sampled states, compared to the Metropolis Hastings algorithm in section \ref{sec:Metropolis_Hastings}, by proposing moves to distant states which maintain a high probability of acceptance due to the approximate energy conserving properties of the simulated Hamiltonian dynamic when using a symplectic integrator\footnote{In mathematics, a symplectic integrator is a numerical integration scheme for Hamiltonian systems.}. The reduced correlation means fewer Markov chain samples are needed to approximate integrals with respect to the target probability distribution for a given Monte Carlo error. For the HMC algorithm we need to construct a differential equation system, that is known to keep the target distribution invariant. If we can achieve this, we can simulate transitions following the solution to this differential equation system and these transitions can be shown to leave the target distribution invariant. Such a differential equations system is often the Hamiltonian dynamics named after William Rowan Hamilton and will be introduced in the next section. 
 
-\subsection{Hamiltonian dynamics}
-Before we move to the actual HMC algorithm, we need to become familiar with the concept of Hamiltonian dynamics. Hamiltonian dynamics are used to describe how an object move around in a system. The Hamiltonian dynamics is define by the objects location $\boldsymbol{\theta}\in \mathbb{R}^d$ and it's momentum $\boldsymbol{\rho}\in \mathbb{R}^d$, which in the physics are equivalent to an object's mass times it's velocity at some point in time $t$. The object's location is associated with a potential energy $U(\boldsymbol{\theta})$ and likewise the momentum is associated with a kinetic energy $K(\boldsymbol{\rho})$. The sum of the potential and kinetic energy is regarded as the total energy of the system and often called the Hamiltonian,
+\section{Hamiltonian Monte Carlo}
+Another way to generate proposals with a higher efficiency, is by updating the parameters by dynamical simulation and then use the Metropolis algorithm to accept or reject these proposals. Such an algorithm suppress the local random walk behavior and allows it to move faster and more rapidly through the target distribution. This method, which, we will present in this chapter, is called Hamiltonian Monte Carlo (HMC), and is commonly used in computational physics and statistics. The algorithm was originally proposed by \cite{Duane1987216} for calculations used in lattice quantum chromodynamics, but was later introduced to the field of computation statistics when it was used for Bayesian Neural Networks in \cite{neal2012bayesian}. This means that the Markov Chain from which we sample in BNNs is produced analogous to paths of particles using Hamiltonian dynamics, and we will explain these dynamics using this physical analogy, as it gives a more intuitive idea of HMC.
+\\
+\\
+It turns out that the HMC algorithm reduces correlation between successive sampled states, compared to the Metropolis Hastings algorithm in section \ref{sec:Metropolis}, by proposing moves to distant states of the target distribution, which maintain a high probability of acceptance due to the properties of the simulated Hamiltonian dynamics. The reduced correlation means fewer Markov chain samples are needed to approximate integrals with respect to the target probability distribution.
+
+\subsection{Hamiltonian Dynamics}
+Before we move to the actual HMC algorithm, we will explain the Hamiltonian dynamics from which we produce the Markov chain for the algorithm. The Hamiltonian dynamics are used to describe how an object move around in a system or space. It is defined by the objects position $\boldsymbol{q}\in \mathbb{R}^d$ and it's momentum $\boldsymbol{\rho}\in \mathbb{R}^d$, which in the field of physics are equivalent to an object's mass times it's velocity at some point in time. When performing HMC to generate samples from the target distribution $\hat{p}(\boldsymbol{\theta})$, the position variable plays the role as the parameter vector and for now on we will let $\boldsymbol{\theta}:=\boldsymbol{q}$. The object's position is associated with a potential energy $U(\boldsymbol{\theta})$ and likewise the momentum is associated with a kinetic energy $K(\boldsymbol{\rho})$. The sum of the potential and kinetic energy is regarded as the total energy of the system and often called the Hamiltonian
 \begin{equation*}
 H(\boldsymbol{\theta},\boldsymbol{\rho})=U(\boldsymbol{\theta})+K(\boldsymbol{\rho})    
 \end{equation*}       
-one important feature of the Hamiltonian is that it is constant over time. Taking the partial derivative with respect to time of the location and momentum, shows us how they evolve over time,
+one important feature of the Hamiltonian is that it is constant over time. Taking the partial derivative with respect to time of the position and momentum, shows us how they evolve over time
 \begin{equation}\label{eq:hamilton_equations}
 \begin{split}
-\frac{d \theta_{i}}{d t}=\frac{\partial H}{\partial \rho_{i}}=\frac{\partial K(,\boldsymbol{\rho})}{\partial \rho_{i}} \\
-\frac{d \rho_{i}}{d t}=-\frac{\partial H}{\partial \theta_{i}}=-\frac{\partial U(,\boldsymbol{\theta})}{\partial \theta_{i}}
+\frac{d \theta_{i}}{d t}=\frac{\partial H}{\partial \rho_{i}}=\frac{\partial K(\boldsymbol{\rho})}{\partial \rho_{i}} \\
+\frac{d \rho_{i}}{d t}=-\frac{\partial H}{\partial \theta_{i}}=-\frac{\partial U(\boldsymbol{\theta})}{\partial \theta_{i}}
 \end{split}
 \end{equation}
-where $i=1,2, \ldots,d$. These are named Hamiltonian equations and represents differential equations system. The Hamiltonian equations are very useful, since if we are able to evaluate the partial derivatives from equation \ref{eq:hamilton_equations}, we are able to predict the location and momentum variable of the object at any point in the future $t^\prime>t$.
-\subsection{Properties of the Hamiltonian Dynamics}
-The Hamiltonian dynamics have several properties, which are very crucial when used in relation to MCMC simulations.\\
-\\
-\textit{Property of time reversibility:}\\
-This property is very important for showing that the HMC transitions, generated by the dynamics, leave the target distribution invariant, since the reversibility of the chain transitions requires reversibility of the dynamics. \\
-\\
-\textit{Property of conservation:}\\
-Secondly we have the property of conservation, that is the dynamics keeps the Hamiltionian invariant. This can easily be verified from equation \ref{eq:hamilton_equations}
-\begin{equation}\label{eq:Hamilton_conservation}
-    \frac{d \H}{d t}=\sum_{i=1}^{d}\left[\frac{d \theta_{i}}{d t} \frac{\partial \H}{\partial \theta_{i}}+\frac{d \rho_{i}}{d t} \frac{\partial \H}{\partial \rho_{i}}\right]=\sum_{i=1}^{d}\left[\frac{\partial \H}{\partial \rho_{i}} \frac{\partial \H}{\partial \theta_{i}}-\frac{\partial \H}{\partial \theta_{i}} \frac{\partial \H}{\partial \rho_{i}}\right]=0
-\end{equation}
-In the HMC method, we will use Metropolis updates, with proposals found by the Hamiltonian dynamic. We have that the acceptance probability is one if $\H$ is kept invariant (see e.g \cite{neal2012mcmc}). This is however not possible in practise, and we are only able to keep $\H$ approximately invariant, but we will come back to this issue later. \\
-\\
-\textit{Property of volume preservation:}
-The last crucial property of the Hamiltonian dynamics is the volume preservation property, which gives us that the dynamics preserves volume in the $(q,p)$ space.
+where $i=1,2, \ldots,d$. These are named Hamiltonian equations and represents a differential equations system. The Hamiltonian equations are very useful, since if we are able to evaluate the partial derivatives from equation \ref{eq:hamilton_equations}, we are able to predict the position and momentum variable of the object at any point in the future $t^\prime>t$. \cite{neal2012bayesian} shows that these dynamics along with the energy conserving property of the Hamiltonian results in the process being reversible and preserving of volume of the phase space, which in turn provides a stationary distribution. 
 
-\begin{equation*}
-    \sum_{i=1}^{d}\left[\frac{\partial}{\partial \theta_{i}} \frac{d \theta_{i}}{d t}+\frac{\partial}{\partial \rho_{i}} \frac{d \rho_{i}}{d t}\right]=\sum_{i=1}^{d}\left[\frac{\partial}{\partial \theta_{i}} \frac{\partial \H}{\partial \rho_{i}}-\frac{\partial}{\partial \rho_{i}} \frac{\partial \H}{\partial \theta_{i}}\right]=\sum_{i=1}^{d}\left[\frac{\partial^{2} \H}{\partial \theta_{i} \partial \rho_{i}}-\frac{\partial^{2} \H}{\partial \rho_{i} \partial \theta_{i}}\right]=0
-\end{equation*}
 
 \subsection{Discretizing Hamiltonian Equations}
-The Hamiltonian equations describe how an objective evolve in time, which is regarded as a continous variable, but for simulating dynamics on a computer system, we have to approximate the differential equations numerically in some way, by discretizing time. We do this by splitting the time interval $dt$ into small intervals $\epsilon$. We will now present to common ways of handling this. The first is the Euler's Method and lastly the Leapfrog Method.
+The Hamiltonian equations describe how an objective evolve in continuous time, but for simulating Hamiltonian dynamics on a computer system, we have to approximate the differential equations numerically in some way, this is done by discretizing time. We do this by splitting the time interval $dt$ into small intervals $\varepsilon$. 
 \\
 \\
-\textit{Euler’s Method:}
-This is one of the most common methods in computational science for solving a differential equation system. For Hamiltonian equations the Euler methods update the location and momentum variable as follows,
+The usual discretizing scheme for simulating Hamiltonian equations, is the Leapfrog method. The Leapfrog method takes a half steps to update momentum variable then a whole step to update the position value, and finally the last half step to update momentum
+\begin{equation*}
+\begin{split}
+\rho_{i}^{(t+\varepsilon / 2)}=\rho_{i}^{(t)}-(\varepsilon / 2) \frac{\partial U}{\partial \theta_{i}^{(t)}} \\
+\theta_{i}^{(t+\varepsilon)}=\theta_{i}^{(t)}+\varepsilon \frac{\partial K}{\partial \rho_{i}^{(t+\varepsilon / 2)}} \\
+\rho_{i}^{(t+\varepsilon)}=\rho_{i}^{(t)}-(\varepsilon / 2) \frac{\partial U}{\partial \theta_{i}^{(t+\varepsilon)}}
+\end{split}
+\end{equation*}
+According to \cite{neal2012mcmc} the Leapfrog preserves the HMC properties of being reversible and preserve volume of the phase space, ensuring that we sample a stationary distribution.
 
-\begin{equation*}
-\begin{split}
-\rho_{i}(t+\epsilon)=\rho_{i}(t)+\epsilon \frac{d \rho_{i}}{d t}(t)=\rho_{i}(t)-\epsilon \frac{\partial U}{\partial \theta_{i}(t)} \\
-\theta_{i}(t+\epsilon)=\theta_{i}(t)+\epsilon \frac{d \theta_{i}}{d t}=\theta_{i}(t)+\epsilon \frac{\partial K}{\partial \rho_{i}(t)}
-\end{split}
-\end{equation*}
-According to \cite{neal2012mcmc} a slightly better result can be obtained by,
-\begin{equation*}
-\begin{split}
-\rho_{i}(t+\varepsilon) &=\rho_{i}(t)-\varepsilon \frac{\partial U}{\partial \theta_{i}}(q(t)) \\
-\theta_{i}(t+\varepsilon) &=\theta_{i}(t)+\varepsilon \frac{\rho_{i}(t+\varepsilon)}{m_{i}}
-\end{split}
-\end{equation*}
-\textit{Leapfrog method:}\\
-Another discretizing scheme often used for simulation Hamiltonian equations, is the Leapfrog method. Whereas the Euler’s method takes full steps for updating location and momentum, the leapfrog method takes a half steps to update momentum value,
-\begin{equation*}
-\begin{split}
-\rho_{i}(t+\epsilon / 2)=\rho_{i}(t)-(\epsilon / 2) \frac{\partial U}{\partial \theta_{i}(t)} \\
-\theta_{i}(t+\epsilon)=\theta_{i}(t)+\epsilon \frac{\partial K}{\partial \rho_{i}(t+\epsilon / 2)} \\
-\rho_{i}(t+\epsilon)=\rho_{i}(t)-(\epsilon / 2) \frac{\partial U}{\partial \theta_{i}(t+\epsilon)}
-\end{split}
-\end{equation*}
-According to \cite{neal2012mcmc} the Leapfrog method, preserves volume exactly, \textcolor{red}{which is good??} and it is also reversible. 
 
 \subsection{Hamiltonian and Probability: Canonical Distributions}
-We now have a slightly better understanding understanding of what is a Hamiltonian and how we can simulate it's dynamics by either the Euler method or the Leapfrog method. We now need to connect this with the MCMC theory from the previous sections. In order to perform this connection, we need to relate the target distribution $\hat{p}(\boldsymbol{\theta})$ and the Hamiltonian, such that we can use the Hamiltonian equations to the target distribution. A way of doing this, proposed by \cite{neal2012bayesian}, is use a concept from statistical mechanics known as the canonical (Boltzman) distribution. The probability distribution of $\boldsymbol{\theta}$ under the canonical distribution can be written as
+We have now explained what a Hamiltonian is and how we can simulate it's dynamics by using the Leapfrog method. We will now connect this to MCMC theory from the previous sections in order to explain how use HMC to sample from the posterior of the weights in a BNN. In order to perform this connection, we need to relate the target distribution and the Hamiltonian, such that we can use the Hamiltonian equations to sample from the target distribution. A way of doing this, proposed by \cite{neal2012bayesian}, is to use a concept from statistical mechanics known as the canonical (Boltzmann) distribution. The probability distribution of $\boldsymbol{\theta}$ under the canonical distribution can be written as
 \begin{equation*}
-    \hat{p}(\boldsymbol{\theta})\propto \exp(\frac{-U(\boldsymbol{\theta})}{T})
+    p(\boldsymbol{\theta})\propto \exp\left(\frac{-E(\boldsymbol{\theta})}{T}\right)
 \end{equation*}
-where $U(\boldsymbol{\theta})$ again is the potential energy. $T$ is often called the temperature of the system and usually chosen to be equal to one (\cite{neal2012bayesian}).
-One should note that any probability distribution that is nowhere zero can be put into this form by letting $E(\boldsymbol{\theta})=-\log \hat{p}(\boldsymbol{\theta})-\log Z$, for any convenient choice of $Z$.  Since the Hamiltonian is an energy function for the joint state of both position and momentum, we need a joint distribution, which is given by
+where $E(\boldsymbol{\theta})$ can be any energy function defined over $\boldsymbol{\theta}$. $T$ is often called the temperature of the system and usually chosen to be equal to one as it plays no role in this application (\cite{neal2012bayesian}).
+One should note that any probability distribution that is nowhere zero can be put into this form by letting $E(\boldsymbol{\theta})=-\log p(\boldsymbol{\theta})-\log Z$, for any convenient choice of normalization constant $Z$. Since the Hamiltonian is an energy function for the joint state of both position and momentum, a joint distribution can be defined by
 \begin{equation*}
-p(\boldsymbol{\theta},\boldsymbol{\rho})\propto \exp(-\H(\boldsymbol{\theta},\boldsymbol{\rho}))   = \exp(-U(\boldsymbol{\theta}))\exp(-K(\boldsymbol{\rho}))=\hat{p}(\boldsymbol{\theta})p(\boldsymbol{\rho})
+p(\boldsymbol{\theta},\boldsymbol{\rho})\propto \exp(-\H(\boldsymbol{\theta},\boldsymbol{\rho}))   = \exp(-U(\boldsymbol{\theta}))\exp(-K(\boldsymbol{\rho}))
 \end{equation*}
-where the last equality hold since we assume independence between $\boldsymbol{\theta}$ and $\boldsymbol{\rho}$. We now have a joint distribution, in terms of the Hamiltonian function, which we know how to simulate. But we are in fact only interested in the location variable $\boldsymbol{\theta}$ and not the momentum variable $\boldsymbol{\rho}$, which we in some way can interpret as a "helper" variable that enable us to simulate the joint distribution. In order to gain marginal sample from the target distribution only, on can simply throw away the samples the momentum distribution, because they are independent anyway. Since we can interpret the momentum variable as a  helper variable, we are allowed freely to decide the marginal distriubtion $p(\boldsymbol{\rho})$. The litterautr often choose it to be gaussian, this $\boldsymbol{\rho}\sim \mathcal{N}\left(0, \Sigma \right)$, where $\Sigma$ is some symmetric, positive-definite mass matrix and often chosen to be diagonal, such that $\boldsymbol{\rho}$ is d-dimensional multivariate normal where the variables are independent. 
-The Hamiltonian equations from equation \ref{eq:hamilton_equations} can now be written as,
+Assuming Independence between $\boldsymbol{\theta}$ and $\boldsymbol{\rho}$ we can by the equation above write $U(\boldsymbol{\theta})=-\log p(\boldsymbol{\theta})$ and $K(\boldsymbol{\rho})=-\log p(\boldsymbol{\rho})$ meaning that the Hamiltonian can be interpreted as the log joint distribution on $(\boldsymbol{\theta},\boldsymbol{\rho})$. 
+\\
+\\
+We now have a joint distribution, in terms of the Hamiltonian function, which we know how to sample from. But we are in fact only interested in samples of the position variable $\boldsymbol{\theta}$, which is samples from our target distribution. Meanwhile we are not interested in the momentum variable $\boldsymbol{\rho}$, which is only introduced to make the algorithm move faster through the parameter space. This means that we can chose the marginal distribution of momentum arbitrarily. This is often chosen by practitioners to be Gaussian, $\boldsymbol{\rho}\sim \mathcal{N}\left(0, \Sigma \right)$, where $\Sigma$ is some symmetric, positive-definite covariance matrix and often chosen to be diagonal, such that $\boldsymbol{\rho}$ is $d$-dimensional multivariate Gaussian, with the $d$ variables being independent. We follow the simple approach from \cite{hoffman2011nouturn} and let $\mathbf{\Sigma}$ be the identity matrix $\mathit{I}$. This makes the dynamics of equation \ref{eq:hamilton_equations} simplify to 
 \begin{equation*}
 \begin{split}
-\frac{d \theta_{i}}{d t}&=\left[\Sigma^{-1}\rho\right]_i \\
-\frac{d \rho_{i}}{d t}&=-\frac{\partial U}{\partial \theta_i}
+\frac{d \theta_{i}}{d t}&=\rho_i \\
+\frac{d \rho_{i}}{d t}&=\frac{\partial \log p(\theta_{i})}{\partial \theta_i} 
 \end{split}
 \end{equation*}
-
-
+A more rigorous examination of possible choices for the covariance matrices is provided by \cite{neal2012mcmc}. 
 
 
 
 \subsection{Hamiltonian Monte Carlo}
-We start the HMC algorithm from an initial state $\boldsymbol{\theta}_0$ $\boldsymbol{\rho}_0$, and then we simulate the Hamiltonian dynamics for $t+\epsilon$ using the Leapfrog method. We choose the Leapfrog method since \cite{betancourt2017conceptual} shows it to be more effective. The states generated for the position and momentum variable at the end of the Leapfrog simulation is used as proposals for a new state $(\boldsymbol{\theta}^\prime,\boldsymbol{\rho}^\prime)$. The proposed stats are accepted according to the Metropolis acceptance criteria,
+We start the HMC algorithm from an initial state $\boldsymbol{\theta}^{(0)}$ $\boldsymbol{\rho}^{(0)}$, and then we simulate the Hamiltonian dynamics for $t+\varepsilon$ using the Leapfrog method. The states generated for the position and momentum variable at the end of the Leapfrog simulation is used as proposals for a new state $(\boldsymbol{\theta}^\prime,\boldsymbol{\rho}^\prime)$. These samples need to be proposed and accepted according to a criteria, because the leapfrog-discretization provides an error term in it's approximation of the continuous Hamiltonian dynamics. This criteria is the Metropolis acceptance criteria,
 \begin{equation*}
 \begin{split}
     \alpha\left((\boldsymbol{\theta},\boldsymbol{\rho}) \mapsto (\boldsymbol{\theta}^\prime , \boldsymbol{\rho}^\prime )\right) &= \min\left\{1, \frac{p(\boldsymbol{\theta}^\prime,\boldsymbol{\rho}^\prime)}{p(\boldsymbol{\theta},\boldsymbol{\rho})} \right\}\\
@@ -418,46 +388,116 @@ We start the HMC algorithm from an initial state $\boldsymbol{\theta}_0$ $\bolds
     &= \min \left\{1,\exp\left(-\H(\boldsymbol{\theta}^\prime,\boldsymbol{\rho}^\prime) +\H(\boldsymbol{\theta},\boldsymbol{\rho})\right) \right\}
 \end{split}
 \end{equation*}
-If we could simulate the Hamiltonian dynamics exactly, the Metropolis acceptance criteria would always be equal to one, due to the Hamiltonian conservation criteria in equation \ref{eq:Hamilton_conservation} which would give $\min \{1, \exp (0)\}=1$. But since we cannot simulate the Hamilton dynamics exactly and we need to approximate them with the Leapfrog scheme introduced earlier. We can however see that if we choose a proper way of discretize the dynamics, the term  $\H(\boldsymbol{\theta},\boldsymbol{\rho})-\H(\boldsymbol{\theta}^\prime,\boldsymbol{\rho}^\prime)$ in the exponent should be small, thus a high acceptance rate. This is a very clever way of making proposals, since we can make very large and uncorrelated moves in the state space, while keeping a high acceptance of probability. The algorithm is written in pseudo code in algorithm 
+\textcolor{red}{This means that we do as in the metropolis algorithm, but using proposals provided by the Hamiltonian dynamics - correct? YES.}
+\\ 
+\\
+We see that if we could perfectly discretize the Hamiltonian dynamics the Metropolis acceptance criteria would always be equal to one, due to the Hamiltonian conservation criteria (see e.g \cite{neal2012mcmc}), but since we usually can't, it will often be lower. We can see that if we get a small error in the discretization the term  $\H(\boldsymbol{\theta},\boldsymbol{\rho})-\H(\boldsymbol{\theta}^\prime,\boldsymbol{\rho}^\prime)$ in the exponent should be small, yielding a high acceptance rate. This way of making proposals is beneficial since it allows the Markov Chain to effectively make very large and uncorrelated moves in the state space, while keeping a high acceptance of probability. HMC is written in pseudo code in algorithm \ref{alg:HMC}. It takes in an initial value for the parameters $\boldsymbol{\theta}^{(0)}$ which is the starting point of the algorithm. The input $\mathcal{L}$ is the log-probability distribution of $\boldsymbol{\theta}$, which is defined to be equal to the potential energy function. \textcolor{red}{So one need to be able to at least evaluate the target distribution $p(\boldsymbol{\theta})$  or alternatively something proportional to it. In our case where the target distribution is the posterior distribution, we know that it is proportional to the likelihood and the prior, which we in most cases are able to evaluate.} The $M$ input is the number of total iterations one would like to perform.
+\\
+\\
+The algorithm also relies on a stepsize $\varepsilon$ variable, that defines the size of the leapfrog step. If $\varepsilon$ is chosen too be to large, the the Leapfrog simulation of the Hamiltonian will be inaccurate and lead to a very low rate of acceptance making the algorithm ineffectively waste computational time. On the other hand, if we choose $\varepsilon$ to be too small, we will waste computational time by taking too small steps. The sampling is also affected by a hyperparameter $L$, that defines how many Leapfrog steps the algorithm performs before proposing a new candidate state. A too small value for $L$ will give successive samples that lies close to each other which results in the same undesirable random walk behavior as the Metropolis algorithm from section \ref{sec:Metropolis}. Too large a value for $L$ will produce trajectories that loops back and retrace their steps again \textcolor{red}{and even worse if we choose $L$ such that the samples jumps from one side of the space to the other in each iteration, then according to (muligvis bare slet)}. \\
+\\
+In figure \ref{fig:HMC_Example} we have illustrated how HMC propose a candidate sample for a bivariate $\mathcal{N}\left(\mathbf{0},\mathit{I}\right)$ target distribution. In subfigure (a) and (b) we have chosen a proper value for $\varepsilon$ and $L$ such that the algorithm generates proposals that are \textcolor{red}{appropriately?} far from the previous ones. In subfigure (c) and (d) we have chosen larger values for $\varepsilon$ and $L$, and we can see that the algorithm starts too loop-back, which results in identical proposals for each iteration and a large proportion of the target distribution will therefore never be visited. In the next section we will look into a modification of the HMC algorithm, such that we can avoid this kind of U-turn behavior.  
 
-\begin{algorithm}[h!]\label{algo_2}
+
+\begin{algorithm}[h!]\label{alg:HMC}
 
 \SetAlgoLined
-$\text{Given } \theta^{0}, \epsilon, L, \mathcal{L}, M$:
+\SetKwFunction{Leapfrog}{Leapfrog}
+$\text{Given } \boldsymbol{\theta}^{(0)},  \mathcal{L}, M, \varepsilon, L,$:\\
 \For{m=1 to M}{
-Sample $r^{0} \sim \mathcal{N}(0, I)$ \\
-Set $\theta^{m} \leftarrow \theta^{m-1}, \tilde{\theta} \leftarrow \theta^{m-1}, \tilde{r} \leftarrow r^{0}$
+Sample $\boldsymbol{\rho}^{(0)} \sim \mathcal{N}(0, \mathbf{\mathit{I}})$ \\
+Set $ \boldsymbol{\theta}^{\text{cand}} \leftarrow \boldsymbol{\theta}^{(m-1)}, \boldsymbol{\rho}^{\text{cand}} \leftarrow \boldsymbol{\rho}^{(0)}$\\
 \For{i = 1 to L}{
-Set $\tilde{\theta}, \tilde{r} \leftarrow \operatorname{Leapfrog}(\tilde{\theta}, \tilde{r}, \epsilon)$
-With probability $\alpha=\min \left\{1, \frac{\exp \left\{\mathcal{L}(\tilde{\theta})-\frac{1}{2} \tilde{r} \cdot \tilde{r}\right\}}{\exp \left\{\mathcal{L}\left(\theta^{m-1}\right)-\frac{1}{2} r^{0} \cdot r^{0}\right\}}\right\}, \text { set } \theta^{m} \leftarrow \tilde{\theta}, r^{m} \leftarrow-\hat{r}$
+Set $\boldsymbol{\theta}^{\text{cand}}, \boldsymbol{\rho}^{\text{cand}} \leftarrow \Leapfrog(\boldsymbol{\theta}^{\text{cand}}, \boldsymbol{\rho}^{\text{cand}}, \varepsilon)$
+}
+Negate momentum: $\boldsymbol{\rho}^{\text{cand}} \leftarrow - \boldsymbol{\rho}^{\text{cand}}$\\
+Compute acceptance probability:\\
+$\alpha=\min \left\{1, \frac{\exp \left\{\mathcal{L}(\boldsymbol{\theta}^{\text{cand}})-\frac{1}{2} \boldsymbol{\rho}^{\text{cand}} \cdot \boldsymbol{\rho}^{\text{cand}}\right\}}{\exp \left\{\mathcal{L}\left(\boldsymbol{\theta}^{(m-1)}\right)-\frac{1}{2} \boldsymbol{\rho}^{(0)} \cdot \boldsymbol{\rho}^{(0)}\right\}}\right\}$\\
+Sample $u\sim \text{Uniform}(0,1)$\\
+ \uIf{$u<\alpha$}{
+    Accept the proposal: $\boldsymbol{\theta}^{(m)} \leftarrow \boldsymbol{\theta}^{c a n d}$\;
+  }
+  \Else{
+    Reject the proposal: $\boldsymbol{\theta}^{(m)} \leftarrow \boldsymbol{\theta}^{(m-1)}$ \;
+  }
+}
 
-}
-}
-\caption{Metropolis algorithm}
+
+\SetKwProg{Fn}{Function}{:}{\KwRet{$\boldsymbol{\theta}^{\text{cand}},\boldsymbol{\rho}^{\text{cand}}$}}
+\Fn{\Leapfrog{$\boldsymbol{\theta}$, $\boldsymbol{\rho}$, $\varepsilon$}}{
+ Set $\boldsymbol{\rho}^{\text{cand}} \leftarrow \boldsymbol{\rho}^{\text{cand}}+(\varepsilon / 2) \nabla_{\theta} \mathcal{L}(\theta)$\\
+Set $\boldsymbol{\theta}^{\text{cand}} \leftarrow \theta+\varepsilon \boldsymbol{\rho}^{\text{cand}}$\\
+Set  $\boldsymbol{\rho}^{\text{cand}} \leftarrow \boldsymbol{\rho}^{\text{cand}}+(\varepsilon / 2) \nabla_{\theta} \mathcal{L}(\boldsymbol{\theta}^{\text{cand}})$
+  }
+\caption{Hamiltonian Monte Carlo}
 \end{algorithm}
 
 
-
-
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{pics/HMC_Example.png}
+    \caption{A simulation example with HMC for a bivariate Gaussian target distribution with $\boldsymbol{\mu}= \begin{bmatrix}
+            0 & 0
+            \end{bmatrix}$ and covariance matrix
+            $\boldsymbol{\Sigma}= 
+            \begin{bmatrix}
+                1 & 0\\
+                0 & 1   
+            \end{bmatrix}$. Subfigure (a) and (b) shows a HMC simulation example with a proper choice for $\varepsilon$ and $L$, where the target distribution is thoroughly explored. Subfigure (c) and (d) is the same example, modified with a poor choice of values for $\varepsilon$ and $L$. The result is the U-Turn effect, which yield an ineffective exploration of the target distribution. The example has been generated with the interactive gallery provided by \cite{feng} \textcopyright MIT.}
+    \label{fig:HMC_Example}
+\end{figure}
 
 
 
 \subsection{No-U-Turn Hamiltonian Monte Carlo}
-In this section we will talk about an algorithm developed by \cite{hoffman2011nouturn}.
+As we examined in the previous section, the HMC algorithm is a very subtle way of generating proposals, but it comes with a drawback since one needs to tune the stepsize parameter $\varepsilon$ and the number of steps $L$. Tuning these parameters can be hard and we are often forced to rely on heuristics based on autocorrelation statistics from preliminary runs (\cite{neal2012mcmc}). In this section we present an algorithm introduced by \cite{hoffman2011nouturn}, which
+extends the HMC by eliminating the need to specify the trajectory length $L$. This algorithm goes under the name No-U-Turn (NUTS) as it avoids the U-Turning behavior examined in the previous section. This is done by introducing a criterion that tells us when we have simulated the dynamics for "long enough". The authors defines this criterion to be when running the simulation for more iterations will no longer increase the distance between the proposed state $\boldsymbol{\theta}^\prime$ and the the initial value $\boldsymbol{\theta}^{(0)}$. More specifically, they choose a criteria, based on the derivative with respect to time of half the squared distance between the initial parameter $\boldsymbol{\theta}^{(0)}$ and the current state $\boldsymbol{\theta}^\prime$. 
+
+\begin{equation}
+    \frac{d}{d t} \frac{(\boldsymbol{\theta}^\prime-\boldsymbol{\theta}) \cdot(\boldsymbol{\theta}^\prime-\boldsymbol{\theta})}{2}=(\boldsymbol{\theta}^\prime-\boldsymbol{\theta}) \cdot \frac{d}{d t}(\boldsymbol{\theta}^\prime-\boldsymbol{\theta})=(\boldsymbol{\theta}^\prime-\boldsymbol{\theta}) \cdot \boldsymbol{\rho}^\prime
+\end{equation}
 
 
-\section{Variational Inference Methods}
-In the purpose of approximating a posterior distribution,  Variational inference (VI) is an alternative to MCMC methods, for taking a fully Bayesian approach when we have complex posterior distribution which is difficult to evaluate directly or generate samples from. Whereas MCMC techniques, provide a numerical approximation, VI provides a locally-optimal solution to an approximation of the posterior, thus VI turns approximate posterior inference into an optimization problem (\cite{VI}). We consider a family of approximating densities of the model parameters $q(\boldsymbol{\theta} ; \boldsymbol{\phi})$, parameterized by $\boldsymbol{\phi} \in \boldsymbol{\Phi}$.VI finds the parameters that minimize the KL divergence from equation \ref{eq: KL} to the posterior,
-$$
-\boldsymbol{\phi}^{*}=\underset{\phi \in \boldsymbol{\Phi}}{\arg \min } \mathrm{KL}(q(\boldsymbol{\theta} ; \boldsymbol{\phi}) \| p(\boldsymbol{\theta} \mid \boldsymbol{x})) .
-$$
-The optimized $q(\boldsymbol{\theta};\boldsymbol{\phi}^{*})$ is then an approximation of the posterior distribution. This is often not computable, since it requires that we are able to calculate the evidence $\ln p(\boldsymbol{X})$ which we often are not able to. Instead we maxmise the Evidence lower bound (ELBO)
-\begin{equation*}
-    \mathscr{L}(\boldsymbol{\phi})=\mathbb{E}_{q(\boldsymbol{\theta})}[\log p(\boldsymbol{x}, \boldsymbol{\theta})]-\mathbb{E}_{q(\boldsymbol{\theta})}[\log q(\boldsymbol{\theta} ; \boldsymbol{\phi})]
-\end{equation*}
-We note that the E
 
 
-\subsection{Automatic Variational Inference}\label{sec:ADVI}
-\subsection{Bayes by Backprop}
-\textcolor{red}{Maybe this section should be something we could mention as for future work? as the PYMC VI implementation is build on ADVI (\ref{sec:ADVI}) and not Bayes by Backprop? Otherwise we should check if we can build this our selfs? I have not yet seen it implemented.}
+
+\section{Priors}\label{sec:priors}
+From section \ref{sec:bayesian_stat} and the example given in section \ref{sec:simple_BNN} it is seen that Bayesian inference starts with a prior for the model parameters, which is suppose to embody ones prior beliefs about the assigned task. The prior is an important component and choosing a bad prior can greatly affect the resulting posterior. That said, the prior does have a diminishing effect on the posterior as the number of samples grow, as the likelihood will concentrate the posterior around a few highly likely parameters, but the effect of the prior persists even though it can be so small, that one can miss it computationally, and this might take a lot of data. One might think that if one has no qualified prior belief, then a weak prior, like a wide uniform distribution, can be a safe bet. This can however have unforeseen consequences as pointed out by \cite{lemoine2019} and \cite{sarma_kay2020}. \\
+\\
+The prior component is however more than a dangerous element that threatens the quality of the posterior. The prior provides a principled mechanism for researchers to incorporate previous research and knowledge into the model. Priors can also be beneficial in small samples sizes as the prior acts to regularize and reduce the chances of overfitting.
+However in neural networks the relationship between parameters and the problem can be very abstract and not as intuitive as in other machine learning models like linear regression models or SVMs, so having qualified prior beliefs about the network might not be so easy. \\
+\\
+\cite{neal2012bayesian} stresses that even though it can seem like BNNs can be threatened by a lack of a suitable prior this is not the case, as much past work shows useful criteria for selecting suitable priors, even without full understanding of what the prior over the parameters will mean in terms of the output of the network. \cite{mackay1991} and \cite{MacKay1992} has produced results, that Neal describes as at least reasonable, by giving the parameters Gaussian prior distributions. He lets the variance of these distribution be selected as a hyperparameter, which allows the model to adapt to the data. In his work MacKay emphasizes the advantage of this approach along with hierarchical models described in section \ref{sec:hier_models}.\\
+\\
+\cite{buntine_weigend1991} discuss several schemes for choosing priors which favour neural networks that produce either high or low accuracy on individual examples, which in regression corresponds to expecting the variance to be certain amount, or compute smooth functions, with smoothness indicating how much predictions vary as the network inputs are changed. The degree of preference is then controlled by a hyperparameter. In this way they link the choice of prior for the network-parameters to the actual effect on these parameters on the network-function, which is clearly necessary for priors to represent beliefs about the function. 
+\\
+\\
+In a BNN the role of the hyperparameters for the priors of the parameters correspond roughly to he role of the weight decay constant $\alpha$ in equation \ref{eq:reg_obj_func} used in training of a conventional neural network. But as noted by \cite{neal2012bayesian} these hyperparameters in BNNs can be found without the need for a validation set.
+
+
+\subsection{Hierarchical Models} \label{sec:hier_models}
+According to \cite{neal2012bayesian}, our prior knowledge will often be too unspecific to fix the parameter values chosen for the prior distribution, even if we have complete insight into their effects on the prior. We may then wish to treat these values as unknown hyperparameters, giving them a higher-level broad prior distribution, which we call a hyper-prior. This is what Neal calls Hierarchical models. \\
+\\
+One benefit of such models is appropriate degree of regularization for the task can be determined automatically from the data (\cite{mackay1991} and \cite{MacKay1992}). By allowing the parameters of the prior to be set by the data, we let the data determine the scale.\\
+\\
+The literature on the choice of priors and hyper-priors in hierarchical models is vast and often focused on certain applications. As it does not add to our general presentation of Bayesian neural networks or the evaluations in chapter \ref{chap:eval_NN} we will not pursue this topic further, but one can read more about this in \cite{gelmanbda04}.
+
+
+
+
+
+% \section{Variational Inference Methods}
+% In the purpose of approximating a posterior distribution,  Variational inference (VI) is an alternative to MCMC methods, for taking a fully Bayesian approach when we have complex posterior distribution which is difficult to evaluate directly or generate samples from. Whereas MCMC techniques, provide a numerical approximation, VI provides a locally-optimal solution to an approximation of the posterior, thus VI turns approximate posterior inference into an optimization problem (\cite{VI}). We consider a family of approximating densities of the model parameters $q(\boldsymbol{\theta} ; \boldsymbol{\phi})$, parameterized by $\boldsymbol{\phi} \in \boldsymbol{\Phi}$.VI finds the parameters that minimize the KL divergence from equation \ref{eq: KL} to the posterior,
+% $$
+% \boldsymbol{\phi}^{*}=\underset{\phi \in \boldsymbol{\Phi}}{\arg \min } \mathrm{KL}(q(\boldsymbol{\theta} ; \boldsymbol{\phi}) \| p(\boldsymbol{\theta} \mid \boldsymbol{x})) .
+% $$
+% The optimized $q(\boldsymbol{\theta};\boldsymbol{\phi}^{*})$ is then an approximation of the posterior distribution. This is often not computable, since it requires that we are able to calculate the evidence $\ln p(\boldsymbol{X})$ which we often are not able to. Instead we maxmise the Evidence lower bound (ELBO)
+% \begin{equation*}
+%     \mathscr{L}(\boldsymbol{\phi})=\mathbb{E}_{q(\boldsymbol{\theta})}[\log p(\boldsymbol{x}, \boldsymbol{\theta})]-\mathbb{E}_{q(\boldsymbol{\theta})}[\log q(\boldsymbol{\theta} ; \boldsymbol{\phi})]
+% \end{equation*}
+% We note that the E
+
+
+% \subsection{Automatic Variational Inference}\label{sec:ADVI}
+% \subsection{Bayes by Backprop}
+% \textcolor{red}{Maybe this section should be something we could mention as for future work? as the PYMC VI implementation is build on ADVI (\ref{sec:ADVI}) and not Bayes by Backprop? Otherwise we should check if we can build this our selfs? I have not yet seen it implemented.}

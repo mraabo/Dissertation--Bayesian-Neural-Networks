@@ -1,9 +1,9 @@
-\chapter{Evaluation of Neural Network models}
+\chapter{Evaluation of Neural Network models} \label{chap:eval_NN}
 This chapter examines the applications of Bayesian neural networks using a dataset on housing prices in Boston for regression and a dataset on defaults for credit card clients for classification. We do this using a classic neural network as benchmark for performance to test if it's possible to benefit from the perks of using Bayesian neural networks without sacrificing accuracy and to examine the difference in computational runtime. \\
 \\
 Section \ref{sec:Boston_housing} examines median prices on houses in specific areas in Boston based on a number of features shown in table \ref{tab:Boston_Housing}. We aim to predict unknown median prices based on these features using regression. Section \ref{sec:credit_default} examines the probability of defaulting payments on credit card users in Taiwan. We aim to predict default or not default and the probabilities of these outcomes using binary classification. We performs these tasks with BNNs with different sampling algorithms and NNs with different regularization methods. We illustrate NNs with different regularization methods to examine the difference in effect of these, for selecting a NN that can serve as a non-overfitting benchmark for the BBNs and to show the hurdles we avoid in Bayesian neural networks. 
 
-\section{Predicting house prices in Boston} \label{sec:Boston_housing}
+\section{Predicting House Prices in Boston} \label{sec:Boston_housing}
 The Boston housing was originally introduced by \cite{HARRISON197881}, who investigated the effect of air pollution on house prices. 
 The dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Massachusetts. The sample contains 506 examples, where each example represents a unique area and has 14 features. These features are represented in table \ref{tab:Boston_Housing}. The data set can be found on \href{http://lib.stat.cmu.edu/datasets/boston}{http://lib.stat.cmu.edu/datasets/boston}. In this section we examine how to use the theory presented in the previous chapters for predicting the median value of owner-occupied homes in thousands, that is the \texttt{medv} variable in the data set is our target variable. The target variable is a real-valued variable, thus a regression task would be most appropriate.   
 The \texttt{medv} is taking values  Our objective is to make good predictions for house predictions in terms of a low mean squared error (MSE) and mean absolute error (MAE). We have split data into a training and testing set respectively, where the training data contains 70\% of the original data and test set the remaining data points. To avoid the possibility that the data is sorted in some undesired way we choose to shuffle the data randomly before splitting it. In order for the reader to be able to regenerate the results we have fixed the state of the underlying pseudo random number generator with a seed equal to $42$. 
@@ -67,7 +67,7 @@ BNN with 2 hidden layer &     &     &          \\ \hline
 \end{tabular}
 \end{table}
 
-\section{Predicting default of credit card clients} \label{sec:credit_default}
+\section{Predicting Default of Credit Card Clients} \label{sec:credit_default}
 \subsection{Description and preprocessing of data}
 The default of credit card clients data set, contains information, collected by a Taiwan bank in 2005, on $30.000$ credit card clients. The data contains 25 variables, which are represented in table \ref{tab:credit_card_features}. The data set has earlier been used by \cite{Yeh2009TheCO} for predicting the probability of default for customers' in Taiwan and compares the predictive accuracy of probability between six data mining methods. The objective for our analysis is to predict whether a client will default on next month or not. 
 
@@ -85,7 +85,7 @@ SEX                        &          Gender (1 = male; 2 = female)            \
 EDUCATION                  &         Education (1 = graduate school; 2 = university; \\ &  3 = high school; 4 = others).             \\ \hline
 MARRIAGE                   &         Marital status (1 = married; 2 = single; 3 = others)             \\ \hline
 AGE                        &            Age (year)           \\ \hline
-PAY\_0                     &         Repayment status in September, 2005 \\ &  -2=no consumption \\ &  -1=pay duly \\ &  0=the use of revolving credit\\ &  1=payment delay for one month \\ &  2=payment delay for two months … \\ &  8=payment delay for eight months\\ &  9=payment delay for nine months and above         \\ \hline
+PAY\_0                     &         Repayment status in September, 2005 \\ &  -2=no consumption, -1=pay duly \\ &  0=the use of revolving credit, 1=payment delay for one month \\ &  2=payment delay for two months, 3=payment delay for three months\\ & $\vdots$ \\ &  8=payment delay for eight months, 9=payment delay for nine months and above         \\ \hline
 PAY\_2                     &        
 Repayment status in August, 2005 (scale same as above)\\ \hline
 PAY\_3                     &          Repayment status in July, 2005 (scale same as above)            \\ \hline
@@ -107,8 +107,8 @@ PAY\_AMT6                  &           Amount of previous payment in April, 2005
 default payment next month &             Default payment (1=yes, 0=no)         \\ \hline
 \end{tabular}}
 \end{table}
-\subsection{Model implementation and fitting}
-\subsection{Results}
+\subsection{Classification with Neural Networks}
+\subsection{Classification with Bayesian Neural Networks}
 
 \begin{table}[]\label{tab:credit_card_features}
 \caption{Performance measurement for Neural Network models on credit card default data}
