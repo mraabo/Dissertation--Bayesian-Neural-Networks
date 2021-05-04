@@ -1,4 +1,4 @@
-\chapter{Evaluation of Neural Network models} \label{chap:eval_NN}
+\chapter{Evaluation of Neural Network Models} \label{chap:eval_NN}
 This chapter examines the applications of Bayesian neural networks using a dataset on housing prices in Boston for regression and a dataset on defaults for credit card clients for classification. We do this using a classic neural network as benchmark for performance to test if it's possible to benefit from the perks of using Bayesian neural networks without sacrificing accuracy and to examine the difference in computational runtime. \\
 \\
 Section \ref{sec:Boston_housing} examines median prices on houses in specific areas in Boston based on a number of features shown in table \ref{tab:Boston_Housing}. We aim to predict unknown median prices based on these features using regression. Section \ref{sec:credit_default} examines the probability of defaulting payments on credit card users in Taiwan. We aim to predict default or not default and the probabilities of these outcomes using binary classification. We performs these tasks with BNNs with different sampling algorithms and NNs with different regularization methods. We illustrate NNs with different regularization methods to examine the difference in effect of these, for selecting a NN that can serve as a non-overfitting benchmark for the BBNs and to show the hurdles we avoid in Bayesian neural networks. 
@@ -11,7 +11,7 @@ The \texttt{medv} is taking values  Our objective is to make good predictions fo
 
 
 \begin{table}
-\caption{Table of features in Boston Housing data}
+\caption{Table of features in Boston Housing data. The dataset contains 506 examples each with 14 features. Data can be downloaded on \href{http://lib.stat.cmu.edu/datasets/boston}{http://lib.stat.cmu.edu/datasets/boston}.}
 \label{tab:Boston_Housing}
 \centering
 \resizebox{\textwidth}{!}{%
@@ -49,7 +49,7 @@ To examine overfitting in the neural networks we split the data not used for tes
 \subsection{Regression with Bayesian Neural
 Networks}
 
-\begin{table}[] \label{tab:Boston_performance}
+\begin{table} \label{tab:Boston_performance}
 \caption{Performance measurement for Neural Network models on Boston Housing data}
 
 \begin{tabular}{|l|l|l|l|}
@@ -72,8 +72,8 @@ BNN with 2 hidden layer &     &     &          \\ \hline
 The default of credit card clients data set, contains information, collected by a Taiwan bank in 2005, on $30.000$ credit card clients. The data contains 25 variables, which are represented in table \ref{tab:credit_card_features}. The data set has earlier been used by \cite{Yeh2009TheCO} for predicting the probability of default for customers' in Taiwan and compares the predictive accuracy of probability between six data mining methods. The objective for our analysis is to predict whether a client will default on next month or not. 
 
 
-\begin{table}[]
-\caption{Table of features in credit card default data}
+\begin{table}
+\caption{Table of features in credit card default data. Data contains 30.000 examples each with 25 features. Data can be downloaded on \href{https://archive.ics.uci.edu/ml/datasets.php}{https://archive.ics.uci.edu/ml/datasets.php}}.
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|l|}
 \hline
@@ -110,7 +110,7 @@ default payment next month &             Default payment (1=yes, 0=no)         \
 \subsection{Classification with Neural Networks}
 \subsection{Classification with Bayesian Neural Networks}
 
-\begin{table}[]\label{tab:credit_card_features}
+\begin{table}\label{tab:credit_card_features}
 \caption{Performance measurement for Neural Network models on credit card default data}
 \begin{tabular}{|l|l|l|}
 \hline

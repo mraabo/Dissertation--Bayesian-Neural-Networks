@@ -9,35 +9,38 @@ The most simple neural networks are called feedforward neural networks or multil
 \\
 A feedfoward neural network is shown in figure \ref{fig:mlp} where the data flows from the input layer through 2 hidden layers and finally to the output layer. While the number of neurons in the input layer and output layer depends on example and label dimensions, the number of neurons in the hidden layers and also the number of hidden layers are a design decision chosen by the architect. \\
 \\
-The data is sent through these layers by multiplying the inputs with weights $\boldsymbol{w}$, adding a bias $\boldsymbol{b}$ and finally applying an activation function $g$ to the result. An activation function is a non-linear function that makes it so we don't just pass linear transformations of the examples through the network, so that we can actually learn non-linear functions. Activation functions come in many different kinds, some of the most popular can be seen in figure \ref{fig:act_funcs}. For a network with 2 hidden layers the result of the first hidden layer is $f^{(1)}\lr{\boldsymbol{X}} = g_1 \lr{\boldsymbol{X} \boldsymbol{w}_1 + \boldsymbol{b}_1}$ and the result of the second hidden layer is $f^{(2)} \lr{f^{(1)}\lr{\boldsymbol{X}}} = g_2 \lr{f^{(1)}\lr{\boldsymbol{X}} \boldsymbol{w}_2 + \boldsymbol{b}_2}$. The subscripts indicate that the activation functions, weights and biases are unique for each layer. Lastly the result of the output layer is $f^{\text{out}} \lr{f^{(2)} \lr{f^{(1)}\lr{\boldsymbol{X}}}} = g_3 \lr{f^{(2)} \lr{f^{(1)}\lr{\boldsymbol{X}}} \boldsymbol{w}_3 + \boldsymbol{b}_3}$. Sometimes the biases are omitted, as they can be represented in the weight vector for an example-matrix that are padded with a column of ones. \\
+The data is sent through these layers by multiplying the inputs with weights $\boldsymbol{w}$, adding a bias $\boldsymbol{b}$ and finally applying an activation function $g$ to the result. An activation function is a non-linear function that ensures that we don't just pass linear transformations of the examples through the network, which is necessary to learn non-linear functions. Activation functions come in many different kinds, some of the most popular can be seen in figure \ref{fig:act_funcs}. For a network with 2 hidden layers the result of the first hidden layer is $f^{(1)}\lr{\boldsymbol{X}} = g_1 \lr{\boldsymbol{X} \boldsymbol{w}_1 + \boldsymbol{b}_1}$ and the result of the second hidden layer is $f^{(2)} \lr{f^{(1)}\lr{\boldsymbol{X}}} = g_2 \lr{f^{(1)}\lr{\boldsymbol{X}} \boldsymbol{w}_2 + \boldsymbol{b}_2}$. The subscripts indicate that the activation functions, weights and biases are unique for each layer. Lastly the result of the output layer is $f^{\text{out}} \lr{f^{(2)} \lr{f^{(1)}\lr{\boldsymbol{X}}}} = g_3 \lr{f^{(2)} \lr{f^{(1)}\lr{\boldsymbol{X}}} \boldsymbol{w}_3 + \boldsymbol{b}_3}$. Sometimes the biases are omitted, as they can be represented in the weight vector for an example-matrix that are padded with a column of ones. \\
 \\
-While the choice of activation function are chosen as a design decision by the architect for the hidden layers, the activation function for the output layer are chosen by the learning task. If the neural network are to do regression then typically a linear activation function or none at all are chosen for the output layer as the label space for regression is the real numbers. However for binary classification a sigmoid-function is used and for multiclass classification then a softmax-function is used, as these map real values to the interval [0,1] and thus provides valid probabilities for belonging to a specific class. These activation functions among the ones shown in figure \ref{fig:act_funcs} are defined as follows:\\
+While the choice of activation function are chosen as a design decision by the architect for the hidden layers, the activation function for the output layer are chosen by the learning task. If the neural network are to do regression then typically a linear activation function or none at all are chosen for the output layer as the label space for regression is the real numbers. However for binary classification a sigmoid-function is used and for multiclass classification then a softmax-function is used, as these map real values to the interval [0,1] and thus provides valid probabilities for belonging to a specific class. These activation functions among the ones shown in figure \ref{fig:act_funcs}, taking an activation value $a$, are defined as follows:\\
 \\
 Logistic sigmoid:
 \begin{equation*}
-    g(x) = \sigma(x) \equiv \frac{1}{1 + e^{-x}}
+    g(a) = \sigma(a) \equiv \frac{1}{1 + e^{-a}}
 \end{equation*}
-\textcolor{red}{Add text on how this is used as an output-activation function for performing binary classification by mapping $\mathbb{R} \rightarrow [0,1]$, and add text on how the softmax function is used as an output-activation function for multiclass classification.}\\
+Softmax:
+\begin{equation*}
+    g(x)_i = \frac{e^{a_i}}{\sum_{j=1}^K e^{a_j}} \quad \text{for} \quad i=1 ,\dots, K
+\end{equation*}
+for $K$ classes.
 Hyperbolic tangens:
 \begin{equation*}
-    g(x) = \tanh \lr{x} \equiv \frac{e^x - e^{-x}}{e^x + e^{-x}}
+    g(a) = \tanh \lr{a} \equiv \frac{e^a - e^{-a}}{e^a + e^{-a}}
 \end{equation*}
 Rectified linear unit (ReLU):
 \begin{equation} \label{eq:relu}
-    g(x) = \max \lr{0, x}
+    g(a) = \max \lr{0, a}
 \end{equation}
 Exponential linear unit (ELU):
 \begin{equation*}
-    g(x) = \begin{cases}
+    g(a) = \begin{cases}
     a & a \geq 0 \\
     \alpha \lr{e^a - 1} & a < 0
     \end{cases} \quad \text{for } \alpha > 0
 \end{equation*}
 Step:
 \begin{equation*}
-    g(x) = \mathbf{1}_{x > 0}
+    g(a) = \mathbf{1}_{a > 0}
 \end{equation*}
-
 
 
 \begin{figure}
@@ -65,7 +68,7 @@ Step:
 
 
 \section{Backpropagation} \label{sec:backprop}
-As mentioned in section \ref{sec:train_val} we seek to find the hypothesis $\hat{h}^*_S$ that minimizes our loss empirical loss. \textcolor{red}{Mention here that we will collect the bias and weights in a parameter vector $\boldsymbol{\theta}$ for simplicity as we instead of added this bias can put it in the weight-vector if we pad each example with a column of 1's, which makes $\boldsymbol{x}\boldsymbol{w}+\boldsymbol{b} = \boldsymbol{x}_{\text{padded}} \boldsymbol{\theta}$ - replace w by theta in the following and in the algorithms 3 and 4.} In the case of neural networks (with omitted bias terms) $\hat{h}^*_S$ are the weights used in each neuron as described in section \ref{sec:feedforward_nn}. To obtain these optimal weights we train the neural network by minimizing the gradient of the (perhaps regularized) loss function $J$ with respect to the weights. To learn these weights we use a minimization algorithm like stochastic gradient descent described in section \ref{sec:sgd}. However the gradient of the loss function is not readily available in neural networks as we have to trace back the information back through the network that produced $\hat{y}$ for which we calculate the loss. The solution is an algorithm proposed by \cite{Rumelhart:1986a} called back-propagation or backprop for short.\\
+As mentioned in section \ref{sec:train_val} we seek to find the hypothesis $\hat{h}^*_S$ that minimizes our empirical loss. For notational convenience we will collect the bias and weights in a parameter vector $\boldsymbol{\theta}$, which can be interpreted as using examples padded with a column of 1's, so that $\boldsymbol{x}\boldsymbol{w}+\boldsymbol{b} = \boldsymbol{x}_{\text{padded}} \boldsymbol{\theta}$. In the case of neural networks $\hat{h}^*_S$ determine the weights used in each neuron as described in section \ref{sec:feedforward_nn}. To obtain these optimal weights we train the neural network by minimizing the gradient of the (perhaps regularized) loss function $J$ with respect to the weights. To learn these weights we use a minimization algorithm like stochastic gradient descent described in section \ref{sec:sgd}. However the gradient of the loss function is not readily available in neural networks as we have to trace back the information back through the network that produced $\hat{y}$ for which we calculate the loss. The solution is an algorithm proposed by \cite{Rumelhart:1986a} called back-propagation or backprop for short.\\
 \\
 Back-propagation uses the chain rule of calculus, which states that
 \begin{equation*}
@@ -75,26 +78,55 @@ for a real number $x$ and functions $g$ and $f$. This rule can be generalized fo
 \begin{equation*}
     \frac{\partial f\lr{g\lr{\boldsymbol{x}}}}{\partial x_i} = \sum_j \frac{\partial f\lr{g\lr{\boldsymbol{x}}}}{\partial g(x_j)} \frac{\partial g(x_j)}{\partial x_i}
 \end{equation*}
-where $g: \mathbb{R}^m \rightarrow \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$. In a neural network with 1 hidden layers we find the gradient of the loss function $J(\boldsymbol{w})$ (with $\boldsymbol{X}$ and $\boldsymbol{y}$ as implicit inputs to keep notation uncluttered) by
+where $g: \mathbb{R}^m \rightarrow \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$. In a neural network with 1 hidden layers we find the gradient of the loss function $J(\boldsymbol{\theta})$ (with $\boldsymbol{X}$ and $\boldsymbol{y}$ as implicit inputs to keep notation uncluttered) by
 \begin{equation} \label{eq:loss_grad}
-    \nabla J\lr{\boldsymbol{w}} = \begin{pmatrix}
-    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial w_1} \\
+    \nabla J\lr{\boldsymbol{\theta}} = \begin{pmatrix}
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial \theta_1} \\
     \vdots\\
-    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial w_m}
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial \theta_m}
     \end{pmatrix}
 \end{equation}
-where each element in found by
+where each element is found by
 \begin{equation} \label{eq:loss_grad_element}
-    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial w_i} = \sum_j \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{w}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{w_j}}} 
-    \frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{w_j}}}{\partial f^{(1)}\lr{w_j}} 
-    \frac{\partial f^{(1)}\lr{w_j}}{\partial w_i}
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial \theta_i} = \sum_j \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}} 
+    \frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}}{\partial f^{(1)}\lr{\theta_j}} 
+    \frac{\partial f^{(1)}\lr{\theta_j}}{\partial \theta_i}
 \end{equation}
 This provides the fundamentals to understand how the gradient is computed in practice.
-First a vector of weights (perhaps chosen by an update of stochastic gradient descent) is sent through the network as shown by algorithm \ref{alg:forward_prop} to provide a loss value. This is called forward-propagation. Then the gradient in equation \ref{eq:loss_grad} is computed using the relation in equation \ref{eq:loss_grad_element} by back-propagation as shown in algorithm \ref{alg:back_prop}. The result of the backpropagation algorithm is gradients on the weights (and biases) that can be directly used for learning the weights that minimizes the gradient on the loss in a stochastic gradient descent algorithm as the one shown in algorithm \ref{alg:sgd}.\\
+A vector of weights (perhaps chosen by an update of stochastic gradient descent) is sent through the network as shown by algorithm \ref{alg:forward_prop} to provide a loss value. This is called forward-propagation. Then the gradient in equation \ref{eq:loss_grad} is computed using the relation in equation \ref{eq:loss_grad_element} by back-propagation as shown in algorithm \ref{alg:back_prop}. The result of the backpropagation algorithm is gradients on the weights (and biases) that can be directly used for learning the weights that minimizes the gradient on the loss in a stochastic gradient descent algorithm as the one shown in algorithm \ref{alg:sgd}.\\
 \\
 Some activation functions like the ReLU-function $g(x) = \max \lr{0, x}$ are not differential, which might sound problematic for backpropagation and gradient based learning. However, as mentioned by \cite{Goodfellow-et-al-2016}, gradient descent still performs well enough for these models, partly because training algorithms usually don't arrive at a local minimum of the loss function. This means that we don't expect to get a gradient of $\boldsymbol{0}$, and therefore we can accept that the minimum of the loss function corresponds to points with an undefined gradient. Furthermore \cite{Goodfellow-et-al-2016} mentions that most software return one of the one-sided derivatives, which can be heuristically justified since a computer is subject to numerical error anyway. \\
 \\
-\textcolor{red}{Perhaps add text and figure on symbol-to-symbol differentiation as in goodfellow p. 214 and fig. 6.10.}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[minimum size=1.5cm, node distance={35mm}, thick, main/.style = {draw, circle}] 
+        \node[main] (1) {$\boldsymbol{\theta}$}; 
+        \node[main] (2) [right of=1] {$\frac{\partial f^{(1)}\lr{\theta_j}}{\partial \theta_i}$};
+        \node[main] (3) [right of=2] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{d \theta_i}$};
+        \node[main] (4) [above of=1] {$x$};
+        \node[main] (5) [right of=4] {$\frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}}{\partial f^{(1)}\lr{\theta_j}} $};
+        \node[main] (6) [right of=5] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{(1)}\lr{\theta_j}}$};
+        \node[main] (7) [above of=4] {$y$};
+        \node[main] (8) [right of=7] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}} $};
+        \node[main] (9) [above of=7] {$z$};
+        
+        \draw[->] (1) -- node[midway, above] {$f'$} (2);
+        \draw[->] (2) -- node[midway, above] {$\times$} (3);
+        \draw[->] (1) -- node[midway, left] {$f^{(1)}$} (4);
+        \draw[->] (4) -- node[midway, above] {$f'$} (5);
+        \draw[->] (5) -- node[midway, above] {$\times$} (6);
+        \draw[->] (6) -- (3);
+        \draw[->] (4) -- node[midway, left] {$f^{\text{out}}$} (7);
+        \draw[->] (7) -- node[midway, above] {$f'$} (8);
+        \draw[->] (8) -- (6);
+        \draw[->] (7) -- node[midway, left] {$J$} (9);
+    \end{tikzpicture} 
+    \caption{Computational graph of backpropagation in algorithm \ref{alg:back_prop}. \textcolor{red}{Check the $j$s and the sum of the chain rule above}}
+    \label{fig:backprop_compgraph}
+\end{figure}
+
+
 
 \begin{algorithm}\label{alg:forward_prop}
 \SetAlgoLined
@@ -123,14 +155,20 @@ Computation of the loss-gradient on the output layer:\\
 $\boldsymbol{d} \leftarrow \nabla_{\hat{\boldsymbol{y}}} J =  \nabla_{\hat{\boldsymbol{y}}} L\lr{\hat{\boldsymbol{y}}, \boldsymbol{y}}$ \\
 \For{$k = l, l-1, \dots, 1$}{
     $\boldsymbol{d} \leftarrow \nabla_{\boldsymbol{a}^{(k)}}J = \boldsymbol{d} \odot g^{(k)'} \lr{\boldsymbol{a}^{(k)}}$\\
-    $\nabla_{\boldsymbol{w}^{(k)}} J = \boldsymbol{d} \boldsymbol{h}^{(k-1)^\top} + \lambda \nabla_{\boldsymbol{w}^{(k)}} \Omega \lr{\boldsymbol{\theta}}$\\
-    $\boldsymbol{d} \leftarrow \nabla_{\boldsymbol{h}^{(k-1)}} J = \boldsymbol{w}^{(k)^\top} \boldsymbol{d}$\\
+    $\nabla_{\boldsymbol{\theta}^{(k)}} J = \boldsymbol{d} \boldsymbol{h}^{(k-1)^\top} + \lambda \nabla_{\boldsymbol{\theta}^{(k)}} \Omega \lr{\boldsymbol{\theta}}$\\
+    $\boldsymbol{d} \leftarrow \nabla_{\boldsymbol{h}^{(k-1)}} J = \boldsymbol{\theta}^{(k)^\top} \boldsymbol{d}$\\
 }
-\caption{Back-propagation, \textcolor{red}{Understand this and comment on how it relates to equation \ref{eq:loss_grad_element}}}
+\caption{Back-propagation}
 \end{algorithm}
 
 \section{Early Stopping} \label{sec:early_stopping}
-\cite{Goodfellow-et-al-2016} mentions that when we have large models with sufficient capacity to overfit, then we often observe that training error decreases steadily over time, while validation error begins to rise again at some point before ending the training, and that this happens very reliably. This mean that we obtain a better model if we stop training and return the parameters at the point with the lowest validation error. This is the concept of regularizing using early stopping. The algorithm terminates training when no parameters have improved the validation-error over some pre-specified number of iteration called the patience, $p$. The measure of improvement can be controlled by a hyperparameter $\delta$, so that we only constitute an improvement if the decrease in validation error is more than $\delta$. The parameters $\boldsymbol{\theta}$ used for calculating the loss are provided by a training algorithm like ADAM from section \ref{alg:adam} using back-propagation from section \ref{sec:backprop}, while the loss is provided by the network-output for these parameters and the chosen loss function. This procedure is specified more formally in algorithm \ref{alg:es}.
+\cite{Goodfellow-et-al-2016} mentions that when we have large models with sufficient capacity to overfit, then we often observe that training error decreases steadily over time, while validation error begins to rise again at some point before ending the training, and that this happens very reliably. This mean that we obtain a better model if we stop training and return the parameters at the point with the lowest validation error. This is the concept of regularizing using early stopping. The algorithm terminates training when no parameters have improved the validation-error over some pre-specified number of iteration called the patience, $p$. The measure of improvement can be controlled by a hyperparameter $\delta$, so that we only constitute an improvement if the decrease in validation error is more than $\delta$. The parameters $\boldsymbol{\theta}$ used for calculating the loss are provided by a training algorithm like ADAM from section \ref{alg:adam} using back-propagation from section \ref{sec:backprop}, while the loss is provided by the network-output for these parameters and the chosen loss function. This procedure is specified more formally in algorithm \ref{alg:es}.\\
+\\
+One can think of early stopping as a hyperparameter selection algorithm that chooses the number of training steps for the training algorithm. The only significant cost of choosing this parameter automatically with early stopping is running the evaluation of the validation error periodically during training. However this can be done in parallel to the training process, as in Tensorflow where one can run parallel on the GPU. An additional cost is the need to maintain a copy of the optimal parameters, but this is negligible according to \cite{Goodfellow-et-al-2016} since they are written to infrequently and never during the training-algorithm, and since they can preferable be stored in a slower and larger form of memory like in host memory or disk drive. \\
+\\
+\cite{bishop1995} and \cite{sjoberg_ljung1995} argues that early stopping has the effect of restricting the optimization procedure to a small volume of parameter space in the neighborhood of the initial parameter value. \cite{Goodfellow-et-al-2016} shows with a simple linear model with a quadratic error function and simple linear descent how early stopping is equivalent to $L^2$ regularization in equation \ref{eq:L2_reg}, but that early stopping has the advantage of automatically determining the correct amount of regularization while $L^2$ regularization requires many training experiments with different values of its hyperparameter $\alpha$. 
+
+
 
 \begin{algorithm}\label{alg:es}
 \SetAlgoLined
@@ -160,8 +198,5 @@ $\boldsymbol{d} \leftarrow \nabla_{\hat{\boldsymbol{y}}} J =  \nabla_{\hat{\bold
  \caption{Early stopping}
 \end{algorithm}
 
-%One can think of early stopping as a hyperparameter selection algorithm that chooses the number of training steps for the training algorithm. The only significant cost of choosing this parameter automatically with early stopping is running the evaluation of the validation error periodically during training. However this can be done in parallel to the training process, as in Tensorflow where one can run parallel on the GPU. An additional cost is the need to maintain a copy of the optimal parameters, but this is negligible according to \cite{Goodfellow-et-al-2016} since they are written to infrequently and never during the training-algorithm, and since they can preferable be stored in a slower and larger form of memory like in host memory or disk drive. \\
-%\\
-%\cite{bishop1995} and \cite{sjoberg_ljung1995} argues that early stopping has the effect of restricting the optimization procedure to a small volume of parameter space in the neighborhood of the initial parameter value. \cite{Goodfellow-et-al-2016} shows with a simple linear model with a quadratic error function and simple linear descent how early stopping is equivalent to $L^2$ regularization in equation \ref{eq:L2_reg}, but that early stopping has the advantage of automatically determining the correct amount of regularization while $L^2$ regularization requires many training experiments with different values of its hyperparameter $\alpha$. 
 
 \section{Dropout} \label{sec:Dropout}

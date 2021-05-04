@@ -9,7 +9,6 @@
 import numpy as np
 import scipy.stats as ss
 import matplotlib.pyplot as plt
-import scipy.stats as stats
 
 # # ----------------------------- Defining functions ---------------------------
 # Defining target probability
@@ -18,11 +17,11 @@ def p(x):
     return ss.multivariate_normal.pdf(x, cov=sigma)
 
 # # ----------------------------- Sampling  ---------------------------
-samples = np.zeros((300, 2))
+samples = np.zeros((1000, 2))
 np.random.seed(42)
 
 x = np.array([7, 0])
-for i in range(300):
+for i in range(1000):
     samples[i] = x
     # Gaussian proposal for symmetry
     x_prime = np.random.multivariate_normal(mean=x, cov=np.eye(2), size=1).flatten()
@@ -40,7 +39,7 @@ X, Y = np.mgrid[-3:3:0.05, -3:3:0.05]
 X, Y = np.mgrid[-3:3:0.05, -3:3:0.05]
 XY = np.empty(X.shape + (2,))
 XY[:,:,0] = X; XY[:,:,1] = Y
-target_distribution = stats.multivariate_normal(mean=[0,0], cov=[[1, 0.6],[0.6, 1]])
+target_distribution = ss.multivariate_normal(mean=[0,0], cov=[[1, 0.6],[0.6, 1]])
 
 
 plt.subplot(2, 2, 1) # row 1, col 2 index 1
@@ -67,6 +66,7 @@ plt.ylim(-3,5)
 plt.xlim(-3,8)
 plt.savefig("metro_example.pdf")
 plt.show()
+
 \end{lstlisting}
 
 \end{appendices}
