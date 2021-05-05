@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
 
-
+tf.random.set_seed(42)
 # ----------------------------- Prepare data ---------------------------
 credit_data = pd.read_csv(
     "Python_code/data/UCI_Credit_Card.csv", encoding="utf-8", index_col=0)
