@@ -8,6 +8,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
 start_time = time.time()
+from keras.regularizers import l2
 
 # ----------------------------- Prepare data ---------------------------
 credit_data = pd.read_csv(
@@ -24,27 +25,24 @@ data_y = data[:, 23]
 X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=42)
 
-# Subsample
-X_train = X_train[0:100, :]
-X_test = X_test[0:100, :]
-y_train = y_train[0:100]
-y_test = y_test[0:100]
-
 # ----------------------------- Neural Network ---------------------------
+reg_const=0.1
+n_hidden=20
 
 model = tf.keras.Sequential([
     tf.keras.Input((23, ), name='feature'),
-    tf.keras.layers.Dense(128, activation=tf.nn.relu),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const)),
     tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
 ])
 model.summary()
 
 # Compile, train, and evaluate.
-
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
-history = model.fit(X_train, y_train, epochs=120,
+history = model.fit(X_train, y_train, epochs=200,
                     validation_split=0.3)
 
 model.evaluate(X_test, y_test)
@@ -72,4 +70,4 @@ plt.plot(history.history['val_loss'], label='validation')
 plt.legend()
 plt.grid()
 plt.show()
-print("YOLO")
+
