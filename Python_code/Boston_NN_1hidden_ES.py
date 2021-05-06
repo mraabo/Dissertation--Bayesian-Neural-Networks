@@ -5,17 +5,17 @@ from keras.datasets import boston_housing
 import time
 
 
-tf.random.set_seed(42)
+tf.random.set_seed(40)
 
 # ----------------------------- Prepare data ---------------------------
-(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=42)
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 # ----------------------------- Neural Network ---------------------------
-n_hidden =20
+n_hidden =10
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
-    tf.keras.layers.Dense(20, activation=tf.nn.relu),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu),
     tf.keras.layers.Dense(1)
 ])
 model.summary()

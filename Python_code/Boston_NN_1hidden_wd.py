@@ -5,14 +5,14 @@ from keras.datasets import boston_housing
 import time
 from keras.regularizers import l2
 
-tf.random.set_seed(42)
+tf.random.set_seed(40)
 # ----------------------------- Prepare data ---------------------------
-(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=42)
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 
 # ----------------------------- Neural Network ---------------------------
-reg_const = 0.1
-n_hidden = 20
+reg_const = 0.3
+n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
@@ -36,8 +36,8 @@ train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-# plt.plot(history.history['loss'], label='train')
-# plt.plot(history.history['val_loss'], label='validation')
-# plt.legend()
-# plt.grid()
-# plt.show()
+plt.plot(history.history['loss'], label='train')
+plt.plot(history.history['val_loss'], label='validation')
+plt.legend()
+plt.grid()
+plt.show()

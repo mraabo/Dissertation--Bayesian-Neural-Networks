@@ -38,7 +38,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 tf.random.set_seed(42)
 # # ----------------------------- Loading Boston data ---------------------------
-(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=42)
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 #pad Xs with 1's to add bias
 ones_train=np.ones(X_train.shape[0])
@@ -87,13 +87,13 @@ def construct_bnn(ann_input, ann_output, n_hidden = 5):
                           testval=init_1)
         acts_1 = pm.Deterministic('activations_1', tt.nnet.relu(tt.dot(ann_input, weights_1)))
     
-    # prior on hyper parameters for weight 2
+    # prior on hyper parameters for weight_out
         #mu2 = pm.Normal('mu2',shape=(n_hidden, 1), mu=0, sigma=1) 
-        mu2 = pm.Cauchy('mu2',shape=(n_hidden, 1), alpha=0, beta=1)
-        sigma2 = pm.HalfNormal('sigma2',shape=(n_hidden, 1), sigma=1) 
+        mu_out = pm.Cauchy('mu_out',shape=(n_hidden, 1), alpha=0, beta=1)
+        sigma_out = pm.HalfNormal('sigma_out',shape=(n_hidden, 1), sigma=1) 
     
     # Layer 1 -> Output Layer
-        weights_out = pm.Normal('w_out', mu=mu2, sd=sigma2,
+        weights_out = pm.Normal('w_out', mu=mu_out, sd=sigma_out,
                             shape=(n_hidden, 1),
                             testval=init_out)
         acts_out = pm.Deterministic('activations_out',tt.dot(acts_1, weights_out))

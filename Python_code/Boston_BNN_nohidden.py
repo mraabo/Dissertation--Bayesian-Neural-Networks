@@ -22,7 +22,7 @@ sns.set_style("white")
 # import pandas as pd
 # from scipy.stats import norm
 # from scipy.stats import t
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import tensorflow as tf
 # # ----------------------------- Print versions ---------------------------
 
@@ -36,15 +36,15 @@ print("Running on Numpy version %s" % np.__version__)
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-tf.random.set_seed(42)
+tf.random.set_seed(40)
 # # ----------------------------- Loading Boston data ---------------------------
 (X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 # pad Xs with 1's to add bias
-# ones_train=np.ones(X_train.shape[0])
-# ones_test=np.ones(X_test.shape[0])
-# X_train=np.insert(X_train,0,ones_train,axis=1)
-# X_test=np.insert(X_test,0,ones_test,axis=1)
+ones_train=np.ones(X_train.shape[0])
+ones_test=np.ones(X_test.shape[0])
+X_train=np.insert(X_train,0,ones_train,axis=1)
+X_test=np.insert(X_test,0,ones_test,axis=1)
 
 #### DO NOT DELETE THIS YET ###
 
@@ -132,9 +132,14 @@ print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred
 
 # -------------------------------- Plots ------------------------------------------
 # Visualizing the trace
-with bayesian_neural_network_NUTS:
-    az.plot_trace(trace)
+# with bayesian_neural_network_NUTS:
+#     az.plot_trace(trace)
 
+
+# Vizualize uncertainty by plotting posterior predictive
+ppc2_array=np.array(ppc2['out'])
+plt.hist(ppc2_array[:,40], density=1,color = "skyblue")
+plt.show()
 
 # # ----------------------------- UNDER CONSTRUCTION ;-) ---------------------------
 ### DO NOT DELELTE THIS YET

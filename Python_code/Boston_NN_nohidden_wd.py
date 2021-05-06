@@ -5,14 +5,14 @@ from keras.datasets import boston_housing
 import time
 from keras.regularizers import l2
 
-tf.random.set_seed(42)
+tf.random.set_seed(40)
 # ----------------------------- Prepare data ---------------------------
-(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=42)
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 
 # ----------------------------- Neural Network ---------------------------
-reg_const = 0.1
-n_hidden = 20
+reg_const = 0.3
+n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
