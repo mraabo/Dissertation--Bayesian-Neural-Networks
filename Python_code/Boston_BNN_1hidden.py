@@ -38,7 +38,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 tf.random.set_seed(42)
 # # ----------------------------- Loading Boston data ---------------------------
-(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=42)
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 #pad Xs with 1's to add bias
 ones_train=np.ones(X_train.shape[0])
