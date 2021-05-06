@@ -24,11 +24,6 @@ data_y = data[:, 23]
 X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=42)
 
-# Subsample
-X_train = X_train[0:100, :]
-X_test = X_test[0:100, :]
-y_train = y_train[0:100]
-y_test = y_test[0:100]
 
 # ----------------------------- Neural Network ---------------------------
 
