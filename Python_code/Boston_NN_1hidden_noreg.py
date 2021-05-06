@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.datasets import boston_housing
 import time
-from keras.regularizers import l2
 
 tf.random.set_seed(42)
 # ----------------------------- Prepare data ---------------------------
@@ -16,8 +15,8 @@ n_hidden = 20
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
-    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const)),
-    tf.keras.layers.Dense(1, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const))
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu),
+    tf.keras.layers.Dense(1)
 ])
 model.summary()
 
