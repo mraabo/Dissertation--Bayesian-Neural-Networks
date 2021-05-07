@@ -128,7 +128,7 @@ pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian
 
 
 # # ----------------------------- Making predictions on test data ---------------------------
-ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS, samples=5000)
+ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS)
 
 # Taking the mean over all samples to generate a prediction
 y_test_pred = ppc2['out'].mean(axis=0)
@@ -138,9 +138,9 @@ toc = time.perf_counter()
 print(f"Run time {toc - tic:0.4f} seconds")
 
 # Printing the performance measures
-print('MAE (NUTS) on training data:', metrics.mean_absolute_error(y_train, y_train_pred))
+#print('MAE (NUTS) on training data:', metrics.mean_absolute_error(y_train, y_train_pred))
 print('MSE (NUTS) on training data:', metrics.mean_squared_error(y_train, y_train_pred))
-print('MAE (NUTS) on test data:', metrics.mean_absolute_error(y_test, y_test_pred))
+#print('MAE (NUTS) on test data:', metrics.mean_absolute_error(y_test, y_test_pred))
 print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred))
 
 

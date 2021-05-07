@@ -31,7 +31,7 @@ print("Running on Numpy version %s" % np.__version__)
 
 # # ----------------------------- Loading credit data ---------------------------
 
-credit_AU_data = np.genfromtxt('australian.dat')
+credit_AU_data = np.genfromtxt('Python_code/data/australian.dat')
 
 # Data to numpy
 data = np.array(credit_AU_data)
