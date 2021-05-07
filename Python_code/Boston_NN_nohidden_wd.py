@@ -36,8 +36,12 @@ train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-# plt.plot(history.history['loss'], label='train')
-# plt.plot(history.history['val_loss'], label='validation')
-# plt.legend()
-# plt.grid()
-# plt.show()
+plt.plot(history.history['loss'], label='Train')
+plt.plot(history.history['val_loss'], label='Validation')
+plt.legend()
+plt.grid()
+plt.ylabel('Loss')
+plt.xlabel('Epochs')
+plt.ylim(0, 200)
+plt.savefig('figure_Boston_NN_nohidden_wd_loss.pdf')
+plt.show()
