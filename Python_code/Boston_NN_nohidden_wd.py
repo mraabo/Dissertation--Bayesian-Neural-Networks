@@ -16,7 +16,8 @@ n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
-    tf.keras.layers.Dense(1, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const))
+    tf.keras.layers.Dense(1, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
 ])
 model.summary()
 
