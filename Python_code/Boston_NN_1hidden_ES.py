@@ -11,7 +11,7 @@ tf.random.set_seed(40)
 (X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
 
 # ----------------------------- Neural Network ---------------------------
-n_hidden =10
+n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
@@ -34,7 +34,6 @@ history = model.fit(X_train, y_train, epochs=300,
 
 print("--- %s seconds ---" % (time.time() - start_time))
 print("The algorithm ran", len(history.history['loss']), "epochs")
-
 
 
 # ----------------------------- Overfitting? ---------------------------

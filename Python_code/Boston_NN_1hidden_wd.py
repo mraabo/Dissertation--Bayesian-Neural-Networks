@@ -16,8 +16,10 @@ n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((13, ), name='feature'),
-    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const)),
-    tf.keras.layers.Dense(1, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const))
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(1, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
 ])
 model.summary()
 
@@ -36,8 +38,12 @@ train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-plt.plot(history.history['loss'], label='train')
-plt.plot(history.history['val_loss'], label='validation')
+plt.plot(history.history['loss'], label='Train')
+plt.plot(history.history['val_loss'], label='Validation')
 plt.legend()
 plt.grid()
+plt.ylabel('Loss')
+plt.xlabel('Epochs')
+plt.ylim(0, 200)
+plt.savefig('figure_Boston_NN_1hidden_wd_loss.pdf')
 plt.show()

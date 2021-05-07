@@ -1,3 +1,4 @@
+from keras.regularizers import l2
 import time
 import tensorflow as tf
 import numpy as np
@@ -8,7 +9,6 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
 start_time = time.time()
-from keras.regularizers import l2
 
 # ----------------------------- Prepare data ---------------------------
 credit_data = pd.read_csv(
@@ -26,12 +26,13 @@ X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=42)
 
 # ----------------------------- Neural Network ---------------------------
-reg_const=0.1
-n_hidden=20
+reg_const = 0.1
+n_hidden = 20
 
 model = tf.keras.Sequential([
     tf.keras.Input((23, ), name='feature'),
-    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
     tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
 ])
 model.summary()
@@ -68,4 +69,3 @@ plt.plot(history.history['val_loss'], label='validation')
 plt.legend()
 plt.grid()
 plt.show()
-
