@@ -95,7 +95,7 @@ We can control whether a model under- or overfits by changing it's capacity. Cap
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{reg_example.png}
-    \caption{Regression of different degree polynomials on a $\cos$ curve. We see that a linear regression of degree 1 is insufficient to fit the training set and is underfitting. A polynomial of degree 4 fits the curve almost perfectly while a polynomial of degree 15 learns the noise of the data and overfits. How well the different regressors generalize to a validation set is evaluated quantitatively by calculating the mean square error using the loss function in equation \ref{eq:mse} using 10-fold cross-validation. We see that this error is lowest when using 4-degree polynomial regression. Cross-validation is covered in section \ref{sec:cv}. The standard error of these losses are shown in the parenthesis.}
+    \caption{Regression of different degree polynomials on a $\cos$ curve. We see that a linear regression of degree 1 is insufficient to fit the training set and is underfitting. A polynomial of degree 4 fits the curve almost perfectly while a polynomial of degree 15 learns the noise of the data and overfits. How well the different regressors generalize to a validation set is evaluated quantitatively by calculating the mean square error using the loss function in equation \ref{eq:mse} using 10-fold cross-validation. We see that this error is lowest when using 4-degree polynomial regression. Cross-validation is covered in section \ref{sec:cv}. The standard error of these losses are shown in the parenthesis. \textcolor{red}{Include and refer to code in appendix.}}
     \label{fig:regr_example}
 \end{figure}
 \noindent
@@ -115,15 +115,18 @@ A common norm penalty function is the $L^2$ parameter norm penalty also known as
 \end{equation}
 We can clearly see from this that larger values of $\alpha$ punishes larger weights. \\
 \\
-As shown by \cite{Goodfellow-et-al-2016} L1 regularization often leads to more sparse solutions than L2 regularization. A sparse solution is one that require fewer variables and this happens more frequently with L1 loss as it results in more variables being 0.\\
+As shown by \cite{Goodfellow-et-al-2016} L1 regularization often leads to more sparse solutions than L2 regularization. A sparse solution is one that require fewer variables and this happens more frequently with L1 loss as it results in more variables being 0.
 \\
-There are various other techniques to reduce overfitting, which we will not cover. One such related type of regularization is norm penalties as constrained optimization problems where $\Omega \lr{\boldsymbol{\theta}}$ is constrained by some constant $k$ while seeking to minimize equation \ref{eq:reg_obj_func}. Another one who gets a brief mention is data augmentation that increases the size of the training set by augmenting existing data and adding the augmented copy to the dataset. An example for a dataset of images is rotating, scaling or shifting an image, then adding it to the dataset along with the original. Other less general methods are early stopping (see section \ref{sec:early_stopping}), that are used for iterative methods and dropout (\textcolor{red}{covered in a section?}) used for neural networks. 
-
+\\
+A regularization methods often used for neural networks is early stopping. We cover this methods in section \ref{sec:early_stopping} provide a popular intuitive approach to regularization other than weight decay. 
+\\
+\\
+There are many other techniques to reduce overfitting, which we will not cover. One such related type of regularization is norm penalties as constrained optimization problems where $\Omega \lr{\boldsymbol{\theta}}$ is constrained by some constant $k$ while seeking to minimize equation \ref{eq:reg_obj_func}. Another is data augmentation that increases the size of the training set by augmenting existing data and adding the augmented copy to the dataset. A last worthy mention, used specifically for neural networks, is dropout (\cite{srivastava2014dropout}), which regularize by ignoring a random set of network-nodes during training.
 
 \section{Gradient based optimization} 
 Supervised machine learning algorithms are often based on learning parameters by minimizing a regularized loss function. This can be done for a differentiable convex loss function by minimizing it's gradient, which gives occasion for gradient based optimization. 
 
-\subsection{Gradient descent} 
+\subsection{Gradient Descent} 
 Gradient descent is an algorithm suggested by \cite{Cauchy1847}. The algorithm is an iterative process of selecting parameters that decrease the gradient. We will consider samples from the sample space $\mathbb{X}$ and aim to to estimate the model parameters $\boldsymbol{\theta}$. The goal is to minimize the loss function  $J(\boldsymbol{\theta},\boldsymbol{X},y)$ which we assume to be convex, so that the function is minimized where the gradient is zero
 \begin{equation*}
     \nabla J(\boldsymbol{\theta},\boldsymbol{X},y)=\left[\frac{\partial J}{\partial\theta_1},\frac{\partial J}{\partial\theta_2},\ldots,\frac{\partial J}{\partial\theta_d}\right]=\boldsymbol{0}

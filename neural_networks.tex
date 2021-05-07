@@ -62,7 +62,7 @@ Step:
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{pics/act_func_fig.pdf}
-    \caption{Plot of some of the most used activation functions.}
+    \caption{Plot of some of the most used activation functions. \textcolor{red}{Include and refer to code in appendix.}}
     \label{fig:act_funcs}
 \end{figure}
 
@@ -88,41 +88,40 @@ where $g: \mathbb{R}^m \rightarrow \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarro
 \end{equation}
 where each element is found by
 \begin{equation} \label{eq:loss_grad_element}
-    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial \theta_i} = \sum_j \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}} 
-    \frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}}{\partial f^{(1)}\lr{\theta_j}} 
-    \frac{\partial f^{(1)}\lr{\theta_j}}{\partial \theta_i}
+    \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial \theta_i} = \frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}} 
+    \frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}{\partial f^{(1)}\lr{\boldsymbol{\theta}}} 
+    \frac{\partial f^{(1)}\lr{\boldsymbol{\theta}}}{\partial \theta_i}
 \end{equation}
-This provides the fundamentals to understand how the gradient is computed in practice.
-A vector of weights (perhaps chosen by an update of stochastic gradient descent) is sent through the network as shown by algorithm \ref{alg:forward_prop} to provide a loss value. This is called forward-propagation. Then the gradient in equation \ref{eq:loss_grad} is computed using the relation in equation \ref{eq:loss_grad_element} by back-propagation as shown in algorithm \ref{alg:back_prop}. The result of the backpropagation algorithm is gradients on the weights (and biases) that can be directly used for learning the weights that minimizes the gradient on the loss in a stochastic gradient descent algorithm as the one shown in algorithm \ref{alg:sgd}.\\
+which can easily be generalized to networks with more than 1 hidden layer, by using the chain rule in a similar fashion. A computational graph for calculating this in a neural network is shown in figure \ref{fig:backprop_compgraph}. This provides the fundamentals to understand how the gradient is computed in practice. A vector of weights (perhaps chosen by an update of stochastic gradient descent) is sent through the network as shown by algorithm \ref{alg:forward_prop} to provide a loss value. This is called forward-propagation. Then the gradient in equation \ref{eq:loss_grad} is computed using the relation in equation \ref{eq:loss_grad_element} by back-propagation as shown in algorithm \ref{alg:back_prop}. The result of the backpropagation algorithm is gradients on the weights (and biases) that can be directly used for learning the weights that minimizes the gradient on the loss in a stochastic gradient descent algorithm as the one shown in algorithm \ref{alg:sgd}.\\
 \\
 Some activation functions like the ReLU-function $g(x) = \max \lr{0, x}$ are not differential, which might sound problematic for backpropagation and gradient based learning. However, as mentioned by \cite{Goodfellow-et-al-2016}, gradient descent still performs well enough for these models, partly because training algorithms usually don't arrive at a local minimum of the loss function. This means that we don't expect to get a gradient of $\boldsymbol{0}$, and therefore we can accept that the minimum of the loss function corresponds to points with an undefined gradient. Furthermore \cite{Goodfellow-et-al-2016} mentions that most software return one of the one-sided derivatives, which can be heuristically justified since a computer is subject to numerical error anyway. \\
 \\
 
 \begin{figure}
     \centering
-    \begin{tikzpicture}[minimum size=1.5cm, node distance={35mm}, thick, main/.style = {draw, circle}] 
-        \node[main] (1) {$\boldsymbol{\theta}$}; 
-        \node[main] (2) [right of=1] {$\frac{\partial f^{(1)}\lr{\theta_j}}{\partial \theta_i}$};
+    \begin{tikzpicture}[minimum size=1.5cm, node distance={45mm}, thick, main/.style = {draw, circle}] 
+        \node[main] (0) {$\boldsymbol{\theta}$}; 
+        \node[main] (1) [above of=0]{$f^{(1)} \lr{\boldsymbol{\theta}}$}; 
+        \node[main] (2) [right of=1] {$\frac{\partial f^{(1)}\lr{\boldsymbol{\theta}}}{\partial \theta_i}$};
         \node[main] (3) [right of=2] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{d \theta_i}$};
-        \node[main] (4) [above of=1] {$x$};
-        \node[main] (5) [right of=4] {$\frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}}{\partial f^{(1)}\lr{\theta_j}} $};
-        \node[main] (6) [right of=5] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{(1)}\lr{\theta_j}}$};
-        \node[main] (7) [above of=4] {$y$};
-        \node[main] (8) [right of=7] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{\theta_j}}} $};
-        \node[main] (9) [above of=7] {$z$};
+        \node[main] (4) [above of=1] {$f^{\text{out}} \lr{ f^{(1)}\lr{\boldsymbol{\theta}}}$};
+        \node[main] (5) [right of=4] {$\frac{\partial f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}{\partial f^{(1)}\lr{\boldsymbol{\theta}}} $};
+        \node[main] (6) [right of=5] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{(1)}\lr{\boldsymbol{\theta}}}$};
+        \node[main] (7) [above of=4] {$J \lr{f^{\text{out}} \lr{ f^{(1)}\lr{\boldsymbol{\theta}}}}$};
+        \node[main] (8) [right of=7] {$\frac{\partial J\lr{f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}}}{\partial f^{\text{out}} \lr{f^{(1)}\lr{\boldsymbol{\theta}}}} $};
         
+        \draw[->] (0) -- node[midway, left] {$f^{(1)}$} (1);
         \draw[->] (1) -- node[midway, above] {$f'$} (2);
-        \draw[->] (2) -- node[midway, above] {$\times$} (3);
-        \draw[->] (1) -- node[midway, left] {$f^{(1)}$} (4);
+        \draw[->] (2) -- node[midway, above, pos=0.9] {$\times$} (3);
+        \draw[->] (1) -- node[midway, left] {$f^{\text{out}}$} (4);
         \draw[->] (4) -- node[midway, above] {$f'$} (5);
-        \draw[->] (5) -- node[midway, above] {$\times$} (6);
+        \draw[->] (5) -- node[midway, above, pos=0.8] {$\times$} (6);
         \draw[->] (6) -- (3);
-        \draw[->] (4) -- node[midway, left] {$f^{\text{out}}$} (7);
+        \draw[->] (4) -- node[midway, left] {$J$} (7);
         \draw[->] (7) -- node[midway, above] {$f'$} (8);
         \draw[->] (8) -- (6);
-        \draw[->] (7) -- node[midway, left] {$J$} (9);
     \end{tikzpicture} 
-    \caption{Computational graph of backpropagation in algorithm \ref{alg:back_prop}. \textcolor{red}{Check the $j$s and the sum of the chain rule above}}
+    \caption{Computational graph of calculating the elements of the gradient in equation \ref{eq:loss_grad_element} for the network with 1 hidden layer. $f'$ indicates that the function of the node is derived with regard to its input and $\times$ indicates that the node is a product of the nodes pointing to it. }
     \label{fig:backprop_compgraph}
 \end{figure}
 
@@ -198,5 +197,3 @@ One can think of early stopping as a hyperparameter selection algorithm that cho
  \caption{Early stopping}
 \end{algorithm}
 
-
-\section{Dropout} \label{sec:Dropout}
