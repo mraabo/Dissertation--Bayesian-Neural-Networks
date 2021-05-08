@@ -95,5 +95,5 @@ plt.fill_between(x_pred, lower_std.flatten() , upper_std.flatten() , color='b', 
 plt.xlabel('x')
 plt.ylabel('y')
 plt.legend()
-plt.savefig('figure_simple_BNN.pdf')
+plt.savefig('Python_code/figure_simple_BNN.pdf')
 plt.show()

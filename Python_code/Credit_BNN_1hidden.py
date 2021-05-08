@@ -24,6 +24,9 @@ sns.set_style("white")
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score
 
+import imblearn as im
+print(im.__version__)
+
 # # ----------------------------- Print versions ---------------------------
 print("Running on Python version %s" % sys.version)
 print(f"Running on PyMC3 version{pm.__version__}")
@@ -50,6 +53,9 @@ data_y=data[:,23]
 
 data_X=data_X[0:100,:]
 data_y=data_y[0:100]
+
+# oversample = im.over_sampling.RandomOverSampler(sampling_strategy='minority')
+# data_X, data_y = oversample.fit_resample(data_X, data_y)
 
 # # ----------------------------- Subsamling credit data ---------------------------
 X_train, X_test, y_train, y_test = train_test_split(data_X, data_y, test_size=0.30, random_state=3030)
@@ -78,7 +84,8 @@ def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
         # Build neural-network using tanh activation function
         act_1 = pm.math.tanh(pm.math.dot(ann_input, weights_in_1))
         #act_2 = pm.math.sigmoid(pm.math.dot(act_1, weights_1_2))
-        act_out = pm.Deterministic("act_out",pm.math.sigmoid(tt.dot(act_1, weights_1_out)))
+        #act_out = pm.Deterministic("act_out",pm.math.sigmoid(tt.dot(act_1, weights_1_out)))
+        act_out = pm.math.sigmoid(tt.dot(act_1, weights_1_out))
 
         # Binary classification -> Bernoulli likelihood
         out = pm.Bernoulli(
@@ -100,17 +107,18 @@ with bayesian_neural_network_NUTS:
     trace = pm.sample(draws=3000, tune=1000,chains=3,target_accept=.9)
     
 # Making predictions using the posterior predective distribution
-ppc1=pm.sample_posterior_predictive(trace, var_names=["act_out"],model=bayesian_neural_network_NUTS)
+ppc1=pm.sample_posterior_predictive(trace,model=bayesian_neural_network_NUTS)
 
-y_train_pred=mode(ppc1['act_out']>0.3,axis=0).mode[0:].astype(int)
-y_train_pred=y_train_pred.reshape(y_train.shape[0],1)
-
+y_train_pred = ppc1['out'].mean(axis=0)
+y_train_pred = (y_train_pred > 0.25).astype(int)
+y_train_pred = y_train_pred[0] 
 
 # Replace shared variables with testing set
 pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian_neural_network_NUTS)
-ppc2 = pm.sample_posterior_predictive(trace,var_names=["act_out"], model=bayesian_neural_network_NUTS, samples=50)
-y_test_pred=mode(ppc2['act_out']>0.25,axis=0).mode[0:,].astype(int)
-y_test_pred=y_test_pred.reshape(y_test.shape[0],1)
+ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS)
+y_test_pred = ppc2['out'].mean(axis=0)
+y_test_pred=y_test_pred > 0.25
+y_test_pred=y_test_pred[0]
 
 # end time
 toc = time.time()  
@@ -121,13 +129,18 @@ print('Accuracy on train data = {}%'.format(accuracy_score(y_train, y_train_pred
 print('Accuracy on test data = {}%'.format(accuracy_score(y_test, y_test_pred) * 100))
 
 # Confusing matrix
-cm=confusion_matrix(y_test_pred,y_test, normalize='all')
+cm=confusion_matrix(y_test,y_test_pred, normalize='all')
+loss = cm[0,1]*10+cm[1,0]
+
 sns.heatmap(cm, cmap=plt.cm.Blues, annot=True)
 plt.show()
-print("yolo")
 
-# Visualizing the trace
+
+
+# # Visualizing the trace
+# fig, axes = plt.subplots(3,2, figsize=(12,6))
 # with bayesian_neural_network_NUTS:
 #     az.plot_trace(trace)
-    
-
+# fig.tight_layout()
+# fig.show()
+# print("yolo")

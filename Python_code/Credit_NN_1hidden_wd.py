@@ -8,8 +8,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
+import imblearn as im
 start_time = time.time()
+tf.random.set_seed(42)
 
+print(im.__version__)
 # ----------------------------- Prepare data ---------------------------
 credit_data = pd.read_csv(
     "Python_code/data/UCI_Credit_Card.csv", encoding="utf-8", index_col=0)
@@ -22,14 +25,13 @@ data = np.array(credit_data)
 data_X = data[:, 0:23]
 data_y = data[:, 23]
 
-<<<<<<< HEAD
-
-data_X = data_X[0:500, :]
-data_y = data_y[0:500]
-=======
 data_X=data_X[0:100,:]
 data_y=data_y[0:100]
->>>>>>> e27a88f03b8936c93896994a320823ce5215c05c
+
+oversample = im.over_sampling.RandomOverSampler(sampling_strategy='minority')
+
+data_X, data_y = oversample.fit_resample(data_X, data_y)
+
 
 X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=3030)
