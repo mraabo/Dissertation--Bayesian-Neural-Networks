@@ -21,8 +21,12 @@ data = np.array(credit_data)
 data_X = data[:, 0:23]
 data_y = data[:, 23]
 
+
+data_X = data_X[0:500, :]
+data_y = data_y[0:500]
+
 X_train, X_test, y_train, y_test = train_test_split(
-    data_X, data_y, test_size=0.30, random_state=42)
+    data_X, data_y, test_size=0.30, random_state=3030)
 
 
 # ----------------------------- Neural Network ---------------------------
@@ -46,7 +50,7 @@ model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
 history = model.fit(X_train, y_train,  validation_split=0.3,
-                    epochs=500, callbacks=[es])
+                    epochs=300, callbacks=[es])
 print("The algorithm ran", len(history.history['loss']), "epochs")
 
 print("--- %s seconds ---" % (time.time() - start_time))
@@ -71,5 +75,3 @@ plt.plot(history.history['val_loss'], label='validation')
 plt.legend()
 plt.grid()
 plt.show()
-
-print("YOLO")

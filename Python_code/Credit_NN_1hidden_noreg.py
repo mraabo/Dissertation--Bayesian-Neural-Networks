@@ -30,13 +30,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=3030)
 
 # ----------------------------- Neural Network ---------------------------
-reg_const = 0.1
 n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((23, ), name='feature'),
-    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(
-        reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu(features)),
     tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
 ])
 model.summary()
