@@ -40,7 +40,7 @@ tf.random.set_seed(42)
 
 # # ----------------------------- Loading credit data ---------------------------
 
-credit_data = pd.read_csv("UCI_Credit_Card.csv",encoding="utf-8",index_col=0, delimiter=";")
+credit_data = pd.read_csv("Python_code/data/UCI_Credit_Card.csv",encoding="utf-8",index_col=0, delimiter=",")
 credit_data.head()
 # Data to numpy
 data=np.array(credit_data)
@@ -48,15 +48,15 @@ data=np.array(credit_data)
 data_X=data[:,0:23]
 data_y=data[:,23]
 
-data_X=data_X[0:1000,:]
-data_y=data_y[0:1000]
+data_X=data_X[0:100,:]
+data_y=data_y[0:100]
 
 # # ----------------------------- Subsamling credit data ---------------------------
-X_train, X_test, y_train, y_test = train_test_split( data_X, data_y, test_size=0.30, random_state=3030)
+X_train, X_test, y_train, y_test = train_test_split(data_X, data_y, test_size=0.30, random_state=3030)
 
 
 # # ----------------------------- Implementing a BNN function ---------------------------
-def construct_bnn(ann_input, ann_output, n_hidden = 5, prior_std=10):
+def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
     # Initialize random weights between each layer
     init_1 = np.random.randn(X_train.shape[1], n_hidden).astype(floatX)*prior_std
     #init_2 = np.random.randn(n_hidden,n_hidden ).astype(floatX)
@@ -93,20 +93,16 @@ def construct_bnn(ann_input, ann_output, n_hidden = 5, prior_std=10):
 
 # # ----------------------------- Sampling from posterior ---------------------------
 tic = time.time() # for timing
-bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10)
+bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10,prior_std=1)
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=3000, tune=2000,chains=1)
+    trace = pm.sample(draws=3000, tune=1000,chains=3,target_accept=.9)
     
-# end time
-toc = time.time()  
-print(f"Running MCMC completed in {toc - tic:} seconds")
-
 # Making predictions using the posterior predective distribution
 ppc1=pm.sample_posterior_predictive(trace, var_names=["act_out"],model=bayesian_neural_network_NUTS)
 
-y_train_pred=mode(ppc1['act_out']>0.25,axis=0).mode[0:].astype(int)
+y_train_pred=mode(ppc1['act_out']>0.3,axis=0).mode[0:].astype(int)
 y_train_pred=y_train_pred.reshape(y_train.shape[0],1)
 
 
@@ -116,33 +112,22 @@ ppc2 = pm.sample_posterior_predictive(trace,var_names=["act_out"], model=bayesia
 y_test_pred=mode(ppc2['act_out']>0.25,axis=0).mode[0:,].astype(int)
 y_test_pred=y_test_pred.reshape(y_test.shape[0],1)
 
+# end time
+toc = time.time()  
+print(f"Running MCMC completed in {toc - tic:} seconds")
+
 # Printing the performance measures
 print('Accuracy on train data = {}%'.format(accuracy_score(y_train, y_train_pred) * 100))
 print('Accuracy on test data = {}%'.format(accuracy_score(y_test, y_test_pred) * 100))
-
 
 # Confusing matrix
 cm=confusion_matrix(y_test_pred,y_test, normalize='all')
 sns.heatmap(cm, cmap=plt.cm.Blues, annot=True)
 plt.show()
-
+print("yolo")
 
 # Visualizing the trace
-with bayesian_neural_network_NUTS:
-    az.plot_trace(trace)
+# with bayesian_neural_network_NUTS:
+#     az.plot_trace(trace)
     
-    
-from sklearn.datasets import load_iris
-from sklearn.linear_model import LogisticRegression
-clf = LogisticRegression(random_state=0).fit(X_train, y_train)
-clf.predict(X_train)
 
-prob=clf.predict_proba(X_train)
-
-prob[:,1]
-
-print(clf.coef_, clf.intercept_)
-
-cm=confusion_matrix(clf.predict(X_test),y_test, normalize='all')
-sns.heatmap(cm, cmap=plt.cm.Blues, annot=True)
-plt.show()

@@ -22,9 +22,14 @@ data = np.array(credit_data)
 data_X = data[:, 0:23]
 data_y = data[:, 23]
 
+<<<<<<< HEAD
 
 data_X = data_X[0:500, :]
 data_y = data_y[0:500]
+=======
+data_X=data_X[0:100,:]
+data_y=data_y[0:100]
+>>>>>>> e27a88f03b8936c93896994a320823ce5215c05c
 
 X_train, X_test, y_train, y_test = train_test_split(
     data_X, data_y, test_size=0.30, random_state=3030)
@@ -54,8 +59,8 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 # ----------------------------- Heatmap ---------------------------
 
-# Predict class 1 for prob > 0.5 and class 0 otherwise
-y_pred_test = model.predict(X_test) > 0.5
+# Predict class 1 for prob > 0.25 and class 0 otherwise
+y_pred_test = model.predict(X_test) > 0.1
 conf_mat = confusion_matrix(y_test, y_pred_test, normalize='all')
 sns.heatmap(conf_mat, cmap=plt.cm.Blues, annot=True)
 plt.ylabel("True label")
