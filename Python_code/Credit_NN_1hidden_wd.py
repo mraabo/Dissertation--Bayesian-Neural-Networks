@@ -22,12 +22,15 @@ data = np.array(credit_data)
 data_X = data[:, 0:23]
 data_y = data[:, 23]
 
+data_X=data_X[0:100,:]
+data_y=data_y[0:100]
+
 X_train, X_test, y_train, y_test = train_test_split(
-    data_X, data_y, test_size=0.30, random_state=42)
+    data_X, data_y, test_size=0.30, random_state=3030)
 
 # ----------------------------- Neural Network ---------------------------
 reg_const = 0.1
-n_hidden = 20
+n_hidden = 10
 
 model = tf.keras.Sequential([
     tf.keras.Input((23, ), name='feature'),
@@ -50,8 +53,8 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 # ----------------------------- Heatmap ---------------------------
 
-# Predict class 1 for prob > 0.5 and class 0 otherwise
-y_pred_test = model.predict(X_test) > 0.5
+# Predict class 1 for prob > 0.25 and class 0 otherwise
+y_pred_test = model.predict(X_test) > 0.1
 conf_mat = confusion_matrix(y_test, y_pred_test, normalize='all')
 sns.heatmap(conf_mat, cmap=plt.cm.Blues, annot=True)
 plt.ylabel("True label")
