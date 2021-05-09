@@ -22,7 +22,7 @@ sns.set_style("white")
 # import pandas as pd
 # from scipy.stats import norm
 # from scipy.stats import t
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import tensorflow as tf
 # # ----------------------------- Print versions ---------------------------
 
@@ -103,7 +103,7 @@ bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prio
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.90)
+    trace = pm.sample(draws=30, tune=10, chains=3,target_accept=.90)
     
 
 # # ----------------------------- Making predictions on training data ---------------------------
@@ -141,26 +141,13 @@ with bayesian_neural_network_NUTS:
     az.plot_trace(trace)
 
 
-# # ----------------------------- UNDER CONSTRUCTION ;-) ---------------------------
-### DO NOT DELELTE THIS YET
-# sns.distplot(y_train - pred1)
-# Include a title
-# plt.title("Residuals PDF", size=18)
-# plt.show()
-# # plt.scatter(y_train, pred1)
-# # Let's also name the axes
-# plt.xlabel('Targets (y_train)',size=18)
-# plt.ylabel('Predictions (y_hat)',size=18)
-# # Sometimes the plot will have different scales of the x-axis and the y-axis
-# # This is an issue as we won't be able to interpret the '45-degree line'
-# # We want the x-axis and the y-axis to be the same
-# # plt.xlim(6,13)
-# # plt.ylim(6,13)
-# plt.show()
-# # OLS
-# from sklearn.linear_model import LinearRegression
-
-# reg = LinearRegression().fit(X_train, y_train)
-
-# pred3=reg.predict(X_train)
-# print('MSE (OLS):', metrics.mean_squared_error(y_train, pred3))
+# Vizualize uncertainty
+# Define examples for which you want to examine the posterior predictive:
+example_vec=np.array([0,10,22,48])
+for example in example_vec:
+    plt_hist_array=np.array(ppc2['out'])
+    plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue")
+    plt.xlabel(f"Predicted value for example {example}")
+    plt.ylabel("Relative frequency")
+    plt.show()
+   
