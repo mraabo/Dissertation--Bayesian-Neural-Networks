@@ -59,12 +59,12 @@ X_test=np.insert(X_test,0,ones_test,axis=1)
 # X_train = scaler.fit_transform(X_train)
 # X_test = scaler.transform(X_test)
 
-# # Subsetting
+# Subsetting
 
-# X_train=X_train[0:100,:]
-# y_train=y_train[0:100,]
-# X_test=X_test[0:100,:]
-# y_test=y_test[0:100,]
+# X_train=X_train[0:50,:]
+# y_train=y_train[0:50,]
+# X_test=X_test[0:50,:]
+# y_test=y_test[0:50,]
 
 # # ----------------------------- Implementing a BNN function ---------------------------
 
@@ -103,11 +103,11 @@ bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prio
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.90)
+    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.90, random_seed=42)
     
 
 # # ----------------------------- Making predictions on training data ---------------------------
-ppc1=pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS)
+ppc1=pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS, random_seed=42)
 
 # Taking the mean over all samples to generate a prediction
 y_train_pred = ppc1['out'].mean(axis=0)
@@ -119,7 +119,7 @@ pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian
 
 
 # # ----------------------------- Making predictions on test data ---------------------------
-ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS)
+ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS, random_seed=42)
 
 # Taking the mean over all samples to generate a prediction
 y_test_pred = ppc2['out'].mean(axis=0)
@@ -143,11 +143,12 @@ with bayesian_neural_network_NUTS:
 
 # Vizualize uncertainty
 # Define examples for which you want to examine the posterior predictive:
-example_vec=np.array([0,10,22,48])
+example_vec=np.array([0,10,22,48,5,6,7,8,9,11,15,16,55,76,86,98,100,103,104,106,107])
 for example in example_vec:
     plt_hist_array=np.array(ppc2['out'])
     plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue")
     plt.xlabel(f"Predicted value for example {example}")
     plt.ylabel("Relative frequency")
+    plt.savefig(f'Python_code/Boston_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
     

@@ -50,15 +50,28 @@ data=np.array(credit_data)
 data_X=data[:,0:23]
 data_y=data[:,23]
 
-data_X=data_X[0:100,:]
-data_y=data_y[0:100]
 
-# oversample = im.over_sampling.RandomOverSampler(sampling_strategy='minority')
-# data_X, data_y = oversample.fit_resample(data_X, data_y)
+
+
+
 
 # # ----------------------------- Subsamling credit data ---------------------------
 X_train, X_test, y_train, y_test = train_test_split(data_X, data_y, test_size=0.30, random_state=3030)
 
+N = 300
+X_train=X_train[0:N,:]
+y_train=y_train[0:N]
+X_test=X_test[0:N*0.3,:]
+y_test=y_test[0:N*0.3]
+
+# oversample = im.over_sampling.RandomOverSampler(sampling_strategy='minority')
+# data_X, data_y = oversample.fit_resample(data_X, data_y)
+
+# pad Xs with 1's to add bias
+ones_train = np.ones(X_train.shape[0])
+ones_test = np.ones(X_test.shape[0])
+X_train = np.insert(X_train, 0, ones_train, axis=1)
+X_test = np.insert(X_test, 0, ones_test, axis=1)
 
 # # ----------------------------- Implementing a BNN function ---------------------------
 def construct_bnn(ann_input, ann_output, n_hidden):
