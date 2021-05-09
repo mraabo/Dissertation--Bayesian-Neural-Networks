@@ -68,7 +68,7 @@ X_test=np.insert(X_test,0,ones_test,axis=1)
 
 # # ----------------------------- Implementing a BNN function ---------------------------
 
-def construct_bnn(ann_input, ann_output, n_hidden = 5):
+def construct_bnn(ann_input, ann_output, n_hidden):
     # Initialize random weights between each layer
     init_1 = np.random.randn(X_train.shape[1], n_hidden).astype(floatX)*.1
     init_out = np.random.randn(n_hidden,1).astype(floatX)*.1

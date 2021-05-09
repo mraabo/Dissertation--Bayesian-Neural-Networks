@@ -68,7 +68,7 @@ X_test=np.insert(X_test,0,ones_test,axis=1)
 
 # # ----------------------------- Implementing a BNN function ---------------------------
 
-def construct_bnn(ann_input, ann_output, n_hidden = 5, prior_std = 0.01):
+def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
     # Initialize random weights between each layer
     init_1 = np.random.randn(X_train.shape[1], n_hidden).astype(floatX)*prior_std
     init_out = np.random.randn(n_hidden,1).astype(floatX)*prior_std
@@ -81,13 +81,13 @@ def construct_bnn(ann_input, ann_output, n_hidden = 5, prior_std = 0.01):
         weights_1 = pm.Normal('w_1', mu=0, sd=prior_std,
                           shape=(X_train.shape[1], n_hidden),
                           testval=init_1)
-        acts_1 = pm.Deterministic('activations_1', tt.nnet.relu(tt.dot(ann_input, weights_1)))
+        acts_1 = tt.nnet.relu(tt.dot(ann_input, weights_1))
 
     # Layer 1 -> Output Layer
         weights_out = pm.Normal('w_out', mu=0, sd=prior_std,
                             shape=(n_hidden, 1),
                             testval=init_out)
-        acts_out = pm.Deterministic('activations_out',tt.dot(acts_1, weights_out))
+        acts_out = tt.dot(acts_1, weights_out)
         
 
     #Define likelihood
@@ -99,11 +99,11 @@ def construct_bnn(ann_input, ann_output, n_hidden = 5, prior_std = 0.01):
 # # ----------------------------- Sampling from posterior ---------------------------
 # Start time
 tic = time.perf_counter() # for timing
-bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prior_std=0.1)
+bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prior_std=.1)
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.90, random_seed=42)
+    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.95, random_seed=42)
     
 
 # # ----------------------------- Making predictions on training data ---------------------------
@@ -138,15 +138,15 @@ print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred
 # -------------------------------- Plots ------------------------------------------
 # Visualizing the trace
 with bayesian_neural_network_NUTS:
-    az.plot_trace(trace)
-
+    az.plot_trace(trace["weight_out"][0:2])
+plt.savefig('Python_code/Boston_BNN_1hidden_trace.pdf')
 
 # Vizualize uncertainty
 # Define examples for which you want to examine the posterior predictive:
-example_vec=np.array([0,10,22,48,5,6,7,8,9,11,15,16,55,76,86,98,100,103,104,106,107])
+example_vec=np.array([10,22,48,5,6,7,8,9,11,15,16,55,76,86,98,100,103,104,106,107])
 for example in example_vec:
     plt_hist_array=np.array(ppc2['out'])
-    plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue")
+    plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
     plt.xlabel(f"Predicted value for example {example}")
     plt.ylabel("Relative frequency")
     plt.savefig(f'Python_code/Boston_BNN_1hidden_postpred_{example}.pdf')
