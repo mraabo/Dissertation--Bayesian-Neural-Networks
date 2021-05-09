@@ -103,7 +103,7 @@ bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prio
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=30, tune=10, chains=3,target_accept=.90)
+    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.90)
     
 
 # # ----------------------------- Making predictions on training data ---------------------------
@@ -150,4 +150,4 @@ for example in example_vec:
     plt.xlabel(f"Predicted value for example {example}")
     plt.ylabel("Relative frequency")
     plt.show()
-   
+    
