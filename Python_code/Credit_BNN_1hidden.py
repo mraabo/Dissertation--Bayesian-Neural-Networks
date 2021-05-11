@@ -40,7 +40,6 @@ tf.random.set_seed(42)
 
 
 # # ----------------------------- Loading credit data ---------------------------
-credit_data = pd.read_csv("UCI_Credit_Card.csv",encoding="utf-8",index_col=0, delimiter=";")
 credit_data = pd.read_csv("Python_code/data/UCI_Credit_Card.csv",encoding="utf-8",index_col=0, delimiter=",")
 credit_data.head()
 # Data to numpy
