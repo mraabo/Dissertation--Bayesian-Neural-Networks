@@ -22,8 +22,15 @@ data = np.array(credit_data)
 data_X = data[:, 0:23]
 data_y = data[:, 23]
 
-X_train, X_test, y_train, y_test = train_test_split(
-    data_X, data_y, test_size=0.30, random_state=42)
+# # ----------------------------- Subsamling credit data ---------------------------
+X_train, X_test, y_train, y_test = train_test_split(data_X, data_y, test_size=0.30, random_state=3030)
+
+N = 300
+N_test = 100
+X_train=X_train[0:N,:]
+y_train=y_train[0:N]
+X_test=X_test[0:N_test,:]
+y_test=y_test[0:N_test]
 
 # ----------------------------- Neural Network ---------------------------
 reg_const=0.1
@@ -38,7 +45,7 @@ model.summary()
 # Compile, train, and evaluate.
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
-              metrics=['accuracy'])
+              metrics=['binary_crossentropy'])
 history = model.fit(X_train, y_train, epochs=200,
                     validation_split=0.3)
 
@@ -62,8 +69,12 @@ train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-plt.plot(history.history['loss'], label='train')
-plt.plot(history.history['val_loss'], label='validation')
+# taking mean of summed cross-entropy loss
+train_loss = np.array(history.history['loss'])/(X_train.shape[0]*(1-val_ratio))
+val_loss = np.array(history.history['val_loss'])/(X_train.shape[0]*val_ratio)
+
+plt.plot(train_loss, label='train')
+plt.plot(val_loss, label='validation')
 plt.legend()
 plt.grid()
 plt.show()
