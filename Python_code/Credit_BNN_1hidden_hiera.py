@@ -24,8 +24,6 @@ sns.set_style("white")
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score, log_loss
 
-import imblearn as im
-print(im.__version__)
 
 # # ----------------------------- Print versions ---------------------------
 print("Running on Python version %s" % sys.version)
@@ -61,8 +59,6 @@ y_train=y_train[0:N]
 X_test=X_test[0:N_test,:]
 y_test=y_test[0:N_test]
 
-# oversample = im.over_sampling.RandomOverSampler(sampling_strategy='minority')
-# data_X, data_y = oversample.fit_resample(data_X, data_y)
 
 # pad Xs with 1's to add bias
 ones_train = np.ones(X_train.shape[0])
@@ -120,12 +116,16 @@ tic = time.time() # for timing
 bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10)
 
 # Sample from the posterior using the NUTS samplper
+draws=1500
+tune=10**3
+chains=3
+target_accept=.9
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=1500, tune=1000,chains=3,target_accept=.9)
-    
+    trace = pm.sample(draws=draws, tune=tune,chains=chains,target_accept=target_accept)
+
 
 y_train_pred = (trace["output"]).mean(axis=0)
-y_train_pred = np.append(y_train_pred,1-y_train_pred,axis=1)
+
 # Making predictions using the posterior predective distribution
 # ppc1=pm.sample_posterior_predictive(trace,model=bayesian_neural_network_NUTS)
 
@@ -138,7 +138,8 @@ pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian
 
 ppc2 = pm.sample_posterior_predictive(trace,var_names=["output"], model=bayesian_neural_network_NUTS)
 y_test_pred = (ppc2["output"]).mean(axis=0)
-y_test_pred = np.append(y_test_pred,1-y_test_pred,axis=1)
+
+# y_test_pred = np.append(y_test_pred,1-y_test_pred,axis=1)
 
 # end time
 toc = time.time()  
@@ -155,13 +156,4 @@ sns.heatmap(cm, cmap=plt.cm.Blues, annot=True)
 plt.ylabel("True label")
 plt.xlabel("Predicted label")
 plt.show()
-
-
-
-# # Visualizing the trace
-# fig, axes = plt.subplots(3,2, figsize=(12,6))
-# with bayesian_neural_network_NUTS:
-#     az.plot_trace(trace)
-# fig.tight_layout()
-# fig.show()
-# print("yolo")
+plt.savefig('Python_code/Credit_BNN_1hidden_confusion_matrix.pdf')
