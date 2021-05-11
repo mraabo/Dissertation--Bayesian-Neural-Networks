@@ -24,9 +24,6 @@ sns.set_style("white")
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score, log_loss
 
-import imblearn as im
-print(im.__version__)
-
 # # ----------------------------- Print versions ---------------------------
 print("Running on Python version %s" % sys.version)
 print(f"Running on PyMC3 version{pm.__version__}")
@@ -45,6 +42,7 @@ credit_data = pd.read_csv("Python_code/data/UCI_Credit_Card.csv",encoding="utf-8
 credit_data.head()
 # Data to numpy
 data=np.array(credit_data)
+
 # seperating labels from features
 data_X=data[:,0:23]
 data_y=data[:,23]
@@ -60,8 +58,6 @@ y_train=y_train[0:N]
 X_test=X_test[0:N_test,:]
 y_test=y_test[0:N_test]
 
-# oversample = im.over_sampling.RandomOverSampler(sampling_strategy='minority')
-# data_X, data_y = oversample.fit_resample(data_X, data_y)
 
 # pad Xs with 1's to add bias
 ones_train = np.ones(X_train.shape[0])
@@ -73,28 +69,15 @@ X_test = np.insert(X_test, 0, ones_test, axis=1)
 
 # # ----------------------------- Implementing a BNN function ---------------------------
 def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
-    # Initialize random weights between each layer
-    #init_1 = np.random.randn(X_train.shape[1], n_hidden).astype(floatX)*prior_std
-    #init_2 = np.random.randn(n_hidden,n_hidden ).astype(floatX)
-    init_out = np.random.randn(X_train.shape[1],1).astype(floatX)*prior_std
 
     with pm.Model() as bayesian_neural_network:
         ann_input = pm.Data("ann_input", X_train)
         ann_output = pm.Data("ann_output", y_train)
 
-        # Weights from input to hidden layer
-        #weights_in_1 = pm.Normal("w_in_1", 0, sigma=prior_std, shape=(X_train.shape[1], n_hidden), testval=init_1)
-
-        # Weights from 1st to 2nd layer
-        #weights_1_2 = pm.Normal("w_1_2", 0, sigma=1, shape=(n_hidden, n_hidden), testval=init_2)
-
         # Weights from hidden layer to output
-        weights_in_out = pm.Normal("weights_out", 0, sigma=prior_std, shape=(X_train.shape[1],1),testval=init_out)
+        weights_in_out = pm.Normal("weights_out", 0, sigma=prior_std, shape=(X_train.shape[1],1))
 
         # Build neural-network using tanh activation function
-        #act_1 = pm.math.tanh(pm.math.dot(ann_input, weights_in_1))
-        #act_2 = pm.math.sigmoid(pm.math.dot(act_1, weights_1_2))
-        #act_out = pm.Deterministic("act_out",pm.math.sigmoid(tt.dot(act_1, weights_1_out)))
         output = pm.Deterministic("output", pm.math.sigmoid(tt.dot(ann_input, weights_in_out)))
 
         # Binary classification -> Bernoulli likelihood
@@ -113,11 +96,15 @@ tic = time.time() # for timing
 bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=0, prior_std=1)
 
 # Sample from the posterior using the NUTS samplper
+draws=1500
+tune=10**3
+chains=3
+target_accept=.9
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=1500, tune=1000,chains=3,target_accept=.9)
+    trace = pm.sample(draws=draws, tune=tune,chains=chains,target_accept=target_accept)
     
 y_train_pred = (trace["output"]).mean(axis=0)
-y_train_pred = np.append(y_train_pred,1-y_train_pred,axis=1)
+
 # Making predictions using the posterior predective distribution
 # ppc1=pm.sample_posterior_predictive(trace,model=bayesian_neural_network_NUTS)
 
@@ -130,15 +117,16 @@ pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian
 
 ppc2 = pm.sample_posterior_predictive(trace,var_names=["output"], model=bayesian_neural_network_NUTS)
 y_test_pred = (ppc2["output"]).mean(axis=0)
-y_test_pred = np.append(y_test_pred,1-y_test_pred,axis=1)
+
+# y_test_pred = np.append(y_test_pred,1-y_test_pred,axis=1)
 
 # end time
 toc = time.time()  
 print(f"Running MCMC completed in {toc - tic:} seconds")
 
 # Printing the performance measures
-print('Cross-entropy loss on train data = {}'.format(log_loss(y_train, y_train_pred) * 100))
-print('Cross-entropy loss on test data = {}'.format(log_loss(y_test, y_test_pred) * 100))
+print('Cross-entropy loss on train data = {}'.format(log_loss(y_train, y_train_pred)))
+print('Cross-entropy loss on test data = {}'.format(log_loss(y_test, y_test_pred)))
 
 # Confusing matrix
 test_class_pred = y_test_pred[:,0]>0.5
@@ -147,13 +135,3 @@ sns.heatmap(cm, cmap=plt.cm.Blues, annot=True)
 plt.ylabel("True label")
 plt.xlabel("Predicted label")
 plt.show()
-
-
-
-# # Visualizing the trace
-# fig, axes = plt.subplots(3,2, figsize=(12,6))
-# with bayesian_neural_network_NUTS:
-#     az.plot_trace(trace)
-# fig.tight_layout()
-# fig.show()
-# print("yolo")
