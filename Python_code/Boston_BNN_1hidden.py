@@ -143,7 +143,7 @@ for example in example_vec:
     plt_hist_array=np.array(ppc2['out'])
     plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
     plt.xlabel(f"Predicted value for example {example}")
-    plt.ylabel("Relative frequency")
+    plt.ylabel("Density")
     plt.savefig(f'Python_code/Boston_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
     
