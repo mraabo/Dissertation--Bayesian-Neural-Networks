@@ -161,3 +161,5 @@ for example in example_vec:
     plt.ylabel("Density")
     plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
+
+
