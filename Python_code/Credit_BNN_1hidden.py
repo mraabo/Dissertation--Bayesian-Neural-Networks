@@ -153,10 +153,10 @@ plt.savefig('Python_code/Credit_BNN_1hidden_confusion_matrix.pdf')
 
 # Vizualize uncertainty
 # Define examples for which you want to examine the posterior predictive:
-example_vec=np.array([4,11,25,27,33,44,58,88,104])
+example_vec=np.array([4,11,25,27,33,44,58,88])
 for example in example_vec:
     plt_hist_array=np.array(ppc2['output'])
-    plt.hist(plt_hist_array[:,example], density=True, color="lightsteelblue", bins=30)
+    plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
     plt.xlabel(f"Predicted probability for example {example}")
     plt.ylabel("Relative frequency")
     plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')

@@ -7,8 +7,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
+from sklearn.metrics import log_loss
 import seaborn as sns
 start_time = time.time()
+tf.random.set_seed(40)
 
 # ----------------------------- Prepare data ---------------------------
 credit_data = pd.read_csv(
@@ -37,17 +39,18 @@ y_test=y_test[0:N_test]
 n_hidden = 10
 
 model = tf.keras.Sequential([
-    tf.keras.Input((23, ), name='feature'),
-    tf.keras.layers.Dense(n_hidden, activation=tf.nn.tanh(features)),
+    tf.keras.Input((23, ), name='features'),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.tanh),
     tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
 ])
 model.summary()
 
 # Compile, train, and evaluate.
+val_ratio = 0.3
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['binary_crossentropy'])
-history = model.fit(X_train, y_train, epochs=300,
+history = model.fit(X_train, y_train, epochs=1000,
                     validation_split=0.3)
 
 model.evaluate(X_test, y_test)
@@ -68,11 +71,15 @@ plt.show()
 
 train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
-print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+print('Train: %.3f, Test: %.3f' % (train_acc, test_acc ))
 
 # taking mean of summed cross-entropy loss
-train_loss = np.array(history.history['loss'])/(X_train.shape[0]*(1-val_ratio))
-val_loss = np.array(history.history['val_loss'])/(X_train.shape[0]*val_ratio)
+train_loss = np.array(history.history['loss'])
+val_loss = np.array(history.history['val_loss'])
+
+
+test = model.predict(X_test)
+print(log_loss(y_test,test))
 
 plt.plot(train_loss, label='train')
 plt.plot(val_loss, label='validation')
