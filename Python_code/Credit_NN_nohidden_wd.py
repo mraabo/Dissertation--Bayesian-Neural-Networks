@@ -79,6 +79,8 @@ plt.plot(train_loss, label='train')
 plt.plot(val_loss, label='validation')
 plt.legend()
 plt.grid()
+plt.ylim(0, 1200)
+plt.savefig('Python_code/figure_Credit_NN_nohidden_wd_loss.pdf')
 plt.show()
 
 
