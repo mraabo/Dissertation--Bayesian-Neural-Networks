@@ -136,14 +136,9 @@ print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred
 
 
 # -------------------------------- Plots ------------------------------------------
-# Visualizing the trace
-with bayesian_neural_network_NUTS:
-    az.plot_trace(trace["weight_out"][0:2])
-plt.savefig('Python_code/Boston_BNN_1hidden_trace.pdf')
-
 # Vizualize uncertainty
 # Define examples for which you want to examine the posterior predictive:
-example_vec=np.array([10,22,48,5,6,7,8,9,11,15,16,55,76,86,98,100,103,104,106,107])
+example_vec=np.array([9,11,16,55])
 for example in example_vec:
     plt_hist_array=np.array(ppc2['out'])
     plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
