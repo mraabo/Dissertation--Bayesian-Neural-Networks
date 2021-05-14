@@ -157,8 +157,8 @@ example_vec=np.array([5,11,25,88])
 for example in example_vec:
     plt_hist_array=np.array(ppc2['output'])
     plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
-    plt.xlabel(f"Predicted probability for example {example}")
-    plt.ylabel("Density")
+    plt.xlabel(f"Predicted probability for example {example}", fontsize=13)
+    plt.ylabel("Density",fontsize=13)
     plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
 
