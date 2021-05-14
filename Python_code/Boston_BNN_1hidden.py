@@ -103,7 +103,7 @@ bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prio
 
 # Sample from the posterior using the NUTS samplper
 with bayesian_neural_network_NUTS:
-    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.95, random_seed=42)
+    trace = pm.sample(draws=3000, tune=100, chains=3,target_accept=.95, random_seed=42)
     
 
 # # ----------------------------- Making predictions on training data ---------------------------
@@ -138,12 +138,11 @@ print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred
 # -------------------------------- Plots ------------------------------------------
 # Vizualize uncertainty
 # Define examples for which you want to examine the posterior predictive:
-example_vec=np.array([9,11,16,55])
+example_vec=np.array([1,2,4,9,10,11,15,16,22,24,27,28,30,44,55,62,68,72,84,93])
 for example in example_vec:
     plt_hist_array=np.array(ppc2['out'])
     plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
-    plt.xlabel(f"Predicted value for example {example}")
-    plt.ylabel("Density")
+    plt.xlabel(f"Predicted value for example {example}",fontsize=13)
+    plt.ylabel("Density",fontsize=13)
     plt.savefig(f'Python_code/Boston_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
-    
