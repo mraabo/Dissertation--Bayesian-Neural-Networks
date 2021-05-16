@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import plot_confusion_matrix
 import seaborn as sns
+start_time = time.time()
+
 
 tf.random.set_seed(40)
 # ----------------------------- Prepare data ---------------------------
@@ -21,46 +23,50 @@ data = np.array(credit_data)
 data_X = data[:, 0:23]
 data_y = data[:, 23]
 
-
 # # ----------------------------- Subsamling credit data ---------------------------
-X_train, X_test, y_train, y_test = train_test_split(
-    data_X, data_y, test_size=0.30, random_state=3030)
+X_train, X_test, y_train, y_test = train_test_split(data_X, data_y, test_size=0.30, random_state=3030)
 
 N = 300
 N_test = 100
-X_train = X_train[0:N, :]
-y_train = y_train[0:N]
-X_test = X_test[0:N_test, :]
-y_test = y_test[0:N_test]
-
+X_train=X_train[0:N,:]
+y_train=y_train[0:N]
+X_test=X_test[0:N_test,:]
+y_test=y_test[0:N_test]
 
 # ----------------------------- Neural Network ---------------------------
+reg_const=0.1
+
 
 model = tf.keras.Sequential([
     tf.keras.Input((23, ), name='feature'),
-    tf.keras.layers.Dense(10, activation=tf.nn.tanh),
     tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
 ])
 model.summary()
 
-# Early stopping
-es = tf.keras.callbacks.EarlyStopping(
-    monitor='val_loss', mode='min', patience=0, min_delta=0)
-
-start_time = time.time()
-
 # Compile, train, and evaluate.
+val_ratio = 0.3
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['binary_crossentropy'])
-history = model.fit(X_train, y_train,  validation_split=0.3,
-                    epochs=1000, callbacks=[es])
-print("The algorithm ran", len(history.history['loss']), "epochs")
+history = model.fit(X_train, y_train, epochs=1000,
+                    validation_split=0.3)
+
+model.evaluate(X_test, y_test)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
+# ----------------------------- Heatmap ---------------------------
+
+# Predict class 1 for prob > 0.5 and class 0 otherwise
+y_pred_test = model.predict(X_test) > 0.5
+conf_mat = confusion_matrix(y_test, y_pred_test, normalize='all')
+sns.heatmap(conf_mat, cmap=plt.cm.Blues, annot=True)
+plt.ylabel("True label")
+plt.xlabel("Predicted label")
+plt.show()
 
 # ----------------------------- Overfitting? ---------------------------
+
 train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
 test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
@@ -73,4 +79,8 @@ plt.plot(train_loss, label='train')
 plt.plot(val_loss, label='validation')
 plt.legend()
 plt.grid()
+plt.ylim(0, 1200)
+plt.savefig('Python_code/figure_Credit_NN_nohidden_wd_loss.pdf')
 plt.show()
+
+
