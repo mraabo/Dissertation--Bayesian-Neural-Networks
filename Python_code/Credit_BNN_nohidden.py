@@ -31,9 +31,6 @@ print("Running on Theano version %s" % theano.__version__)
 print("Running on Arviz version %s" % az.__version__)
 print("Running on Numpy version %s" % np.__version__)
 
-# Ignore warnings - NUTS provide many runtimeWarning
-# import warnings
-# warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 tf.random.set_seed(42)
 
@@ -105,12 +102,6 @@ with bayesian_neural_network_NUTS:
     
 y_train_pred = (trace["output"]).mean(axis=0)
 
-# Making predictions using the posterior predective distribution
-# ppc1=pm.sample_posterior_predictive(trace,model=bayesian_neural_network_NUTS)
-
-# y_train_pred = ppc1['out'].mean(axis=0)
-# y_train_pred = (y_train_pred > 0.5).astype(int)
-# y_train_pred = y_train_pred[0] 
 
 # Replace shared variables with testing set
 pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian_neural_network_NUTS)
@@ -128,11 +119,4 @@ print(f"Running MCMC completed in {toc - tic:} seconds")
 print('Cross-entropy loss on train data = {}'.format(log_loss(y_train, y_train_pred)))
 print('Cross-entropy loss on test data = {}'.format(log_loss(y_test, y_test_pred)))
 
-# Confusing matrix
-test_class_pred = y_test_pred[:,0]>0.5
-cm=confusion_matrix(y_test,test_class_pred, normalize='all')
-sns.heatmap(cm, cmap=plt.cm.Blues, annot=True)
-plt.ylabel("True label")
-plt.xlabel("Predicted label")
-plt.show()
-plt.savefig('Python_code/Credit_BNN_nohidden_confusion_matrix.pdf')
+

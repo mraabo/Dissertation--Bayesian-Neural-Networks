@@ -20,11 +20,8 @@ import theano.tensor as tt
 Numba.disable_numba()
 Numba.numba_flag
 floatX = theano.config.floatX
-# seaborn for vizualzing
 sns.set_style("white")
-# import pandas as pd
-# from scipy.stats import norm
-# from scipy.stats import t
+
 # # ----------------------------- Print versions ---------------------------
 
 print("Running on Python version %s" % sys.version)
@@ -46,25 +43,7 @@ ones_test = np.ones(X_test.shape[0])
 X_train = np.insert(X_train, 0, ones_train, axis=1)
 X_test = np.insert(X_test, 0, ones_test, axis=1)
 
-#### DO NOT DELETE THIS YET ###
 
-# boston_dataset = load_boston(StandardScaler=True)
-# boston = pd.DataFrame(boston_dataset.data, columns=boston_dataset.feature_names)
-# boston['MEDV'] = boston_dataset.target
-# sns.set(rc={'figure.figsize':(11.7,8.27)})
-# ax = sns.distplot(boston['MEDV'], kde = False, norm_hist=True)
-# ax = sns.distplot(np.random.normal(loc=22.0, scale=9.0, size=1000000), kde = True, hist=False)
-# plt.show()
-# scaler=sc.fit(X_train)
-# X_train = scaler.fit_transform(X_train)
-# X_test = scaler.transform(X_test)
-
-# # Subsetting
-
-# X_train=X_train[0:100,:]
-# y_train=y_train[0:100,]
-# X_test=X_test[0:100,:]
-# y_test=y_test[0:100,]
 
 # # ----------------------------- Implementing a BNN function ---------------------------
 
@@ -127,17 +106,10 @@ toc = time.perf_counter()
 print(f"Run time {toc - tic:0.4f} seconds")
 
 # Printing the performance measures
-#print('MAE (NUTS) on training data:', metrics.mean_absolute_error(y_train, y_train_pred))
 print('MSE (NUTS) on training data:',
       metrics.mean_squared_error(y_train, y_train_pred))
-#print('MAE (NUTS) on test data:', metrics.mean_absolute_error(y_test, y_test_pred))
 print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred))
 
-
-# -------------------------------- Plots ------------------------------------------
-# Visualizing the trace
-# with bayesian_neural_network_NUTS:
-#     az.plot_trace(trace)
 
 
 # Vizualize uncertainty by plotting posterior predictive
@@ -145,26 +117,3 @@ ppc2_array = np.array(ppc2['out'])
 plt.hist(ppc2_array[:, 40], density=1, color="skyblue")
 plt.show()
 
-# # ----------------------------- UNDER CONSTRUCTION ;-) ---------------------------
-# DO NOT DELELTE THIS YET
-# sns.distplot(y_train - pred1)
-# Include a title
-# plt.title("Residuals PDF", size=18)
-# plt.show()
-# # plt.scatter(y_train, pred1)
-# # Let's also name the axes
-# plt.xlabel('Targets (y_train)',size=18)
-# plt.ylabel('Predictions (y_hat)',size=18)
-# # Sometimes the plot will have different scales of the x-axis and the y-axis
-# # This is an issue as we won't be able to interpret the '45-degree line'
-# # We want the x-axis and the y-axis to be the same
-# # plt.xlim(6,13)
-# # plt.ylim(6,13)
-# plt.show()
-# # OLS
-# from sklearn.linear_model import LinearRegression
-
-# reg = LinearRegression().fit(X_train, y_train)
-
-# pred3=reg.predict(X_train)
-# print('MSE (OLS):', metrics.mean_squared_error(y_train, pred3))

@@ -143,5 +143,5 @@ for example in example_vec:
              color="lightsteelblue", bins=30)
     plt.xlabel(f"Predicted probability for example {example}", fontsize=13)
     plt.ylabel("Density", fontsize=13)
-    plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
+    #plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
