@@ -1,15 +1,9 @@
-\chapter{For future work}
+\chapter{Future work}
+In this thesis we examined Bayesian neural network exclusively using Markov chain Monte Carlo methods. These methods are often computationally complex, especially in neural network where the posterior is high-dimensional due to number of neural network weights. Therefore it could have been interesting to look at methods that could be more easily scaled to large distributions. Methods such as variational Inference (\cite{VI}) has gained a lot of popularity due to its scalability to more complex models. Unlike Markov chain Monte Carlo methods, variational inference is not an exact method. Instead of sampling directly from the posterior the idea is to have a parametric distribution $q\lr{\boldsymbol{\phi}}$, called the variational distribution, to sample from instead. The parameters of the variational distribution are optimized in such a way that the variational distribution is as close as possible to the true posterior distribution in terms of a measure called the evidence lower bound. In this context it could have been interesting to look into the work by \cite{ADVI}, who has built an automatic differentiation variational inference algorithm, that can automatically optimize the parameters for the variational distribution. 
+\\
+\\
+Another interesting way to design Bayesian neural networks is proposed by \cite{blundell2015weight} and is called Bayes-by-backprop, which is a variational inference methods combined with reparamitzation trick to ensure that backpropagation works as we described in section \ref{alg:back_prop}, but over the variational distribution parameters $\boldsymbol{\phi}$, which makes it possible to learn the variational distribution by using optimization algorithms like the ones described in section \ref{sec:gradient_optimization}. 
+\\
+\\
+Another popular option worth examining is modelling uncertainty in neural networks by using dropout (\cite{srivastava2014dropout}) to approximate the variational distribution. \cite{mc_dropout} do this by using a type of ensemble learning, where they generate random predictions for test examples by the dropout method and interpret these as coming from a distribution. They call this method Monte Carlo dropout and states, that it produces faster results than both MCMC methods and variational inference. 
 
-Variational inference\\
-Bayes by backprop
-Buntine \& Weigend 1991: \url{https://content.wolfram.com/uploads/sites/13/2018/02/05-6-4.pdf} - Bayes backpropagation\\
-Automatic differentation with VI
-\\
-\\
-More rigorous examination of how to choose a prior
-\\
-\\
-How BNNs can benefit from parallel programming
-\\
-\\
-Automatic relevance detection (ARD) from \cite{neal2012bayesian}.

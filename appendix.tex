@@ -1,9 +1,195 @@
 \begin{appendices}
-\section{Metropolis implementation in python}\label{app:MH_code}
-\begin{lstlisting}
-# # ----------------------------- INFO ---------------------------
-# In this python script we implement and run a Metropolis sampler
 
+\section{Python code used for producing the over-underfitting example in figure \ref{fig:regr_example}} \label{app:overfitting}
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score
+
+
+def true_fun(X):
+    return np.cos(1.5 * np.pi * X)
+
+
+np.random.seed(0)
+
+n_samples = 30
+degrees = [1, 4, 15]
+
+X = np.sort(np.random.rand(n_samples))
+y = true_fun(X) + np.random.randn(n_samples) * 0.1
+
+plt.figure(figsize=(14, 5))
+for i in range(len(degrees)):
+    ax = plt.subplot(1, len(degrees), i + 1)
+    plt.setp(ax, xticks=(), yticks=())
+
+    polynomial_features = PolynomialFeatures(degree=degrees[i],
+                                             include_bias=False)
+    linear_regression = LinearRegression()
+    pipeline = Pipeline([("polynomial_features", polynomial_features),
+                         ("linear_regression", linear_regression)])
+    pipeline.fit(X[:, np.newaxis], y)
+
+    # Evaluate the models using crossvalidation
+    scores = cross_val_score(pipeline, X[:, np.newaxis], y,
+                             scoring="neg_mean_squared_error", cv=10)
+
+    X_test = np.linspace(0, 1, 100)
+    plt.plot(X_test, pipeline.predict(X_test[:, np.newaxis]), label="Model")
+    plt.plot(X_test, true_fun(X_test),
+             label="True function", linestyle='dashed')
+    plt.scatter(X, y, edgecolor='b', s=20, label="Samples")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.xlim((0, 1))
+    plt.ylim((-2, 2))
+    plt.legend(loc="best")
+    plt.title("Degree {}\nMSE_cv = {:.2e}(+/- {:.2e})".format(
+        degrees[i], -scores.mean(), scores.std()))
+plt.show()
+
+\end{lstlisting}
+
+\section{Python code for producing the activation functions in figure \ref{fig:act_funcs}} \label{app:act_funcs}
+
+\begin{lstlisting}
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+x = tf.linspace(-10., 10., 200)
+y_sigmoid = tf.keras.activations.sigmoid(x)
+y_tanh = tf.keras.activations.tanh(x)
+y_relu = tf.keras.activations.relu(x)
+y_elu = tf.keras.activations.elu(x)
+y_step = x > 0
+
+plt.plot(x, y_sigmoid, label='Sigmoid')
+plt.plot(x, y_tanh, label=r'$tanh$')
+plt.plot(x, y_relu, label='ReLU')
+plt.plot(x, y_elu, label='ELU')
+plt.plot(x, y_step, label='Step')
+axes = plt.gca()
+axes.set_ylim([-2, 2])
+plt.xlabel('x')
+plt.ylabel('g(x)')
+plt.legend()
+plt.savefig('act_func_fig.pdf')
+plt.show()
+\end{lstlisting}
+
+
+\section{Python code for implementing the simple Bayesian neural network illustrated in figure \ref{fig:simple_BNN}} \label{app:simple_BNN}
+\begin{lstlisting}
+#import random as rn
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+import tensorflow_probability as tfp
+tfd = tfp.distributions
+
+# -------------------------------- Creating sin-data -------------------------------
+
+
+def true_fun(x):
+    return np.sin(3 * x)  # np.sin(1.5 * np.pi * x)
+
+
+np.random.seed(42)
+n_x = 6
+x_train = np.sort(np.random.rand(n_x))
+y_train = true_fun(x_train)  
+
+
+# --------------------- Build and compile neural net -------------------------------
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Dense(16, input_shape=([1, ]), activation='tanh'),
+    tf.keras.layers.Dense(1, activation='tanh')
+])
+model.summary()
+
+
+# --------------------- Sample weights through neural networks with acceptance-prop equal to likelihood ----------------------
+
+n_NN = 10**5
+weight_list = []
+likelihood_list = []
+sigma_k = 0.1  # sd of assumed gauss P(y \mid x), Neal's eq 1.8, Neal uses 0.1
+tf.random.set_seed(42)
+# Sample neural networks and save their likelihood and weights
+for i in range(n_NN):
+    print(i)
+    # sample weights and set them to hidden layer "dense" and output layer "dense_1"
+    for layer in model.layers:
+        if layer.name == "dense":
+            layer.set_weights([np.random.normal(0, 8, size=w.shape)
+                               for w in layer.get_weights()])
+        if layer.name == "dense_1":
+            layer.set_weights([np.random.normal(
+                0, 1/np.sqrt(16), size=w.shape) for w in layer.get_weights()])
+    # save weights in list
+    weight_list.append(model.get_weights())
+    # Calculate gauss likelihood of y_train given weights and x_train, Neal's eq 1.11
+    mean = model.predict(x_train)
+    gauss = tfd.Normal(loc=mean, scale=sigma_k)
+    likelihood = 1
+    for j in range(n_x):
+        likelihood *= gauss[j].prob(y_train[j])
+    likelihood_list.append(likelihood)
+
+# Normalize likelihood to max prob is 1
+if max(likelihood_list) != 0:
+    likelihood_list = likelihood_list/max(likelihood_list)
+
+# Accept model with prob equal to normalized likelihood
+accepted_weights = []
+accepted_likelihood = []
+for i in range(len(likelihood_list)):
+    uniform_dist = tfd.Uniform(0, 1)
+    if likelihood_list[i] >= uniform_dist.sample():
+        accepted_weights.append(weight_list[i])
+        accepted_likelihood.append(likelihood_list[i])
+
+
+# --------------------- Use sampled weights for predicting y's ----------------------
+x_pred = tf.linspace(0.0, 1, 200)
+y_pred = []
+for i in range(len(accepted_weights)):
+    model.set_weights(accepted_weights[i])
+    y_pred.append(model.predict(x_pred))
+
+# mean y_pred
+mean_y_pred = np.array(y_pred).mean(axis=0)
+
+y_pred_std = np.array(y_pred).std(axis = 0)
+# Lower std-line
+lower_std = mean_y_pred - y_pred_std 
+# Upper std-line
+upper_std = mean_y_pred + y_pred_std
+
+# --------------------- Plot of BNN results ----------------------
+plt.scatter(x_train, y_train,
+            edgecolor='b', s=40, label="Datapoint")
+for i in range(len(y_pred)):
+    plt.plot(x_pred, y_pred[i], color='k', linestyle='dashed')
+plt.plot(x_pred, mean_y_pred, color='coral', label="Average prediction")
+plt.fill_between(x_pred, lower_std.flatten() , upper_std.flatten() , color='b', alpha=.1)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
+plt.savefig('figure_simple_BNN.pdf')
+plt.show()
+
+\end{lstlisting}
+
+
+
+\section{Python code for Metropolis implementation used for producing figure \ref{fig:MH_sampling} }\label{app:MH_code}
+\begin{lstlisting}
 # # ----------------------------- IMPORTS ---------------------------
 
 import numpy as np
@@ -68,5 +254,909 @@ plt.savefig("metro_example.pdf")
 plt.show()
 
 \end{lstlisting}
+
+
+
+
+
+\section{Python packages and specification for computer doing the evaluations in chapter \ref{chap:eval_NN}} \label{app:specs}
+The code ran on a virtual machine for the Linux distribution Ubuntu 20.04.2 LTS. The virtual machine used VMWare Workstation 16.1.1 on a native Windows 10 64-bit version 2004. The hardware used is
+\begin{itemize}
+    \item GPU: NVidia GeForce GTX 970
+    \item RAM allocated to virtual machine: 9.5 GB
+    \item Processor: Intel® Core™ i5-6600K CPU @ 3.50GHz × 4
+    \item A harddrive allocated only to this virtual machine with free space of 427 GB
+\end{itemize}
+The packages required for reproducing the evalutions are 
+\begin{itemize}
+    \item \texttt{PyMC3}==3.11.2
+    \item \texttt{Theano}==1.1.2
+    \item \texttt{Arviz}==0.11.2
+    \item \texttt{Numpy}==1.19.5
+    \item \texttt{tensorflow}==2.4.1
+    \item \texttt{tensorflow\_probability}==0.12.2
+    \item \texttt{sklearn}==0.24.2
+    \item \texttt{numpy}==1.19.5
+    \item \texttt{seaborn}==0.11.1
+    \item \texttt{matplotlib.pyplot}==3.4.1
+\end{itemize}
+
+
+
+\section{Python code for the neural networks in table \ref{tab:Boston_NN_performance}} \label{app:Boston_NN}
+The network with with early stopping is performed using the code
+\begin{lstlisting}
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+from keras.datasets import boston_housing
+import time
+
+
+tf.random.set_seed(40)
+
+# ----------------------------- Prepare data ---------------------
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
+
+# ----------------------------- Neural Network ---------------------
+n_hidden = 10
+
+model = tf.keras.Sequential([
+    tf.keras.Input((13, ), name='feature'),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu),
+    tf.keras.layers.Dense(1)
+])
+model.summary()
+
+# Early stopping
+es = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss', mode='min', patience=10, min_delta=0.1)
+
+start_time = time.time()
+# Compile, train, and evaluate.
+model.compile(optimizer='adam',
+              loss='mean_squared_error',
+              metrics=['mse'])
+history = model.fit(X_train, y_train, epochs=300,
+                    validation_split=0.3, callbacks=[es])
+
+print("The algorithm ran", len(history.history['loss']), "epochs")
+
+
+# ----------------------------- Overfitting? ---------------------
+train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
+test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
+print("--- %s seconds ---" % (time.time() - start_time))
+print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+
+plt.plot(history.history['loss'], label='train')
+plt.plot(history.history['val_loss'], label='validation')
+plt.legend()
+plt.grid()
+plt.show()
+
+\end{lstlisting}
+The networks not using early stopping and their visualization of train and validation loss in figure \ref{fig:Boston_NN_nohidden_wd_loss}, figure \ref{fig:Boston_NN_1hidden_wd_loss} and figure \ref{fig:Boston_NN_1hidden_noreg_loss} are produced using the code
+\begin{lstlisting}
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+from keras.datasets import boston_housing
+import time
+from keras.regularizers import l2
+
+tf.random.set_seed(40)
+# ----------------------------- Prepare data ----------------------
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
+
+
+# ----------------------------- Neural Network --------------------
+reg_const = 0.3
+n_hidden = 10
+
+model = tf.keras.Sequential([
+    tf.keras.Input((13, ), name='feature'),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(1, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
+])
+model.summary()
+
+start_time = time.time()
+# Compile, train, and evaluate.
+model.compile(optimizer='adam',
+              loss='mean_squared_error',
+              metrics=['mse'])
+history = model.fit(X_train, y_train, epochs=300, validation_split=0.3)
+model.evaluate(X_test, y_test)
+
+
+# ----------------------------- Overfitting? --------------------
+train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
+test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
+print("--- %s seconds ---" % (time.time() - start_time))
+print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+
+plt.plot(history.history['loss'], label='Train')
+plt.plot(history.history['val_loss'], label='Validation')
+plt.legend()
+plt.grid()
+plt.ylabel('Loss')
+plt.xlabel('Epochs')
+plt.ylim(0, 200)
+plt.savefig('figure_Boston_NN_1hidden_wd_loss.pdf')
+plt.show()
+
+\end{lstlisting}
+where the network with no hidden layers are produced by removing the line \begin{lstlisting}
+tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
+\end{lstlisting}
+and the network with 1 hidden layer and no regularization is produced by removing the regularization arguments \texttt{kernel\_regularizer} and \texttt{bias\_regularizer} in 
+\begin{lstlisting}
+tf.keras.layers.Dense(n_hidden, activation=tf.nn.relu, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(1, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
+\end{lstlisting}
+
+
+
+
+\section{Python code for the Bayesian neural networks in table \ref{tab:Boston_BNN_performance}} \label{app:Boston_BNN}
+The Bayesian neural network with hierarchical model is implemented by the following code
+\begin{lstlisting}
+# # ----------------------------- IMPORTS -----------------------
+import sys
+import time
+from keras.datasets import boston_housing
+from sklearn import metrics
+import numpy as np 
+import pymc3 as pm
+import theano
+import arviz as az
+from arviz.utils import Numba
+import theano.tensor as tt
+Numba.disable_numba()
+Numba.numba_flag
+floatX = theano.config.floatX
+import seaborn as sns
+sns.set_style("white")
+import tensorflow as tf
+
+
+# Ignore warnings - NUTS provide many runtimeWarning
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+tf.random.set_seed(42)
+# # ----------------------------- Loading Boston data --------------
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
+
+#pad Xs with 1's to add bias
+ones_train=np.ones(X_train.shape[0])
+ones_test=np.ones(X_test.shape[0])
+X_train=np.insert(X_train,0,ones_train,axis=1)
+X_test=np.insert(X_test,0,ones_test,axis=1)
+
+
+# # ----------------------------- Implementing a BNN function -----
+
+def construct_bnn(ann_input, ann_output, n_hidden):
+    # Initialize random weights between each layer
+    init_1 = np.random.randn(X_train.shape[1], n_hidden).astype(floatX)*.1
+    init_out = np.random.randn(n_hidden,1).astype(floatX)*.1
+    with pm.Model() as bayesian_neural_network:
+        ann_input = pm.Data("ann_input", X_train)
+        ann_output = pm.Data("ann_output", y_train)
+      
+    # prior on hyper parameters for weight 1
+        #mu1 = pm.Normal('mu1',shape=(X_train.shape[1], n_hidden), mu=0, sigma=1)
+        mu1 = pm.Cauchy('mu1',shape=(X_train.shape[1], n_hidden), alpha=0, beta=1)
+        sigma1 = pm.HalfNormal('sigma1',shape=(X_train.shape[1], n_hidden), sigma=1) 
+        
+    # Input -> Layer 1
+        weights_1 = pm.Normal('w_1', mu=mu1, sd=sigma1,
+                          shape=(X_train.shape[1], n_hidden),
+                          testval=init_1)
+        acts_1 = pm.Deterministic('activations_1', tt.nnet.relu(tt.dot(ann_input, weights_1)))
+    
+    # prior on hyper parameters for weight_out 
+        mu_out = pm.Cauchy('mu_out',shape=(n_hidden, 1), alpha=0, beta=1)
+        sigma_out = pm.HalfNormal('sigma_out',shape=(n_hidden, 1), sigma=1) 
+    
+    # Layer 1 -> Output Layer
+        weights_out = pm.Normal('w_out', mu=mu_out, sd=sigma_out,
+                            shape=(n_hidden, 1),
+                            testval=init_out)
+        acts_out = pm.Deterministic('activations_out',tt.dot(acts_1, weights_out))
+        
+
+    #Define likelihood
+        out = pm.Normal('out', mu=acts_out[:,0], sd=1, observed=ann_output)        
+            
+    return bayesian_neural_network
+
+
+# # ---------------- Sampling from posterior ---------
+# Start time
+tic = time.perf_counter() # for timing
+bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10)
+
+# Sample from the posterior using the NUTS samplper
+with bayesian_neural_network_NUTS:
+    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.90)
+    
+
+# # ------------------ Making predictions on training data ---------
+ppc1=pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS)
+
+# Taking the mean over all samples to generate a prediction
+y_train_pred = ppc1['out'].mean(axis=0)
+
+
+# Replace shared variables with testing set
+pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian_neural_network_NUTS)
+
+
+
+# # ---------------- Making predictions on test data ------
+ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS)
+
+# Taking the mean over all samples to generate a prediction
+y_test_pred = ppc2['out'].mean(axis=0)
+
+# End time
+toc = time.perf_counter()
+print(f"Run time {toc - tic:0.4f} seconds")
+
+# Printing the performance measures
+print('MSE (NUTS) on training data:', metrics.mean_squared_error(y_train, y_train_pred))
+print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred))
+
+\end{lstlisting}
+The Bayesian neural network with one hidden layer is implemented by the following code
+\begin{lstlisting}
+# # ----------------------------- IMPORTS -------------------
+import sys
+import time
+from keras.datasets import boston_housing
+from sklearn import metrics
+import numpy as np 
+import pymc3 as pm
+import theano
+import arviz as az
+from arviz.utils import Numba
+import theano.tensor as tt
+Numba.disable_numba()
+Numba.numba_flag
+floatX = theano.config.floatX
+# seaborn for vizualzing 
+import seaborn as sns
+sns.set_style("white")
+import matplotlib.pyplot as plt
+import tensorflow as tf
+# # ----------------------------- Print versions -------------
+
+print("Running on Python version %s" % sys.version)
+print(f"Running on PyMC3 version{pm.__version__}")
+print("Running on Theano version %s" % theano.__version__)
+print("Running on Arviz version %s" % az.__version__)
+print("Running on Numpy version %s" % np.__version__)
+
+# Ignore warnings - NUTS provide many runtimeWarning
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+tf.random.set_seed(42)
+# # ----------------------------- Loading Boston data ------------
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data(seed=3030)
+
+#pad Xs with 1's to add bias
+ones_train=np.ones(X_train.shape[0])
+ones_test=np.ones(X_test.shape[0])
+X_train=np.insert(X_train,0,ones_train,axis=1)
+X_test=np.insert(X_test,0,ones_test,axis=1)
+
+
+# # ----------------------------- Implementing a BNN function ------
+
+def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
+    # Initialize random weights between each layer
+    init_1 = np.random.randn(X_train.shape[1], n_hidden).astype(floatX)*prior_std
+    init_out = np.random.randn(n_hidden,1).astype(floatX)*prior_std
+
+    with pm.Model() as bayesian_neural_network:
+        ann_input = pm.Data("ann_input", X_train)
+        ann_output = pm.Data("ann_output", y_train)
+        
+    # Input -> Layer 1
+        weights_1 = pm.Normal('w_1', mu=0, sd=prior_std,
+                          shape=(X_train.shape[1], n_hidden),
+                          testval=init_1)
+        acts_1 = tt.nnet.relu(tt.dot(ann_input, weights_1))
+
+    # Layer 1 -> Output Layer
+        weights_out = pm.Normal('w_out', mu=0, sd=prior_std,
+                            shape=(n_hidden, 1),
+                            testval=init_out)
+        acts_out = tt.dot(acts_1, weights_out)
+        
+
+    #Define likelihood
+        out = pm.Normal('out', mu=acts_out[:,0], sd=1, observed=ann_output)        
+            
+    return bayesian_neural_network
+
+
+# # ----------------------------- Sampling from posterior -------
+# Start time
+tic = time.perf_counter() # for timing
+bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10, prior_std=.1)
+
+# Sample from the posterior using the NUTS samplper
+with bayesian_neural_network_NUTS:
+    trace = pm.sample(draws=3000, tune=1000, chains=3,target_accept=.9, random_seed=42)
+    
+
+# # ------------------ Making predictions on training data --------
+ppc1=pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS, random_seed=42)
+
+# Taking the mean over all samples to generate a prediction
+y_train_pred = ppc1['out'].mean(axis=0)
+
+
+# Replace shared variables with testing set
+pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test}, model=bayesian_neural_network_NUTS)
+
+
+
+# # ------------------- Making predictions on test data ------
+ppc2 = pm.sample_posterior_predictive(trace, model=bayesian_neural_network_NUTS, random_seed=42)
+
+# Taking the mean over all samples to generate a prediction
+y_test_pred = ppc2['out'].mean(axis=0)
+
+# End time
+toc = time.perf_counter()
+print(f"Run time {toc - tic:0.4f} seconds")
+
+# Printing the performance measures
+print('MSE (NUTS) on training data:', metrics.mean_squared_error(y_train, y_train_pred))
+print('MSE (NUTS) on test data:', metrics.mean_squared_error(y_test, y_test_pred))
+
+
+# -------------------------------- Plots --------------------
+# Vizualize uncertainty
+# Define examples for which you want to examine the posterior predictive:
+example_vec=np.array([1,2,4,9,10,11,15,16,22,24,27,28,30,44,55,62,68,72,84,93])
+for example in example_vec:
+    plt_hist_array=np.array(ppc2['out'])
+    plt.hist(plt_hist_array[:,example], density=1, color="lightsteelblue", bins=30)
+    plt.xlabel(f"Predicted value for example {example}",fontsize=13)
+    plt.ylabel("Density",fontsize=13)
+    plt.savefig(f'Python_code/Boston_BNN_1hidden_postpred_{example}.pdf')
+    plt.show()
+\end{lstlisting}
+where the network with no hidden layers is implemented by replacing the lines
+\begin{lstlisting}
+# Input -> Layer 1
+    weights_1 = pm.Normal('w_1', mu=0, sd=prior_std,
+                    shape=(X_train.shape[1], n_hidden),
+                    testval=init_1)
+    acts_1 = tt.nnet.relu(tt.dot(ann_input, weights_1))
+
+# Layer 1 -> Output Layer
+    weights_out = pm.Normal('w_out', mu=0, sd=prior_std,
+                    shape=(n_hidden, 1),
+                    testval=init_out)
+    acts_out = tt.dot(acts_1, weights_out)
+\end{lstlisting}
+with
+\begin{lstlisting}
+ # Input layer -> Output layer
+        weights_out = pm.Normal('w_out', mu=0, sd=prior_std,
+        shape=(X_train.shape[1], 1), testval=init_out)
+    acts_out = pm.Deterministic(
+        'activations_out', tt.dot(ann_input, weights_out))
+\end{lstlisting}
+
+
+\section{Python code for the neural networks in table \ref{tab:credit_NN_performance}} \label{app:Credit_NN}
+The neural network with early stopping is performed using the code
+\begin{lstlisting}
+ import time
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.model_selection import train_test_split
+import seaborn as sns
+
+tf.random.set_seed(40)
+# ----------------------------- Prepare data -------------------
+credit_data = pd.read_csv(
+    "Python_code/data/UCI_Credit_Card.csv", encoding="utf-8", index_col=0)
+credit_data.head()
+
+# Data to numpy
+data = np.array(credit_data)
+
+# Extract labels
+data_X = data[:, 0:23]
+data_y = data[:, 23]
+
+
+# # -------------------------- Subsamling credit data -------
+X_train, X_test, y_train, y_test = train_test_split(
+    data_X, data_y, test_size=0.30, random_state=3030)
+
+N = 300
+N_test = 100
+X_train = X_train[0:N, :]
+y_train = y_train[0:N]
+X_test = X_test[0:N_test, :]
+y_test = y_test[0:N_test]
+
+
+# ------------------------- Neural Network ---------------
+
+model = tf.keras.Sequential([
+    tf.keras.Input((23, ), name='feature'),
+    tf.keras.layers.Dense(10, activation=tf.nn.tanh),
+    tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
+])
+model.summary()
+
+# Early stopping
+es = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss', mode='min', patience=0, min_delta=0)
+
+start_time = time.time()
+
+# Compile, train, and evaluate.
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['binary_crossentropy'])
+history = model.fit(X_train, y_train,  validation_split=0.3,
+                    epochs=1000, callbacks=[es])
+print("The algorithm ran", len(history.history['loss']), "epochs")
+
+print("--- %s seconds ---" % (time.time() - start_time))
+
+
+# ------------------------- Overfitting? ----------------
+train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
+test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
+print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+
+# taking mean of summed cross-entropy loss
+train_loss = np.array(history.history['loss'])
+val_loss = np.array(history.history['val_loss'])
+
+plt.plot(train_loss, label='train')
+plt.plot(val_loss, label='validation')
+plt.legend()
+plt.grid()
+plt.show()
+
+\end{lstlisting}
+The networks not using early stopping and their visualization of train and validation loss in figure \ref{fig:Credit_NN_nohidden_wd_loss}, \ref{fig:Credit_NN_1hidden_wd_loss} and figure \ref{fig:Credit_NN_1hidden_noreg_loss} are produced using the code
+\begin{lstlisting}
+from keras.regularizers import l2
+import time
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.model_selection import train_test_split
+import seaborn as sns
+start_time = time.time()
+tf.random.set_seed(40)
+
+# ----------------------------- Prepare data ----------------
+credit_data = pd.read_csv(
+    "Python_code/data/UCI_Credit_Card.csv", encoding="utf-8", index_col=0)
+credit_data.head()
+
+# Data to numpy
+data = np.array(credit_data)
+
+# Extract labels
+data_X = data[:, 0:23]
+data_y = data[:, 23]
+
+# # ----------------------------- Subsamling credit data ------
+X_train, X_test, y_train, y_test = train_test_split(
+    data_X, data_y, test_size=0.30, random_state=3030)
+
+N = 300
+N_test = 100
+X_train = X_train[0:N, :]
+y_train = y_train[0:N]
+X_test = X_test[0:N_test, :]
+y_test = y_test[0:N_test]
+
+# ----------------------------- Neural Network ----------------
+reg_const = 0.1
+n_hidden = 10
+
+model = tf.keras.Sequential([
+    tf.keras.Input((23, ), name='feature'),
+    tf.keras.layers.Dense(n_hidden, activation=tf.nn.tanh, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
+    tf.keras.layers.Dense(1, activation=tf.nn.sigmoid, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
+])
+model.summary()
+
+# Compile, train, and evaluate.
+val_ratio = 0.3
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['binary_crossentropy'])
+history = model.fit(X_train, y_train, epochs=1000,
+                    validation_split=val_ratio)
+
+model.evaluate(X_test, y_test)
+
+print("--- %s seconds ---" % (time.time() - start_time))
+
+
+# ----------------------------- Overfitting? ----------------
+
+train_acc = model.evaluate(X_train, y_train, verbose=0)[-1]
+test_acc = model.evaluate(X_test, y_test, verbose=0)[-1]
+print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+
+# taking mean of summed cross-entropy loss
+train_loss = np.array(history.history['loss'])
+val_loss = np.array(history.history['val_loss'])
+
+plt.plot(train_loss, label='train')
+plt.plot(val_loss, label='validation')
+plt.legend()
+plt.grid()
+plt.ylim(0.4, 1)
+plt.savefig('Python_code/figure_Credit_NN_1hidden_wd_loss.pdf')
+plt.show()
+
+\end{lstlisting}
+where the network with no hidden layers are produced by removing the line
+\begin{lstlisting}
+ tf.keras.layers.Dense(n_hidden, activation=tf.nn.tanh, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
+\end{lstlisting}
+and the network with 1 hidden layer and no regularization is produced by removing the regularization arguments \texttt{kernel\_regularizer} and \texttt{bias\_regularizer} in 
+\begin{lstlisting}
+tf.keras.layers.Dense(n_hidden, activation=tf.nn.tanh, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const)),
+tf.keras.layers.Dense(1, activation=tf.nn.sigmoid, kernel_regularizer=l2(
+        reg_const), bias_regularizer=l2(reg_const))
+\end{lstlisting}
+
+\section{Python code for the Bayesian neural networks in table \ref{tab:credit_BNN_performance}} \label{app:Credit_BNN}
+The Bayesian neural network with hierarchical model is implemented by the following code
+\begin{lstlisting}
+# # ----------------------------- IMPORTS -----------------
+import warnings
+from sklearn.metrics import accuracy_score, log_loss
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+import sys
+import time
+import numpy as np
+from sklearn.model_selection import train_test_split
+import pandas as pd
+import pymc3 as pm
+import theano
+import arviz as az
+from arviz.utils import Numba
+import theano.tensor as tt
+from scipy.stats import mode
+Numba.disable_numba()
+Numba.numba_flag
+floatX = theano.config.floatX
+sns.set_style("white")
+
+
+# # ----------------------------- Print versions -----------------
+print("Running on Python version %s" % sys.version)
+print(f"Running on PyMC3 version{pm.__version__}")
+print("Running on Theano version %s" % theano.__version__)
+print("Running on Arviz version %s" % az.__version__)
+print("Running on Numpy version %s" % np.__version__)
+
+# Ignore warnings - NUTS provide many runtimeWarning
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+tf.random.set_seed(42)
+
+
+# # ----------------------------- Loading credit data ---
+credit_data = pd.read_csv("Python_code/data/UCI_Credit_Card.csv",
+                          encoding="utf-8", index_col=0, delimiter=",")
+credit_data.head()
+# Data to numpy
+data = np.array(credit_data)
+# seperating labels from features
+data_X = data[:, 0:23]
+data_y = data[:, 23]
+
+
+# # ----------------------------- Subsamling credit data --------
+X_train, X_test, y_train, y_test = train_test_split(
+    data_X, data_y, test_size=0.30, random_state=3030)
+
+N = 300
+N_test = 100
+X_train = X_train[0:N, :]
+y_train = y_train[0:N]
+X_test = X_test[0:N_test, :]
+y_test = y_test[0:N_test]
+
+
+# pad Xs with 1's to add bias
+ones_train = np.ones(X_train.shape[0])
+ones_test = np.ones(X_test.shape[0])
+X_train = np.insert(X_train, 0, ones_train, axis=1)
+X_test = np.insert(X_test, 0, ones_test, axis=1)
+
+# # ----------------------------- Implementing a BNN function -----
+
+
+def construct_bnn(ann_input, ann_output, n_hidden):
+
+    with pm.Model() as bayesian_neural_network:
+        ann_input = pm.Data("ann_input", X_train)
+        ann_output = pm.Data("ann_output", y_train)
+
+        # prior on hyper parameters for weight 1
+        mu1 = pm.Cauchy('mu1', shape=(
+            X_train.shape[1], n_hidden), alpha=0, beta=1)
+        sigma1 = pm.HalfNormal('sigma1', shape=(
+            X_train.shape[1], n_hidden), sigma=1)
+
+        # Weights from input to hidden layer
+        weights_in_1 = pm.Normal(
+            "w_in_1", mu1, sigma1, shape=(X_train.shape[1], n_hidden))
+
+        # prior on hyper parameters for weight_out
+        mu_out = pm.Cauchy('mu_out', shape=(n_hidden, 1), alpha=0, beta=1)
+        sigma_out = pm.HalfNormal('sigma_out', shape=(n_hidden, 1), sigma=1)
+        # Weights from hidden layer to output
+        weights_1_out = pm.Normal(
+            "weights_out", mu_out, sigma=sigma_out, shape=(n_hidden, 1))
+
+        # Build neural-network using tanh activation function
+        act_1 = pm.math.tanh(pm.math.dot(ann_input, weights_in_1))
+
+        output = pm.Deterministic(
+            "output", pm.math.sigmoid(tt.dot(act_1, weights_1_out)))
+
+        # Binary classification -> Bernoulli likelihood
+        out = pm.Bernoulli(
+            "out",
+            output,
+            observed=ann_output,
+            total_size=y_train.shape[0],
+        )
+
+    return bayesian_neural_network
+
+
+# # ----------------------------- Sampling from posterior --------
+tic = time.time()  # for timing
+bayesian_neural_network_NUTS = construct_bnn(X_train, y_train, n_hidden=10)
+
+# Sample from the posterior using the NUTS samplper
+draws = 1500
+tune = 10**3
+chains = 3
+target_accept = .9
+with bayesian_neural_network_NUTS:
+    trace = pm.sample(draws=draws, tune=tune, chains=chains,
+                      target_accept=target_accept)
+
+
+y_train_pred = (trace["output"]).mean(axis=0)
+
+
+# Replace shared variables with testing set
+pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test},
+            model=bayesian_neural_network_NUTS)
+
+ppc2 = pm.sample_posterior_predictive(
+    trace, var_names=["output"], model=bayesian_neural_network_NUTS)
+y_test_pred = (ppc2["output"]).mean(axis=0)
+
+# y_test_pred = np.append(y_test_pred,1-y_test_pred,axis=1)
+
+# end time
+toc = time.time()
+print(f"Running MCMC completed in {toc - tic:} seconds")
+
+# Printing the performance measures
+print('Cross-entropy loss on train data = {}'.format(log_loss(y_train, y_train_pred)))
+print('Cross-entropy loss on test data = {}'.format(log_loss(y_test, y_test_pred)))
+
+\end{lstlisting}
+The Bayesian neural network with one hidden layer is implemented by the following code
+\begin{lstlisting}
+# # ----------------------------- IMPORTS ------------------
+import warnings
+from sklearn.metrics import accuracy_score, log_loss
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+import sys
+import time
+import numpy as np
+from sklearn.model_selection import train_test_split
+import pandas as pd
+import pymc3 as pm
+import theano
+import arviz as az
+from arviz.utils import Numba
+import theano.tensor as tt
+from scipy.stats import mode
+Numba.disable_numba()
+Numba.numba_flag
+floatX = theano.config.floatX
+sns.set_style("white")
+
+
+# # ----------------------------- Print versions -----------------
+print("Running on Python version %s" % sys.version)
+print(f"Running on PyMC3 version{pm.__version__}")
+print("Running on Theano version %s" % theano.__version__)
+print("Running on Arviz version %s" % az.__version__)
+print("Running on Numpy version %s" % np.__version__)
+
+# Ignore warnings - NUTS provide many runtimeWarning
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+tf.random.set_seed(42)
+
+
+# # ----------------------------- Loading credit data ------
+credit_data = pd.read_csv("Python_code/data/UCI_Credit_Card.csv",
+                          encoding="utf-8", index_col=0, delimiter=",")
+credit_data.head()
+# Data to numpy
+data = np.array(credit_data)
+# seperating labels from features
+data_X = data[:, 0:23]
+data_y = data[:, 23]
+
+
+# # ----------------------------- Subsamling credit data -----
+X_train, X_test, y_train, y_test = train_test_split(
+    data_X, data_y, test_size=0.30, random_state=3030)
+
+N = 300
+N_test = 100
+X_train = X_train[0:N, :]
+y_train = y_train[0:N]
+X_test = X_test[0:N_test, :]
+y_test = y_test[0:N_test]
+
+
+# pad Xs with 1's to add bias
+ones_train = np.ones(X_train.shape[0])
+ones_test = np.ones(X_test.shape[0])
+X_train = np.insert(X_train, 0, ones_train, axis=1)
+X_test = np.insert(X_test, 0, ones_test, axis=1)
+
+
+# # ----------------------------- Implementing a BNN function -----
+def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
+
+    with pm.Model() as bayesian_neural_network:
+        ann_input = pm.Data("ann_input", X_train)
+        ann_output = pm.Data("ann_output", y_train)
+
+        # Weights from input to hidden layer
+        weights_in_1 = pm.Normal(
+            "w_in_1", 0, sigma=prior_std, shape=(X_train.shape[1], n_hidden))
+
+        # Weights from hidden layer to output
+        weights_1_out = pm.Normal(
+            "weights_out", 0, sigma=prior_std, shape=(n_hidden, 1))
+
+        # Build neural-network using tanh activation function
+        act_1 = pm.math.tanh(pm.math.dot(ann_input, weights_in_1))
+        output = pm.Deterministic(
+            "output", pm.math.sigmoid(tt.dot(act_1, weights_1_out)))
+
+        # Binary classification -> Bernoulli likelihood
+        out = pm.Bernoulli(
+            "out",
+            output,
+            observed=ann_output,
+            total_size=y_train.shape[0],  # IMPORTANT for minibatches
+        )
+
+    return bayesian_neural_network
+
+
+# # ------------------ Sampling from posterior -----
+tic = time.time()  # for timing
+bayesian_neural_network_NUTS = construct_bnn(
+    X_train, y_train, n_hidden=10, prior_std=1)
+
+# Sample from the posterior using the NUTS samplper
+draws = 1500
+tune = 10**3
+chains = 3
+target_accept = .9
+with bayesian_neural_network_NUTS:
+    trace = pm.sample(draws=draws, tune=tune, chains=chains,
+                      target_accept=target_accept)
+
+
+y_train_pred = (trace["output"]).mean(axis=0)
+
+# Replace shared variables with testing set
+pm.set_data(new_data={"ann_input": X_test, "ann_output": y_test},
+            model=bayesian_neural_network_NUTS)
+
+ppc2 = pm.sample_posterior_predictive(
+    trace, var_names=["output"], model=bayesian_neural_network_NUTS)
+y_test_pred = (ppc2["output"]).mean(axis=0)
+
+
+# end time
+toc = time.time()
+print(f"Running MCMC completed in {toc - tic:} seconds")
+
+# Printing the performance measures
+print('Cross-entropy loss on train data = {}'.format(log_loss(y_train, y_train_pred)))
+print('Cross-entropy loss on test data = {}'.format(log_loss(y_test, y_test_pred)))
+
+
+# Vizualize uncertainty
+# Define examples for which you want to examine the posterior predictive:
+example_vec = np.array([5, 11, 25, 88])
+for example in example_vec:
+    plt_hist_array = np.array(ppc2['output'])
+    plt.hist(plt_hist_array[:, example], density=1,
+             color="lightsteelblue", bins=30)
+    plt.xlabel(f"Predicted probability for example {example}", fontsize=13)
+    plt.ylabel("Density", fontsize=13)
+    plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
+    plt.show()
+
+\end{lstlisting}
+where the network with no hidden layers is implemented by replacing the lines
+\begin{lstlisting}
+ # Weights from input to hidden layer
+        weights_in_1 = pm.Normal(
+            "w_in_1", 0, sigma=prior_std, shape=(X_train.shape[1], n_hidden))
+
+# Weights from hidden layer to output
+    weights_1_out = pm.Normal(
+            "weights_out", 0, sigma=prior_std, shape=(n_hidden, 1))
+
+# Build neural-network using tanh activation function
+    act_1 = pm.math.tanh(pm.math.dot(ann_input, weights_in_1))
+    output = pm.Deterministic(
+            "output", pm.math.sigmoid(tt.dot(act_1, weights_1_out)))
+\end{lstlisting}
+with 
+\begin{lstlisting}
+ # Weights from hidden layer to output
+        weights_in_out = pm.Normal("weights_out", 0, sigma=prior_std, shape=(X_train.shape[1],1))
+
+        # Build neural-network using tanh activation function
+        output = pm.Deterministic("output", pm.math.sigmoid(tt.dot(ann_input, weights_in_out)))
+\end{lstlisting}
+
+
+
+
+
 
 \end{appendices}

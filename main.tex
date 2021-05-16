@@ -1,11 +1,11 @@
-\documentclass[a4paper]{book}
+\documentclass[a4paper, titlepage, openright]{book}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage[fontsize=12.0pt]{fontsize}
+\usepackage[fontsize=12.3 pt]{fontsize}
 \usepackage{amsmath}
 \usepackage[english]{babel}
 \usepackage{mathrsfs}
-
+\newread\tmp
 % For subplot - does not work...
 % \usepackage{graphicx}
 % \usepackage{subcaption}
@@ -35,6 +35,27 @@
 {
   \small	
   \textbf{\textit{Keywords:}} #1
+}
+% Nøgleord
+\providecommand{\nogleord}[1]
+{
+  \small	
+  \textbf{\textit{Nøgleord:}} #1
+}
+
+% For char count
+\newcommand{\quickcharcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge -char #1.tex > #1-chars.sum}%
+  \openin\tmp=#1-chars.sum%
+  \read\tmp to \thechar%
+  \closein\tmp%
+}
+
+\newcommand{\quickwordcount}[1]{%
+  \immediate\write18{texcount -1 -sum -merge #1.tex > #1-words.sum}%
+  \openin\tmp=#1-words.sum%
+  \read\tmp to \theword%
+  \closein\tmp%
 }
 
 \usepackage[a4paper, total={6in, 9in}]{geometry}
@@ -68,7 +89,7 @@
 \makenomenclature
 \renewcommand{\nomname}{Notation}
 \renewcommand{\nompreamble}{This section provides a concise reference describing the notation used throughout
-this dissertation.}
+this thesis.}
 \usepackage{etoolbox}
 \renewcommand\nomgroup[1]{%
   \item[\bfseries
@@ -223,10 +244,14 @@ this dissertation.}
 %\setstretch{1.2}
 %\selectfont
 
-\begin {document}
+\begin{document}
+\quickwordcount{main}
+\quickcharcount{main}
+\frontmatter
 % -------------------------- Front page -----------------------
 \begin{titlepage}
-\clearpage
+%\clearpage
+\thispagestyle{empty}
 %% temporary titles
 \newgeometry{top=0cm, bottom=0cm, outer=2cm, inner=2cm}
 % command to provide stretchy vertical space in proportion
@@ -235,7 +260,7 @@ this dissertation.}
 \newcommand\nbstretchyspace{\spaceskip0.5em plus 0.25em minus 0.25em}
 % % To improve spacing on titlepages
 \newcommand{\nbtitlestretch}{\spaceskip0.6em}
-\thispagestyle{empty}
+
 \begin{center}
 \begin{figure}
 \begin{center}
@@ -251,12 +276,12 @@ this dissertation.}
 	
 	THEORY AND APPLICATIONS\\
 	\footnotesize BY\\
-	\footnotesize MAGNUS RAABO ANDERSEN (XYZ) \& ULRIK ROED-SØRENSEN (111931)\\[0.5em]
+	\footnotesize MAGNUS RAABO ANDERSEN (110307) \& ULRIK ROED-SØRENSEN (111931)\\[0.5em]
 	\footnotesize SUPERVISOR: PETER DALGAARD
 	
 	\nbvspace[1]
 	
-	\includegraphics[width=3in]{pics/neural_network.png}
+	\includegraphics[width=4in]{pics/neural_network.png}
 	\nbvspace[1]
 	%\normalsize
 	
@@ -264,47 +289,54 @@ this dissertation.}
 	COPENHAGEN BUSINESS SCHOOL --- CAND.MERC.(MAT.)\\
     \nbvspace[1]
     DATE OF SUBMISSION: MAY 17 2021\\
-    NUMBER OF PAGES: $\infty$ (-1000)
+    NUMBER OF PAGES: 103 ($155732 \textnormal{ characters with spaces}$)
 	
 	\nbvspace[1]
 \end{center}
 \end{titlepage}
 % --------------------------- Main document -------------------
-
 \thispagestyle{empty}
+
+
 \begin{center}
     \Large
     \textbf{Abstract}
 \end{center}
 \vspace{0.9cm}
-THIS THESIS bla bla.. 
+This thesis examines Bayesian inference in neural networks with Markov chain Monte Carlo sampling for performing regression and classification, and how this is different from using non-Bayesian feedforward neural networks. Initially basic machine learning theory for supervised learning algorithms is outlined. This theory is subsequently used for examining how neural networks work, and how they can be trained and regularized. This provides the fundamentals for introducing Bayesian inference and how it can be used for neural networks. The Markov chain Monte Carlo based Bayesian neural networks will be the focal point for this analysis, and we examine the most popular sampling methods for these, while only covering the fundamentals on the choice of prior distributions. Through implementation of different neural networks and Bayesian neural networks we illustrate and evaluate how these perform when predicting house prices using regression and predicting probabilities for default of credit card clients for binary classification.
 \\
 \\
-\keywords{Machine Learning, Neural Networks, Bayesian Neural Network, Deep Learning, TensorFlow, Markov Chain Monte Carlo, Python, Computational Statstics, Hamiltonian Monte Carlo, No-U-Turn Sampler, Bayesian Inference, Mathematics of Computing, Probability and Statistics, Bayesian Deep Learning, Stochastic Programming, PyMC3.}
-\frontmatter
+\keywords{Machine Learning, Neural Networks, Bayesian Neural Network, Deep Learning, TensorFlow, Markov Chain Monte Carlo, Python, Computational Statistics, Hamiltonian Monte Carlo, No-U-Turn Sampler, Bayesian Inference, Mathematics of Computing, Probability and Statistics, Bayesian Deep Learning, Stochastic Neural Network, PyMC3.}
+
+\clearpage
 \thispagestyle{empty}
 \begin{center}
     \Large
-    \textbf{Resume}
+    \textbf{Resumé}
 \end{center}
 \vspace{0.9cm}
-Denne afhandling omhandler bla bla..
+Denne afhandling undersøger Bayesiansk-inferens i neurale netværk med Markov-kæde Monte Carlo-sampling til udførelse af regression og klassifikation, og hvordan dette er forskelligt fra at bruge ikke-Bayesianske feedforward neurale netværk. Først beskrives grundlæggende machine learning teori for supervised læringsalgoritmer. Denne teori bruges efterfølgende til at undersøge, hvordan neurale netværk fungerer, og hvordan de kan trænes og regulariseres. Dette giver de grundlæggende forudsætninger for introduktion af Bayesiansk-inferens i neurale netværk. Markov-kæde Monte Carlo-baserede Bayesianske neurale netværk vil være omdrejningspunktet for denne analyse, og vi undersøger de mest populære sampling-metoder indenfor denne teori, mens der kun dækkes den grundlæggende teori om valget af prior fordelinger. Gennem implementering af forskellige neurale netværk og Bayesianske neurale netværk illustrerer og vurderer vi, hvordan disse fungerer ved prædiktion af huspriser ved hjælp af regression og prædiktion af sandsynligheder for misligholdt gæld af kreditkortklienter til binær klassifikation.
 \\
 \\
-\keywords{Machine Learning, Neural Networks, Bayesian Neural Network, Deep Learning, TensorFlow, Markov Chain Monte Carlo, Python, Computational Statstics, Hamiltonian Monte Carlo, No-U-Turn Sampler, Bayesian Inference, Mathematics of Computing, Probability and Statistics, Bayesian Deep Learning, Stochastic Programming, PyMC3.}
-\frontmatter
+\nogleord{Machine Learning, Neural Networks, Bayesian Neural Network, Deep Learning, TensorFlow, Markov Chain Monte Carlo, Python, Computational Statistics, Hamiltonian Monte Carlo, No-U-Turn Sampler, Bayesian Inference, Mathematics of Computing, Probability and Statistics, Bayesian Deep Learning, Stochastic Neural Network, PyMC3.}
 
-\section*{Acknowledgements}
+\clearpage
+% Har rykket Acknowledgements ind midt på siden ligesom i en bog
 \thispagestyle{empty}
-Thanks to Peter Dalgaard. \\
-Thanks to Eric J. Ma.\\
-Thank to Rasmus Nielesen kollegie for a nice ping pong table.\\
-Thanks to Caroline Enersen for very træstammer.
+\begin{center}
+\section*{Acknowledgements}
+\end{center}
+We owe a special thank you to our supervisor Peter Dalgaard for help and guidance, we are grateful that you have led us in the right direction. Furthermore, we would like to thank Eric J. Ma for increasing our interest in Bayesian neural networks and for being helpful with several questions along the way. We thank Caroline Enersen for providing us with food and sweets. We also thank our families for their love and support. Last but not least we would like to thank Rasmus Nielsen Kollegiet for providing us with a ping pong table for when we needed a break.
+\newpage
+
 
 
 \tableofcontents \thispagestyle{empty} 
+
 \listoffigures \thispagestyle{empty} \addcontentsline{toc}{chapter}{List of Figures}
 \listoftables \thispagestyle{empty} \addcontentsline{toc}{chapter}{List of Tables}
+\listofalgorithms
+\addcontentsline{toc}{chapter}{List of Algorithms}
 \newpage
 \include{nomenclature}
 

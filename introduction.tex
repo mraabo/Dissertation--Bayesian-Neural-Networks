@@ -1,56 +1,57 @@
 \chapter{Introduction}
-\textcolor{red}{IN THIS THESIS BLALBLBLLBLBLBALLBLBS}
-Tjek evt
-\url{https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwiiyu3czKXwAhVkposKHRQzAG4QFjAEegQIAhAD&url=https%3A%2F%2Fosf.io%2Ffcmun%2Fdownload&usg=AOvVaw2gTiUF_IfbUDfBmxbtAaKR}
-
-\clearpage
-\section{Problem} \label{sec:problem}
-This thesis aims to answer the following problem:
+Neural networks have led to a revolution in machine learning, providing solutions to tackle more challenging and complex problems. However neural networks are prone to overfitting, which can negatively affect their generalization capabilities. Neural networks also tend to be overconfident about their predictions, even when they do provide a confidence interval. All of this can be problematic for applications such as medical diagnostics, self driving cars or finance, where wrong predictions can have dramatic outcomes. 
+\\
+\\
+To moderate this risk many approaches have been proposed, most noticeably by the use of stochastic neural networks to estimate the uncertainty of model prediction. The Bayesian paradigm provides a solid framework to analyse and develop these learning algorithms. Such Bayesian neural networks have become more attractive in the recent years with the increase in computational power of personal computers and the growing body of research on efficient sampling algorithms. One branch of such algorithms is the Markov chain Monte Carlo sampling methods, which provide clever ways of sampling to reduce computational cost. Also a growing number of programming languages and software packages, such as Stan, TensorFlow Probability and PyMC3, support Bayesian statistical analysis. 
+\\
+\\
+Another factor that makes Bayesian neural networks interesting is that they allow us to interpret predictions in terms of probability distributions, which traditional approaches do not. Further it provides a principled mechanism for practitioners to build on previous knowledge by incorporating relevant prior information into their analysis. This can be crucial for tasks with small sample sizes, since the prior information regularize results, reducing the chances of poor generalization capabilities, which is common in cases with a relatively small sample size. 
+\section{Problem Statement} \label{sec:problem}
+This thesis aims to answer the following problem statement:
 \begin{center}
-    \textit{How do Markov chain Monte Carlo based Bayesian neural network perform regression and classification tasks and how is this different from non-Bayesian feedforward neural networks?}
+    \textit{How can Markov chain Monte Carlo based Bayesian neural networks be used to perform regression and classification tasks and how is this different from using non-Bayesian feedforward neural networks?}
 \end{center}
 \noindent
-\\
 This is done by answering the following research questions:
 \begin{itemize}
-    \item What is a supervised machine learning algorithm and how does it generally work?
+    \item What is a supervised machine learning algorithm and how does it work?
     \item What is over- and underfitting and how do we prevent this in a supervised machine learning algorithm?
-    \item What is gradient based optimization used for training a supervised machine learning algorithm, and how does the most common methods work?
+    \item How is gradient based optimization used in training a supervised machine learning algorithm?
     \item What is a feedforward neural network and how is it trained and regularized?
     \item What is Bayesian inference and how is it different from frequentist inference?
     \item What is Monte Carlo methods and how do they work?
     \item What is a Bayesian neural network and how does it work?
-    \item What is a Markov chain Monte Carlo and how can we use it to sample?
+    \item What is Markov chain Monte Carlo and how can we use it to sample?
     \item What is Hamiltonian Monte Carlo and how can we use it to sample?
-    \item What are common used extensions of Hamiltonian Monte Carlo and how do they improve sampling?
+    \item What is No-U-Turn Hamiltonian Monte Carlo and how can we use it to sample?
     \item What role do priors play in Bayesian neural networks and how can we choose them properly? 
-    \item How does non-Bayesian and Bayesian neural networks perform when used for predicting house prices in Boston using regression?
-    \item How does non-Bayesian and Bayesian neural networks perform when used for predicting defaults on credit card loans using binary classification?
+    \item How do non-Bayesian and Bayesian neural networks perform when used for predicting house prices in Boston?
+    \item How do non-Bayesian and Bayesian neural networks perform when used for predicting default probabilities on credit card loans?
 \end{itemize}
-\clearpage
 
 \section{Method}
-We approach the questions posed in section \ref{sec:problem} using the positivist paradigm. Positivism is a philosophical theory that states that genuine knowledge exists and is structured in a specific way regardless of ones perspective of it. According to this theory, information is derived from sensory experienced, that is interpreted through reason and logic, which is reflected by our mathematical approach of examining Bayesian- and non-Bayesian neural networks. We evaluate these networks on data, which is in accordance to positivist view on verified data as empirical evidence. 
+We approach the questions posed in section \ref{sec:problem} using the positivist paradigm. Positivism is a philosophical theory that states that genuine knowledge exists and is structured in a specific way regardless of ones perspective of it. According to this theory, information is derived from sensory experienced, that is interpreted through reason and logic, which is reflected by our mathematical approach of examining Bayesian- and non-Bayesian neural networks. We evaluate these neural networks on data, which is in accordance with a positivist view on verified data as empirical evidence. 
 \\
 \\
-This thesis is mainly a theoretical examination of Markov chain Monte Carlo based Bayesian neural networks, with a focus on efficient sampling methods for these, and how they differ from non-Bayesian neural networks. We examine this by first clarifying basic theory for supervised machine learning algorithms, which is a category which neural networks belong. This will cover how to train such and algorithm and how to regularize it to prevent over- and underfitting. Afterwards numerous optimization algorithms used for training a supervised machine learning algorithm is covered. This provides the fundamentals for explaining a feedforward neural network, which is what we do then. We do this by covering it's general structures and various options for designing it. We also cover how it's trained using backpropagation and the previous covered optimization algorithms, and we cover how to do this with regularization techniques like early stopping.
+This thesis is mainly a theoretical examination of Markov chain Monte Carlo based Bayesian neural networks, with a focus on efficient sampling methods for these, and how they differ from non-Bayesian neural networks. We examine this by first clarifying basic machine learning theory that is relevant for neural networks. This will cover how to train such supervised machine learning algorithms and how to regularize them to prevent over- and underfitting. Afterwards we cover numerous optimization algorithms used for training, which provide the foundations for examining Adaptive Moment Estimation (ADAM), that we use in our practical evaluation in a later section. This provides the fundamentals for examining feedforward neural networks. We do this by covering its general structures and various options for designing it. We also cover how it trains using backpropagation combined with the previous covered optimization algorithms, and we cover how to do this with regularization techniques like early stopping.
 \\
 \\
-With neural networks examined we have defined the model to which we take a Bayesian approach in Bayesian neural networks. Such networks are covered by first examining the difference in Bayesian and Frequentist (read non-Bayesian) learning. Then we examine Monte Carlo methods, which are often used in Bayesian inference models.
+With neural networks examined we have defined the model to which we take a Bayesian approach in Bayesian neural networks. Such networks are covered by first examining the difference in Bayesian and frequentist (read non-Bayesian) learning. Then we examine Monte Carlo methods, which are often used in Bayesian inference models.
 \\
 \\
-We then illustrate a simple Bayesian neural network, which we constructed to show how a such a network works, and to show the motivation for introducing more sophisticated sampling techniques when sampling from such networks. This naturally leads to an examination of Markov chain Monte Carlo methods, which provides the basics for such sampling methods. We use this knowledge to examine the Hamiltonian Monte Carlo method and the extensions of this in the pursuit of the most efficient sampling method for Bayesian neural networks. 
+We then construct a simple Bayesian neural network, to illustrate how such a network works, and to show the motivation for introducing more sophisticated sampling techniques when sampling from such networks. This naturally leads to an examination of Markov chain Monte Carlo methods, which provides the basics for such sampling methods. We use this knowledge to examine the Hamiltonian Monte Carlo method and the extensions of this in the pursuit of the most efficient sampling method for Bayesian neural networks. This pursuit ends with the No-U-Turn Hamiltonian Monte Carlo, which we use in our practical evaluation of Bayesian neural networks in a later section.
 \\
 \\
-Afterwards we examine the consequence of choosing a prior and how to do so. As such choices often depend on the specific task, so we don't go into much detail. Instead we examine various general approaches and points to literature that supports these approaches. Finally we evaluate the Bayesian and non-Bayesian neural networks on real data. First a dataset for which we aim to predict house prices in Boston using regression and next a dataset on credit card defaults, where we try to predict defaults or non-defaults using binary classification. 
+Afterwards we examine the effect of prior choice and only briefly how to choose priors, as such choices often depend on the specific task and data. Instead we examine various general approaches and point to literature that supports these approaches. Finally we evaluate the Bayesian and non-Bayesian neural networks on real data. First a dataset for which we aim to predict house prices in Boston using regression and next a dataset on credit card defaults, where we try to predict defaults or non-defaults using binary classification. 
 
 
-\section{Research delimitation}
-To have a focused approach for answering our problem statement in section \ref{sec:problem}, we choose to not elaborate on certain subjects, as we deem them out of scope or answering this appropriately. As we focus on Markov chain Monte Carlo based Bayesian neural networks we don't examine other methods for using Bayesian inference in neural networks such as methods based on variational inference. We also refrain from examining too thoroughly the choice of priors, and we only cover the consequences of the choice and the most general methods, since the method of choosing a prior often depends on the data, the task and the researches prior knowledge of such. 
+\section{Research Delimitation}
+To have a focused approach for answering our problem statement in section \ref{sec:problem}, we choose not to elaborate on certain subjects, as we deem them out of scope for answering the problem statement appropriately. As we focus on Markov chain Monte Carlo based Bayesian neural networks, we do not examine other methods for using Bayesian inference in neural networks such as methods based on variational inference. We also refrain from examining the choice of priors too thoroughly, and we only cover the consequences of the choice and the most general methods, since the method of choosing a prior often depends on the data, the task and the researches prior knowledge of such. 
 \\
 \\
-Different regularization methods \& other elaborate theory on non-bayesian neural networks \\
-Markov Chains \\
+Non-Bayesian neural networks are examined to the extent needed in order to provide fundamental knowledge to the model for which we use Bayesian inference and to illustrate the most important differences. These differences are important to illustrate pros and cons of using the Bayesian approach to these networks. This means that we examine the most basic neural networks called feedforward neural networks and do not go into more sophisticated architecture like recurrent or convolutional neural networks. We also limit our examination to the most popular activation functions and training procedures for these networks. 
+\\
+\\
 
 
 
