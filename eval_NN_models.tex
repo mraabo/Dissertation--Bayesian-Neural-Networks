@@ -7,7 +7,7 @@ All models are implemented in the programming language Python and the code can b
 \\
 In section \ref{sec:Boston_housing} we examine the median prices on houses in specific areas of Boston based on a number of features shown in table \ref{tab:Boston_Housing}. We aim to predict unknown median prices based on these features using regression. Section \ref{sec:credit_default} examines defaulting payments on credit card clients in Taiwan. Our objective is in this case to predict the probability of defaults and describe how these can be used for classifying whether a client will default or not.
 
-\section{Predicting House Prices in Boston} \label{sec:Boston_housing}
+\section{Predicting House Prices in Boston}\label{sec:Boston_housing}
 The Boston housing data was originally introduced by \cite{HARRISON197881}, who investigated the effect of air pollution on house prices.
 The dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Massachusetts. The sample contains 506 examples, where each example represents a unique area and has 14 features, which are shown in table \ref{tab:Boston_Housing}. In this section we examine how to use the theory presented in the previous chapters for using non-Bayesian and Bayesian neural networks to predict the median value of owner-occupied homes in thousands.  
 \\
@@ -51,19 +51,19 @@ medv              &  Median value of owner-occupied homes in $1000s$            
 
 
 \subsection{Regression with Neural Networks}\label{sec:regre_w_NN}
-We perform regression with the neural networks listed in table \ref{tab:Boston_NN_performance}. All of these are performed using MSE as loss function, the ReLU function from equation \ref{eq:relu} as activation function on every hidden layer and no activation function for the output layer. All of the networks have 10 neurons in each hidden layer and train with 300 epochs using ADAM described in section \ref{sec:ADAM}. We have selected these settings as they were found to provide acceptable results after experimenting with several other options. We reuse these settings for all the neural networks to make them more suitable for comparison. 
+We perform regression with the neural networks listed in table \ref{tab:Boston_NN_performance}. All of these are implemented using MSE as loss function, the ReLU function from equation \ref{eq:relu} as activation function on every hidden layer and no activation function for the output layer. All of the networks have 10 neurons in each hidden layer and are trained with 300 epochs using ADAM described in section \ref{sec:ADAM}. We have selected these settings as they were found to provide acceptable results after experimenting with several other options. We reuse these settings for all the neural networks to make them more suitable for comparison. 
 \\
 \\
 The training and validation loss for each training epoch is shown for the networks in figure \ref{fig:Boston_NN_nohidden_wd_loss}, figure \ref{fig:Boston_NN_1hidden_wd_loss} and figure \ref{fig:Boston_NN_1hidden_noreg_loss}. These figures show that the validation loss is almost always lower than our training loss for all of the networks, which might indicate that neither of the models overfit, but might also be due to chance. 
 \noindent
-We examine a network with no hidden layers and weight decay, as this is equal to linear regression with weight decay. We include this to test if a neural network is beneficial compared to the simple approach of using linear regression. We see from table \ref{tab:Boston_NN_performance} that we get a smaller amount of test and train error when using one hidden layer even without regularization, which indicates that using a neural network for this problem is indeed useful.
+We examine a neural network with no hidden layers and weight decay, as this is equal to linear regression with weight decay. We include this to test if a neural network is beneficial compared to the simple approach of using linear regression. We see from table \ref{tab:Boston_NN_performance} that we get a smaller amount of test and train error when using one hidden layer even without regularization, which indicates that using a neural network for this problem is indeed useful.
 \\
 \\
 When we use a neural network with one hidden layer and weight decay we get a slightly smaller test loss and slightly larger train loss, than we did when using one hidden layer and no regularization, indicating that we might have prevented some overfitting by introducing weight decay. 
 \\
 \\
-We also test regularizing the network of one hidden layer by using the method of early stopping, but this gives a slightly larger test loss than the network regularized with weight decay and also slightly larger train loss. However, it should be noted that compared to using no regularization, the early stopping has decreased the test loss and increased train loss, so the method might still have prevented some overfitting.
-Early stopping is, as mentioned in section \ref{sec:early_stopping}, most useful when validation loss begins to increase at some point before ending the training. We see from figure \ref{fig:Boston_NN_1hidden_noreg_loss} that this is not the case, which might explain why early stopping is not as useful as regularizing with weight decay in this case. We examined training periods with more epochs, to see if we might have ended training prematurely, but both validation and training error continued to be around the same level as in epoch 300. 
+We also test regularizing the network of one hidden layer by using the method of early stopping, and see that this gives a slightly smaller test loss and larger train loss than the network regularized with weight decay. So early stopping might have prevented overfitting better than weight decay.
+Early stopping is, as mentioned in section \ref{sec:early_stopping}, most useful when validation loss begins to increase at some point before ending the training. We see from figure \ref{fig:Boston_NN_1hidden_noreg_loss} that this is not the case, but that the validation loss begins to oscillate slightly more after the stopping epoch. If test loss had the same behavior then this might explain why early stopping attained a smaller test loss than weight decay. We examined training periods with more epochs, to see if validation loss would begin to increase at some later point, but both validation and training error continued to be around the same level as in epoch 300. 
 \begin{table}[h!]
 \caption{Performance measurement for neural network models on Boston Housing data. Early stopping ran 255 epochs with patience 10 and $\delta_{\text{min}}=0.1$. For weight decay on all networks we select $\alpha = 0.3$ as the regularization constant. The Python code used to implement these neural networks can be seen in appendix \ref{app:Boston_NN}}
 \label{tab:Boston_NN_performance}
@@ -84,7 +84,7 @@ Early stopping is, as mentioned in section \ref{sec:early_stopping}, most useful
 \end{table}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{pics/figure_Boston_NN_nohidden_wd_loss.pdf}
+    \includegraphics[width=0.95\textwidth]{pics/figure_Boston_NN_nohidden_wd_loss.pdf}
     \caption{Loss on training and validation set during training epochs for the neural network with no hidden layers weight decay.}
     \label{fig:Boston_NN_nohidden_wd_loss}
 \end{figure}
@@ -108,7 +108,7 @@ Early stopping is, as mentioned in section \ref{sec:early_stopping}, most useful
 \subsection{Regression with Bayesian Neural
 Networks}\label{subsec:regression_w_bnn}
 We perform regression with the Bayesian neural networks listed in table \ref{tab:Boston_BNN_performance}. All of these networks are implemented with a Gaussian likelihood with mean equal to the network output and standard deviation $\sigma$ equal to 1. We have chosen to run three kinds of BNNs. First a BNN with no hidden layers which corresponds to Bayesian linear regression. Then a BNN with one hidden layer, where we follow the example of \cite{mackay1991} and \cite{MacKay1992} and choose a Gaussian prior on the parameter weights, which we choose more specifically to be $\mathcal{N}(0,0.1)$ . Lastly a hierarchical BNN with one hidden layer, with a $\mathcal{N}(\mu,\sigma)$ prior for the network weights. The parameter $\mu$ is chosen to follow a $\text{Cauchy}(\alpha,\beta)$ distribution and the standard deviation $\sigma$ follows a $\text{Half-Normal}(\nu)$ distribution in order to avoid negative values. The hyper-prior distributions are parametric and therefore require that we specify the hyperparameters for these.
-After experimenting with different choices of parameters for the hyper-prior, we choose $\alpha=0$, $\beta=1$ and $\nu=1$. All BNN models have 10 hidden neurons for ease of comparison and in order to evaluate on the same models as in section \ref{sec:regre_w_NN} but with a Bayesian approach. \\
+After experimenting with different choices of parameters for the hyper-prior, we choose $\alpha=0$, $\beta=1$ and $\nu=1$. All BNN models have 10 hidden neurons and use ReLU in the hidden layer for ease of comparison, and in order to evaluate on the same models as in section \ref{sec:regre_w_NN} but with a Bayesian approach. \\
 \\
 We sample from the posterior distribution of the model parameters using the NUTS algorithm examined in section \ref{sec:nuts}.
 We sample from three Markov Chains in parallel to get more independent samples, as described in section \ref{sec:MCMC}, where we for each chain draw $3000$ samples from the posterior distribution. A burn-in phase of $1000$ has been chosen for each chain. For the dual averaging algorithm we chose an
@@ -153,15 +153,16 @@ Hierarchical with 1 hidden layer     &      14.135          &  10.869  &  1851.4
 The default of credit card clients dataset contains information collected by a Taiwan bank in 2005, on $30.000$ credit card clients. The data contains 25 variables, which are represented in table \ref{tab:credit_card_features}. Due to the computational complexity of the BNN model, we choose to subsample our dataset, such that it only contains $300$ train examples and $100$ test examples. We also perform the same splits of the data as in section \ref{sec:Boston_housing}, meaning that 30 \% of the data are contained in a test set, and the remaining data are afterwards split into 70 \% training data and 30 \% validation data. The data are shuffled before splitting, to prevent that it should be sorted in an undesired way.
 \\
 \\
-The default of credit card clients dataset has earlier been used by \cite{Yeh2009TheCO} for predicting the probability of default for customers in Taiwan. The objective for our analysis is the same, to predict the probability of default on next months payment. This probability can then be used to predict defaults and expected losses. A predictive model, that can predict the default probability of the next credit card payment, could be very useful for a banks risk management unit in order to detect which customers should be allowed to own a credit card and which should be denied. 
+The default of credit card clients dataset has earlier been used by \cite{Yeh2009TheCO} for predicting the probability of default for customers in Taiwan. The objective for our analysis is the same, to predict the probability of default on next months payment. This probability can then be used to predict defaults and expected losses. Since we are predicting a probability, all models will be using the cross-entropy loss from equation \ref{eq:cross_entr}. A predictive model, that can predict the default probability of the next credit card payment, could be very useful for a banks risk management unit in order to detect which customers should be allowed to own a credit card and which should be denied. 
 \\
 \\
 The data does not contain an equal fraction of the two classes, since examples with the true label of default only constitutes $22.12\%$. Such a problem is often referred to as a class imbalance problem in binary classification and has been examined a lot through the years. \cite{imbalane_danquah2020} suggest to use methods such as oversampling and undersampling for imbalanced class problems, but this will not be performed as we simply wish to evaluate the networks performance on classification. We simply note that a model can easily get an accuracy score of around $80\%$ by just predicting the majority class for all examples without necessarily learning any patterns. 
 
 
 
-\begin{table}\label{tab:credit_card_features}
+\begin{table}
 \caption{Table of features in credit card default data. Data contains 30.000 examples each with 25 features. Data can be downloaded on:\\ \href{https://archive.ics.uci.edu/ml/datasets.php}{https://archive.ics.uci.edu/ml/datasets.php}}
+\label{tab:credit_card_features}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|l|}
 \hline
@@ -223,21 +224,21 @@ We perform predictions on default probabilities of credit card clients using the
 }
 \end{table}
 \noindent
-We examine a network with no hidden layers and weight decay as this correspond to logistic regression with weight decay to see if a complex model like neural networks are beneficial for this task instead of using simple logistic regression. We see from table \ref{tab:Boston_NN_performance} that no hidden layers i.e. logistic regression has a much larger train and test loss indicating that neural networks are indeed more useful for this task. 
+We examine a network with no hidden layers and weight decay as this correspond to logistic regression with weight decay to see if a complex model like neural networks are beneficial for this task instead of using simple logistic regression. We see from table \ref{tab:credit_NN_performance} that no hidden layers i.e. logistic regression has a much larger train and test loss indicating that neural networks are indeed more useful for this task. 
 \\
 \\
 The neural network with one hidden layer and no regularization gets a smaller train loss but larger test loss than the other one hidden layer networks. This indicates that this network is overfitting, which is also apparent in figure \ref{fig:Credit_NN_1hidden_noreg_loss}. The NN with one hidden layer and weight decay is regularized and provides a larger training loss but smaller test loss indicating that weight decay has mitigated the overfitting. The NN with one hidden layer and early stopping has a slightly larger test loss than the NN with one hidden layer and weight decay, but it shows a small improvement in test loss compared to the network with no regularization and a substantially shorter runtime. This is caused by sudden continually increase in the validation error as shown in figure \ref{fig:Credit_NN_1hidden_noreg_loss}. We see here that early stopping stops training at the exact time, that the validation error starts increasing, and this happens as we chose patience and $\delta_{\text{min}}$ to both be zero. These values were chosen by seeing that the validation error was smoothly increasing when training the network with no regularization. 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics{pics/figure_Credit_NN_1hidden_wd_loss.pdf}
+    \includegraphics[width=\textwidth]{pics/figure_Credit_NN_nohidden_wd_loss.pdf}
     \caption{Loss on training and validation set during training epochs for the neural network with no hidden layers \& weight decay.}
     \label{fig:Credit_NN_nohidden_wd_loss}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{pics/figure_Credit_NN_1hidden_wd_loss.pdf}
+    \includegraphics[width=\textwidth]{pics/figure_Credit_NN_1hidden_wd_loss.pdf}
     \caption{Loss on training and validation set during training epochs for the neural network with 1 hidden layers \& weight decay. }
     \label{fig:Credit_NN_1hidden_wd_loss}
 \end{figure}
@@ -245,13 +246,13 @@ The neural network with one hidden layer and no regularization gets a smaller tr
 
 \begin{figure}
     \centering
-    \includegraphics{pics/figure_Credit_NN_1hidden_noreg_loss.pdf}
+    \includegraphics[width=\textwidth]{pics/figure_Credit_NN_1hidden_noreg_loss.pdf}
     \caption{Loss on training and validation set during training epochs for the neural network with 1 hidden layers \& no regularization. These losses are the same as for the network with 1 hidden layer and early stopping up to the stopping time on epoch 194, indicated by the red vertical line. It can be seen that validation loss is smoothly increasing, which is what made the early stopping algorithm indicate no further improvements in validation loss and stop the training, given the chosen patience of 0 epochs and $\delta_{\text{min}} = 0$.}
     \label{fig:Credit_NN_1hidden_noreg_loss}
 \end{figure}
 \clearpage
 \subsection{Classification with Bayesian Neural Networks}
-In this section we predict default probabilities with the Bayesian neural networks listed in table \ref{tab:credit_BNN_performance}. All these models are implemented with tanh activation function as in the previous section with non-Bayesian neural network. All three models are implemented with a $\operatorname{Bernoulli}\lr{p}$ likelihood, where the bias $p$ is equal to the outputted probability of the network. The BNN with no hidden layers is used for comparing performance of the models to a simple Bayesian logistic regression. The BNN with one hidden layer has a $\mathcal{N}\lr{0,1}$ prior distribution placed on the network parameters. The hierarchical BNN with one hidden layer, has a $\mathcal{N}\lr{\mu,\sigma}$ prior for the network weights, where $\mu$ and $\sigma$ are distributed by a Cauchy and half-normal distribution respectively, as in the regression evaluation. \\
+In this section we predict default probabilities with the Bayesian neural networks listed in table \ref{tab:credit_BNN_performance}. All these models are implemented with tanh activation function for the hidden layers and sigmoid for the output layer, as in the previous section with non-Bayesian neural network. All three models are implemented with a $\operatorname{Bernoulli}\lr{p}$ likelihood, where the bias $p$ is equal to the outputted probability of the network. The BNN with no hidden layers is used for comparing performance of the models to a simple Bayesian logistic regression. The BNN with one hidden layer has a $\mathcal{N}\lr{0,1}$ prior distribution placed on the network parameters. The hierarchical BNN with one hidden layer, has a $\mathcal{N}\lr{\mu,\sigma}$ prior for the network weights, where $\mu$ and $\sigma$ are distributed by a Cauchy and a half-normal distribution respectively, as in the regression evaluation. \\
 \\
 Sampling from the posterior distribution is performed using NUTS with three Markov chains, that runs in parallel, to avoid dependence between samples. For each chain we choose to draw 1500 samples, as running more than 1500 samples per chain resulted in the system exceeded its memory limit. Like before, we use a burn-in phase of 1000 samples for each chain, since we believe the Markov chains must have converged to the posterior by then. For the NUTS-algorithm we choose an
 acceptance probability $\delta$ of $90\%$ and for all other inputs we use the default setting of \texttt{PyMC3}. Predictions are performed by sampling $1500 \times 3$ from the posterior predictive distribution and then take the mean across samples to make a single best guess for the default probability. \\
@@ -276,7 +277,7 @@ In table \ref{tab:credit_BNN_performance} we see that both the BNN with one hidd
 }
 \end{table}
 \noindent
-The benefits of the BNNs are instead found in the produced distribution of the predictive posterior.From a risk management perspective, this could be interesting to get an idea of the uncertainty of the models prediction of default probability. The mean probability of defaulting might be $45 \%$ for two different clients, but the uncertainty in this quantity might be significantly different. This uncertainty can be examined by taking a look at the posterior predictive distribution. In figure \ref{fig:ppc_credit} we have illustrated the posterior predictive distribution generated by the one hidden layer BNN for example 5, 11, 25 and 88 in the test dataset. We see that sometimes the model is quite confident about its predictions as in subfigure (c) and (d), but for other examples the uncertainty, expressed by the standard deviation of the distribution, is quite high like in subfigure (a) and (b). A bank could use this to decide not to give credit to a client if the uncertainty of the default probability is too high, like the client corresponding to subfigure (a) of figure \ref{fig:ppc_credit}.
+The benefits of the BNNs are instead found in the produced distribution of the predictive posterior. From a risk management perspective, this could be interesting to get an idea of the uncertainty of the models prediction of default probability. The mean probability of defaulting might be $45 \%$ for two different clients, but the uncertainty in this quantity might be significantly different. This uncertainty can be examined by taking a look at the posterior predictive distribution. In figure \ref{fig:ppc_credit} we have illustrated the posterior predictive distribution generated by the one hidden layer BNN for example 5, 11, 25 and 88 in the test dataset. We see that sometimes the model is quite confident about its predictions as in subfigure (c) and (d), but for other examples the uncertainty, expressed by the standard deviation of the distribution, is quite high like in subfigure (a) and (b). A bank could use this to decide not to give credit to a client if the uncertainty of the default probability is too high, like the client corresponding to subfigure (a) of figure \ref{fig:ppc_credit}.
 \\
 \\
 In practice one might use the predicted default probabilities, that we use for our evaluation, to predict if the client will default or not. One can do this by classifying the most probable class, which means predicting default if the probability is more than $50 \%$.
