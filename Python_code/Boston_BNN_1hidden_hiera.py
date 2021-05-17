@@ -53,7 +53,6 @@ def construct_bnn(ann_input, ann_output, n_hidden):
         ann_output = pm.Data("ann_output", y_train)
 
     # prior on hyper parameters for weight 1
-        #mu1 = pm.Normal('mu1',shape=(X_train.shape[1], n_hidden), mu=0, sigma=1)
         mu1 = pm.Cauchy('mu1', shape=(
             X_train.shape[1], n_hidden), alpha=0, beta=1)
         sigma1 = pm.HalfNormal('sigma1', shape=(
