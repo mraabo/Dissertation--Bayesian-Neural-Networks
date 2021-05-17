@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import plot_confusion_matrix
 from sklearn.metrics import log_loss
 import seaborn as sns
 start_time = time.time()
@@ -57,15 +55,6 @@ model.evaluate(X_test, y_test)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-# ----------------------------- Heatmap ---------------------------
-
-# Predict class 1 for prob > 0.5 and class 0 otherwise
-y_pred_test = model.predict(X_test) > 0.5
-conf_mat = confusion_matrix(y_test, y_pred_test, normalize='all')
-sns.heatmap(conf_mat, cmap=plt.cm.Blues, annot=True)
-plt.ylabel("True label")
-plt.xlabel("Predicted label")
-plt.show()
 
 # ----------------------------- Overfitting? ---------------------------
 
@@ -87,5 +76,5 @@ plt.axvline(x=194, color='r', label='Early stopping epoch')
 plt.legend()
 plt.grid()
 plt.ylim(0.4, 1)
-plt.savefig('Python_code/figure_Credit_NN_1hidden_noreg_loss.pdf')
+#plt.savefig('Python_code/figure_Credit_NN_1hidden_noreg_loss.pdf')
 plt.show()

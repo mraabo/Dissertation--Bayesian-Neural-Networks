@@ -55,15 +55,7 @@ model.evaluate(X_test, y_test)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-# ----------------------------- Heatmap ---------------------------
 
-# Predict class 1 for prob > 0.5 and class 0 otherwise
-y_pred_test = model.predict(X_test) > 0.5
-conf_mat = confusion_matrix(y_test, y_pred_test, normalize='all')
-sns.heatmap(conf_mat, cmap=plt.cm.Blues, annot=True)
-plt.ylabel("True label")
-plt.xlabel("Predicted label")
-plt.show()
 
 # ----------------------------- Overfitting? ---------------------------
 
@@ -80,7 +72,7 @@ plt.plot(val_loss, label='validation')
 plt.legend()
 plt.grid()
 plt.ylim(0, 1200)
-plt.savefig('Python_code/figure_Credit_NN_nohidden_wd_loss.pdf')
+#plt.savefig('Python_code/figure_Credit_NN_nohidden_wd_loss.pdf')
 plt.show()
 
 
