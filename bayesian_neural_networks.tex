@@ -20,7 +20,7 @@ The ideas behind Bayesian statistics goes back to the 18th century and is named 
 To illustrate the difference between these two approaches in more detail, we will consider an example, which involves a simple coin toss. The uncertainty of the coin showing head or tails can be expressed by the coins probability $p$ of showing heads, which is often referred to as the bias of the coin. Since the properties of the coin is not known beforehand, we do not know the exact probability of showing heads. It could be a fair coin and have the probability $p=\frac{1}{2}$ or it could be an unbalanced coin meaning that $p\neq \frac{1}{2}$.
 \\
 \\
-A Bayesian statistician would express this uncertainty by a probability distribution over possible values of the unknown probability p and would then update the distribution as more observations become known. Frequentists would find the introduction of a distribution over parameter weights as pure nonsense. The frequentist would instead flip the coin a given number of times to form a dataset, and choose some estimator, for the unknown probability $p$ which would be most consistent with the data, an obvious choice would be the relative frequency of heads in the past coin tosses. 
+A Bayesian statistician would express this uncertainty by a probability distribution over possible values of the unknown probability $p$ and would then update the distribution as more observations become known. Frequentists would find the introduction of a distribution over parameter weights as pure nonsense. The frequentist would instead flip the coin a given number of times to form a dataset, and choose some estimator, for the unknown probability $p$ which would be most consistent with the data, an obvious choice would be the relative frequency of heads in the past coin tosses. 
 \\
 \\
 This example illustrates the main differences between these two paradigms and these differences will be highlighted in a more formal way in the subsequent sections.
@@ -29,7 +29,7 @@ This example illustrates the main differences between these two paradigms and th
 
 \subsection{Maximum Likelihood Estimation} \label{sec:mle}
 Let us now consider a dataset $\boldsymbol{X}$, with $n$ examples $\boldsymbol{x}^{(1)}, \boldsymbol{x}^{(2)},\ldots \boldsymbol{x}^{(n)}$ drawn independently from the true but unknown distribution. We let
-$L(\boldsymbol{\theta}\mid \boldsymbol{X})\equiv p(\boldsymbol{X}\mid \boldsymbol{\theta})$, be a parametric family of probability distributions, with parameter $\boldsymbol{\theta}$, which is called the likelihood function. A frequentist is, as described earlier, trying to find an estimate of the true parameter that have generated the data, we call such an estimate a point estimate and denote it by $\hat{\boldsymbol{\theta}}$ to separate it from the true parameter. A point estimate can be viewed as a function of data $\hat{\boldsymbol{\theta}}=g\lr{\boldsymbol{x}^{(1)}, \boldsymbol{x}^{(2)},\ldots \boldsymbol{x}^{(n)}}$ which is drawn from a random process meaning that $\hat{\boldsymbol{\theta}}$ is a random variable.
+$L(\boldsymbol{\theta}\mid \boldsymbol{X})\equiv p(\boldsymbol{X}\mid \boldsymbol{\theta})$ denote the likelihood function, where $p\lr{\boldsymbol{X}\mid\boldsymbol{\theta}}$ is a parametric family of probability distributions with parameter $\boldsymbol{\theta}$. A frequentist is, as described earlier, trying to find an estimate of the true parameter that have generated the data, we call such an estimate a point estimate and denote it by $\hat{\boldsymbol{\theta}}$ to separate it from the true parameter. A point estimate can be viewed as a function of data $\hat{\boldsymbol{\theta}}=g\lr{\boldsymbol{x}^{(1)}, \boldsymbol{x}^{(2)},\ldots \boldsymbol{x}^{(n)}}$ which is drawn from a random process meaning that $\hat{\boldsymbol{\theta}}$ is a random variable.
 In most cases of frequentist inference a point estimate is found by maximizing the likelihood and is called the maximum likelihood estimate (MLE)
 \begin{equation*}
 \begin{split}
@@ -50,7 +50,7 @@ and since the logarithm is a monotonic-increasing function, optimizing the log-l
 When the size of the dataset is small the MLE is often prone to overfitting and regularization methods such as penalized maximum likelihood are applied, see \cite{hastie01statisticallearning}.
 \\
 \\
-We can generalize the maximum likelihood estimator to the case where our goal is to estimate a conditional probability $p\lr{\boldsymbol{y}\mid \boldsymbol{X},\boldsymbol{\theta}}$, in order to predict $\boldsymbol{y}$ given $\boldsymbol{X}$ as described for supervised learning in section \ref{sec:ml_basic}. In this case the conditional maximum likelihood is given by
+We can generalize the maximum likelihood estimator to the case where our goal is to estimate a conditional distribution $p\lr{\boldsymbol{y}\mid \boldsymbol{X},\boldsymbol{\theta}}$, in order to predict $\boldsymbol{y}$ given $\boldsymbol{X}$ as described for supervised learning in section \ref{sec:ml_basic}. In this case the conditional maximum likelihood is given by
 \begin{equation*}
     \hat{\boldsymbol{\theta}}_{\text{MLE}}=\argmax_{\boldsymbol{\theta}}L\lr{\boldsymbol{\theta}\mid \boldsymbol{y}}=\argmax_{\boldsymbol{\theta}} p(\boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{\theta})
 \end{equation*}
@@ -58,7 +58,7 @@ and if assume that the targets $\boldsymbol{y}^{(1)},\ldots \boldsymbol{y}^{(n)}
 \begin{equation*}
     \hat{\boldsymbol{\theta}}_{\text{MLE}}=\underset{\boldsymbol{\theta}}{\arg \max } \sum_{i=1}^{n} \log p\left(\boldsymbol{y}^{(i)} \mid \boldsymbol{x}^{(i)},\boldsymbol{\theta}\right)
 \end{equation*}
-The sum of squared errors in equation \ref{eq:mse} can be justified theoretically by the use of maximum likelihood with a Gaussian likelihood.
+The sum of squared errors, obtained by summing over all datapoints in equation \ref{eq:mse}, can be justified theoretically by the use of maximum likelihood with a Gaussian likelihood.
 To see this, consider a regression model that outputs $f(\boldsymbol{X};\boldsymbol{\theta})=\boldsymbol{\theta}\boldsymbol{X}$, with real-valued targets $\boldsymbol{y}$. If we define the likelihood as the conditional distribution of $\boldsymbol{y}$ as Gaussian with mean given by the regression output $\hat{y}\equiv f(\boldsymbol{X};\boldsymbol{\theta})$ and standard deviation $\sigma$, we can write
 \begin{equation*}
     L(\boldsymbol{\theta}\mid \boldsymbol{y})=\prod_{i=1}^{n} p\left(y^{(i)} \mid \boldsymbol{x}^{(i)} , \boldsymbol{\theta}\right)=\prod_i^n\frac{1}{\sqrt{2\pi\sigma}}\exp\left(-(\hat{y}^{(i)}-y^{(i)})^2/2\sigma^2\right)
@@ -82,7 +82,7 @@ and since $\frac{1}{2 \sigma^{2}}$ does not depend on $\boldsymbol{\theta}$ eith
 
 
 \subsection{Bayesian Learning and Prediction}
-A different approach than the frequentist perspective of the parameter value $\boldsymbol{\theta}$ as fixed but unknown and the point estimator $\hat{\boldsymbol{\theta}}$ as random variable, is taken with Bayesian inference. The Bayesian paradigm considers the dataset as fixed and observable, while the true parameter $\boldsymbol{\theta}$ is unknown, and thus considered a random variable. 
+A different approach than the frequentist perspective of the parameter value $\boldsymbol{\theta}$ as fixed but unknown and the point estimator $\hat{\boldsymbol{\theta}}$ as a random variable, is taken with Bayesian inference. The Bayesian paradigm considers the dataset as fixed and observable, while the true parameter $\boldsymbol{\theta}$ is unknown, and thus considered a random variable. 
 \\
 \\
 In Bayesian statistics, we begin with defining a prior distribution $p(\boldsymbol{\theta})$ over the parameters. This prior distribution expresses our initial view on the parameters, before any data has been observed. When data becomes available, we update our prior distribution to a posterior distribution. The posterior distribution is defined by Bayes' rule
@@ -415,6 +415,19 @@ The algorithm also relies on a stepsize $\varepsilon$ variable, that defines the
 \\
 In figure \ref{fig:HMC_Example} we have illustrated how HMC propose a candidate sample for a bivariate $\mathcal{N}\left(\boldsymbol{0},\boldsymbol{I}\right)$ target distribution. In subfigure (a) and (b) we have chosen a proper value for $\varepsilon$ and $L$ such that the algorithm generates proposals that are appropriately far from the previous ones. In subfigure (c) and (d) we have chosen larger values for $\varepsilon$ and $L$, and we can see that the algorithm starts to loop-back, which results in identical proposals for each iteration and a large proportion of the target distribution will therefore never be visited. In the next section we will look into a modification of the HMC algorithm, so that we can avoid this kind of U-turn behavior.  
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{pics/HMC_Example.png}
+    \caption{A simulation example with HMC for a bivariate Gaussian target distribution with $\boldsymbol{\mu}= \begin{bmatrix}
+            0 & 0
+            \end{bmatrix}$ and covariance matrix
+            $\boldsymbol{\Sigma}= 
+            \begin{bmatrix}
+                1 & 0\\
+                0 & 1   
+            \end{bmatrix}$. Subfigure (a) and (b) shows a HMC simulation example with a proper choice for $\varepsilon$ and $L$, where the target distribution is thoroughly explored. Subfigure (c) and (d) is the same example, modified with a poor choice of values for $\varepsilon$ and $L$, where the target distribution is poorly approximated. This is especially clear on the plots of the marginal distributions where the histograms are far from the plotted correct distribution. The result is the U-Turn effect, which yield an ineffective exploration of the target distribution. The example has been generated with the interactive gallery provided by \cite{feng} \textcopyright MIT.}
+    \label{fig:HMC_Example}
+\end{figure}
 
 \begin{algorithm}\label{alg:HMC}
 \SetAlgoLined
@@ -455,20 +468,9 @@ Set  $\boldsymbol{\rho}^{\text{cand}} \leftarrow \boldsymbol{\rho}
 \end{algorithm}
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{pics/HMC_Example.png}
-    \caption{A simulation example with HMC for a bivariate Gaussian target distribution with $\boldsymbol{\mu}= \begin{bmatrix}
-            0 & 0
-            \end{bmatrix}$ and covariance matrix
-            $\boldsymbol{\Sigma}= 
-            \begin{bmatrix}
-                1 & 0\\
-                0 & 1   
-            \end{bmatrix}$. Subfigure (a) and (b) shows a HMC simulation example with a proper choice for $\varepsilon$ and $L$, where the target distribution is thoroughly explored. Subfigure (c) and (d) is the same example, modified with a poor choice of values for $\varepsilon$ and $L$, where the target distribution is poorly approximated. This is especially clear on the plots of the marginal distributions where the histograms are far from the plotted correct distribution. The result is the U-Turn effect, which yield an ineffective exploration of the target distribution. The example has been generated with the interactive gallery provided by \cite{feng} \textcopyright MIT.}
-    \label{fig:HMC_Example}
-\end{figure}
 
+
+\clearpage
 \subsection{No-U-Turn Hamiltonian Monte Carlo}\label{sec:nuts}
 In this section we present an algorithm introduced by \cite{hoffman2011nouturn} and evaluated by \cite{nishio_arakawa_nouturn}, whose explanation we found more clear and concise. No-U-Turn (NUTS) extends HMC by eliminating the need to specify the trajectory length $L$. This algorithm gets its name by avoiding the possible U-Turning behavior shown in figure \ref{fig:HMC_Example} (c) and (d). This is done by introducing a criterion that tells us when to stop simulating the dynamics to prevent a possible U-turn. The authors define this criterion to be when performing another leapfrog step will no longer increase the distance between the proposed state $\boldsymbol{\theta}^{\text{cand}}$ and the initial value $\boldsymbol{\theta}^{(0)}$. More specifically, they choose a criterion, based on the derivative with respect to time of half the squared distance between the initial parameter $\boldsymbol{\theta}^{(0)}$ and the current state $\boldsymbol{\theta}^{\text{cand}}$, meaning that leapfrog steps are performed until 
 \begin{equation*}
