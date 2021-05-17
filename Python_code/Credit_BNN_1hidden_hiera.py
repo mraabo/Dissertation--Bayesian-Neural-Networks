@@ -135,7 +135,6 @@ ppc2 = pm.sample_posterior_predictive(
     trace, var_names=["output"], model=bayesian_neural_network_NUTS)
 y_test_pred = (ppc2["output"]).mean(axis=0)
 
-# y_test_pred = np.append(y_test_pred,1-y_test_pred,axis=1)
 
 # end time
 toc = time.time()
