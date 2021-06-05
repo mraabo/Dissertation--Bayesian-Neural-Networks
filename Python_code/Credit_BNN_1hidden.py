@@ -143,6 +143,7 @@ for example in example_vec:
              color="lightsteelblue", bins=30)
     plt.xlabel(f"Predicted probability for example {example}", fontsize=13)
     plt.ylabel("Density", fontsize=13)
+    plt.title(f"Standard deviation for example {example}: {np.std(np.array(ppc2['output'])[:, example])}")
     plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
     
