@@ -143,13 +143,15 @@ for example in example_vec:
              color="lightsteelblue", bins=30)
     plt.xlabel(f"Predicted probability for example {example}", fontsize=13)
     plt.ylabel("Density", fontsize=13)
-    plt.title(f"Standard deviation for example {example}: {np.std(np.array(ppc2['output'])[:, example])}")
+    plt.title(
+        f"Standard deviation for example {example}: {np.std(np.array(ppc2['output'])[:, example])}")
     plt.savefig(f'Python_code/Credit_BNN_1hidden_postpred_{example}.pdf')
     plt.show()
-    
-#Printing standard deviation
+
+# Printing standard deviation
 for example in example_vec:
     output_array = np.array(ppc2['output'])
-    print(f"Standard deviation for example {example}: {np.std(output_array[:, example])}")
-    
-
+    print(
+        f"Standard deviation for example {example}: {np.std(output_array[:, example])}")
+    print(
+        f"Mean for example {example}: {np.mean(output_array[:, example])}")
