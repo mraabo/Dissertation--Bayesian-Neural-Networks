@@ -76,6 +76,8 @@ def construct_bnn(ann_input, ann_output, n_hidden, prior_std):
 
 # # ----------------------------- Sampling from posterior ---------------------------
 # Start time
+
+
 tic = time.perf_counter()  # for timing
 bayesian_neural_network_NUTS = construct_bnn(
     X_train, y_train, n_hidden=10, prior_std=.1)
@@ -131,7 +133,7 @@ for example in example_vec:
 
 # Printing standard deviation
 for example in example_vec:
-    output_array = np.array(ppc2['output'])
+    output_array = np.array(ppc2['out'])
     print(
         f"Standard deviation for example {example}: {np.std(output_array[:, example])}")
     print(
